@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-class Home extends StatefulWidget
+class Forums extends StatefulWidget
 {
-  const Home({ super.key });
+  const Forums({ super.key });
   
   @override
-  State<Home> createState() => _HomeState();
+  State<Forums> createState() => _ForumsState();
 }
 
-
-class _HomeState extends State<Home> 
+class _ForumsState extends State<Forums>
 {
   @override
   Widget build(BuildContext context) 
@@ -18,7 +17,7 @@ class _HomeState extends State<Home>
     (
       appBar: AppBar
       (
-        title: const Text('首页'),
+        title: const Text('我的吧'),
         backgroundColor: Theme.of(context).colorScheme.surface
       ),
       backgroundColor: Theme.of(context).colorScheme.surface

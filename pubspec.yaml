@@ -30,7 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  
+  provider: ^6.0.0    # 状态管理
+  webview_flutter: ^4.8.0    # 网页浏览
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

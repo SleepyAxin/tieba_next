@@ -1,26 +1,40 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
-import 'MainPage.dart';    // 引入自定义的首页类
+import 'package:provider/provider.dart';    // 引入状态管理组件库
+import 'package:tieba_next/ThemeManager.dart';    // 引入主题管理类
+import 'package:tieba_next/MainPage.dart';    // 引入自定义的首页类
 
 void main() 
-{
-  runApp(const MyApp());
+{ 
+  runApp
+  (
+    ChangeNotifierProvider
+    (
+      create: (_) => ThemeManager(),
+      child: const MyApp()
+    ),
+  ); 
 }
 
 class MyApp extends StatelessWidget 
 {
   const MyApp({super.key});
+  
   @override
   Widget build(BuildContext context) 
   {
-    return MaterialApp
+    return Consumer<ThemeManager>
     (
-      title: '',
-      theme: ThemeData
-      (
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-        useMaterial3: true,
-      ),
-      home: const MainPage(),
+      builder: (context, themeManager, child)
+      {
+        return MaterialApp
+        (
+          theme: ThemeManager.lightTheme,    // 日间模式
+          darkTheme: ThemeManager.darkTheme,    // 夜间模式
+          // 如果手动切换，则使用设置的主题；如果自动切换，则使用系统主题
+          themeMode: themeManager.isEnabled ? themeManager.currentThemeMode : ThemeMode.system,
+          home: const MainPage()    // 主界面
+        );
+      }
     );
   }
 }
