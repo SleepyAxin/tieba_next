@@ -4,7 +4,8 @@ import 'package:tieba_next/ThemeManager.dart';    // 引入主题管理类
 import 'package:tieba_next/MainPage.dart';    // 引入自定义的首页类
 
 void main() 
-{ 
+{
+  WidgetsFlutterBinding.ensureInitialized(); 
   runApp
   (
     ChangeNotifierProvider
