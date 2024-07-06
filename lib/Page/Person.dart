@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
-import 'package:tieba_next/LoginWeb.dart';    // 引入登录页面
+import 'package:tieba_next/Page/LoginWeb.dart';    // 引入登录页面
 
 class Person extends StatefulWidget
 {
@@ -12,7 +12,7 @@ class Person extends StatefulWidget
 class _PersonState extends State<Person>
 {
   /// 设置按钮样式和内容
-  Material _setElevatedButton(String text, dynamic page, IconData icon)
+  Material _setButton(String text, dynamic page, IconData icon)
   {
     return Material(
       color: Theme.of(context).colorScheme.surface,
@@ -61,10 +61,16 @@ class _PersonState extends State<Person>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: 
           [
-            _setElevatedButton('前往登录', const LoginWeb(), Icons.login),
-            _setElevatedButton('选择主题', const LoginWeb(), Icons.draw),
-            _setElevatedButton('设置', const LoginWeb(), Icons.settings),
-            _setElevatedButton('关于', const LoginWeb(), Icons.info),
+            _setButton('前往登录', const LoginWeb(), Icons.login),
+            // 添加分隔条
+            Divider
+            (
+              color: Colors.grey[100],
+              indent: 16,    // 左边距
+              endIndent: 16    // 右边距
+            ),    
+            _setButton('设置', const LoginWeb(), Icons.settings),
+            _setButton('关于', const LoginWeb(), Icons.info),
           ]
         )
       ),

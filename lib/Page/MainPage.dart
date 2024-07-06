@@ -1,10 +1,10 @@
 // 主界面
 // 包括：首页 进吧 消息 个人信息
 import 'package:flutter/material.dart';    // 引入Material组件库
-import 'package:tieba_next/Home.dart';    // 引入首页
-import 'package:tieba_next/Forums.dart';    // 引入贴吧界面
-import 'package:tieba_next/Message.dart';    // 引入消息
-import 'package:tieba_next/Person.dart';    // 引入个人信息
+import 'package:tieba_next/Page/Home.dart';    // 引入首页
+import 'package:tieba_next/Page/Forums.dart';    // 引入贴吧界面
+import 'package:tieba_next/Page/Message.dart';    // 引入消息
+import 'package:tieba_next/Page/Person.dart';    // 引入个人信息
 
 class MainPage extends StatefulWidget 
 {
@@ -42,8 +42,8 @@ class _MainPageState extends State<MainPage>
         items: const <BottomNavigationBarItem>
         [
           BottomNavigationBarItem( icon: Icon(Icons.home), label: '首页' ),
-          BottomNavigationBarItem( icon: Icon(Icons.podcasts), label: '进吧' ),
-          BottomNavigationBarItem( icon: Icon(Icons.message), label: '消息'),
+          BottomNavigationBarItem( icon: Icon(Icons.forum), label: '进吧' ),
+          BottomNavigationBarItem( icon: Icon(Icons.notifications), label: '消息'),
           BottomNavigationBarItem( icon: Icon(Icons.person), label: '我的')
         ],
         currentIndex: _selectedIndex,

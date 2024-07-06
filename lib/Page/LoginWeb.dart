@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';    // 引入Material组件库
 import "package:flutter_inappwebview/flutter_inappwebview.dart";    // 引入InAppWebView组件库
 
@@ -16,7 +14,6 @@ class LoginWeb extends StatefulWidget
 class _LoginWebState extends State<LoginWeb>
 {
   final _loginURL = 'https://wappass.baidu.com/passport?login&tpl=tb&u=https%3A%2F%2Ftieba.baidu.com%2Findex%2Ftbwise%2Fmine%3Fsource%3Da0-bindex-c-d-e0%26shownew%3D1&source=a0-bindex-c-d-e0#/password_login';
-  late InAppWebViewController _controller;
 
   /// 从Cookie中读取相应属性
   /// 
@@ -75,7 +72,7 @@ class _LoginWebState extends State<LoginWeb>
           (
             // 载入登录网站
             initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(_loginURL))),
-            onWebViewCreated: (controller) => _controller = controller,
+            // onWebViewCreated: (controller) => _controller = controller,
             onLoadStop: (controller, url) => _handleLogin(url.toString()),
           )
         ],
