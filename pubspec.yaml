@@ -37,6 +37,9 @@ dependencies:
   flutter_inappwebview: ^6.0.0    # 网页浏览
   another_flushbar: ^1.12.30    # 浮动弹窗
   provider: ^6.1.2    # 状态管理
+  shared_preferences: ^2.2.3    # 读写键值对到文件
+  encrypt: ^5.0.3    # 数据的加密和解密
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:

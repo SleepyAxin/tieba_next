@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:tieba_next/Page/LoginWeb.dart';    // 引入登录页面
+import 'package:tieba_next/Page/Settings.dart';    // 引入设置页面
+import 'package:tieba_next/Page/About.dart';    // 引入关于页面
 
 class Person extends StatefulWidget
 {
@@ -69,8 +71,8 @@ class _PersonState extends State<Person>
               indent: 16,    // 左边距
               endIndent: 16    // 右边距
             ),    
-            _setButton('设置', const LoginWeb(), Icons.settings),
-            _setButton('关于', const LoginWeb(), Icons.info),
+            _setButton('设置', const Settings(), Icons.settings),
+            _setButton('关于', const About(), Icons.info),
           ]
         )
       ),

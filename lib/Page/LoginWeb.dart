@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 import "package:flutter_inappwebview/flutter_inappwebview.dart";    // 引入InAppWebView组件库
 
 import 'package:tieba_next/Widget/Widget.dart';    // 引入自定义的组件
+import 'package:tieba_next/Manager/AccountManager.dart';    // 引入用户信息管理器
 
 class LoginWeb extends StatefulWidget 
 {
@@ -41,8 +42,6 @@ class _LoginWebState extends State<LoginWeb>
     // 读取Cookie中的BDUSS和STOKEN
     String bduss = _getCookieValue(cookies, 'BDUSS');
     String stoken = _getCookieValue(cookies, 'STOKEN');
-
-    debugPrint('BDUSS: $bduss, STOKEN: $stoken');
     
     // 如果BDUSS和STOKEN都不为空，则返回上一界面
     if (bduss != '' && stoken != '')
@@ -72,7 +71,6 @@ class _LoginWebState extends State<LoginWeb>
           (
             // 载入登录网站
             initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(_loginURL))),
-            // onWebViewCreated: (controller) => _controller = controller,
             onLoadStop: (controller, url) => _handleLogin(url.toString()),
           )
         ],

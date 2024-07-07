@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';    // 引入状态管理组件库
-import 'package:tieba_next/Manager/ThemeManager.dart';    // 引入主题管理类
+
+import 'package:tieba_next/Manager/Manager.dart';    // 引入自定义的管理类
 import 'package:tieba_next/Page/MainPage.dart';    // 引入自定义的首页类
 
 void main() 
@@ -10,7 +11,12 @@ void main()
   (
     MultiProvider
     (
-      providers: [ChangeNotifierProvider(create: (_) => ThemeManager())],
+      providers: 
+      [
+        ChangeNotifierProvider(create: (_) => ThemeManager()),
+        ChangeNotifierProvider(create: (_) => SettingManager()),
+        ChangeNotifierProvider(create: (_) => AccountManager())
+      ],
       child: const MyApp(),
     ),
   ); 
