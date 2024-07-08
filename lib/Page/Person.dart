@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
+import 'package:provider/provider.dart';    // 引入状态管理库
+import 'package:tieba_next/Page/Util.dart' as util;    // 引入工具函数
 import 'package:tieba_next/Page/LoginWeb.dart';    // 引入登录页面
 import 'package:tieba_next/Page/Settings.dart';    // 引入设置页面
 import 'package:tieba_next/Page/About.dart';    // 引入关于页面
@@ -14,16 +16,19 @@ class Person extends StatefulWidget
 class _PersonState extends State<Person>
 {
   /// 设置按钮样式和内容
+  /// 
+  /// [text] 按钮文本
+  /// 
+  /// [page] 按钮跳转页面
+  /// 
+  /// [icon] 按钮图标
   Material _setButton(String text, dynamic page, IconData icon)
   {
     return Material(
       color: Theme.of(context).colorScheme.surface,
       child: InkWell
       (
-        onTap: () 
-        {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-        },
+        onTap: () => Navigator.push(context, util.createRoute(page)),
         child: Container
         (
           padding: const EdgeInsets.all(15.0),    // 上下间距

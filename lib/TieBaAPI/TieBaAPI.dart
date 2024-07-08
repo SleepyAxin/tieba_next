@@ -7,8 +7,5 @@ class TieBaAPI
   /// [portrait] - 头像ID
   /// 
   /// [isBig] - 是否是清晰的大头像
-  static String getAvatar(String portrait, bool isBig)
-  {
-    return GetAvatar.avatarUrl(portrait, isBig);
-  }
+  static String getAvatar(String portrait, bool isBig) => GetAvatar.avatarUrl(portrait, isBig);
 }

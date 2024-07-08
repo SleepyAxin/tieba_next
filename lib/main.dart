@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';    // 引入状态管理组件库
 
-import 'package:tieba_next/Manager/Manager.dart';    // 引入自定义的管理类
+import 'package:tieba_next/Manager.dart';    // 引入自定义的管理类
 import 'package:tieba_next/Page/MainPage.dart';    // 引入自定义的首页类
 
 void main() 
 {
-  WidgetsFlutterBinding.ensureInitialized(); 
+  WidgetsFlutterBinding.ensureInitialized();
+  AccountManager().init();    // 初始化用户管理器
   runApp
   (
     MultiProvider
@@ -39,7 +40,8 @@ class MyApp extends StatelessWidget
           darkTheme: ThemeManager.darkTheme,    // 夜间模式
           // 如果手动切换，则使用设置的主题；如果自动切换，则使用系统主题
           themeMode: themeManager.isEnabled ? themeManager.currentThemeMode : ThemeMode.system,
-          home: const MainPage()    // 主界面
+          home: const MainPage(),    // 主界面
+          debugShowCheckedModeBanner: false,    // 隐藏调试标签
         );
       }
     );

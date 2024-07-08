@@ -1,7 +1,7 @@
 import 'package:encrypt/encrypt.dart';    // 引入加密解密库
 
 /// 数据处理 - 加密 解密
-class Data
+class DataHandler
 {
   /// 加密密钥字符串 32位字符长
   static const String _keyString = 'SleepyAxin.SleepyAxin.SleepyAxin';
