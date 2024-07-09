@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import "package:flutter_inappwebview/flutter_inappwebview.dart";    // 引入InAppWebView组件库
+import 'package:provider/provider.dart';
 
-import 'package:tieba_next/Widget/Widget.dart';    // 引入自定义的组件
-import 'package:tieba_next/Manager/AccountManager.dart';    // 引入用户信息管理器
+import 'package:tieba_next/Core.dart';    // 引入核心组件
+import 'package:tieba_next/Widget.dart';    // 引入自定义的组件
+import 'package:tieba_next/Manager.dart';    // 引入用户信息管理器
 
 class LoginWeb extends StatefulWidget 
 {
@@ -21,13 +23,13 @@ class _LoginWebState extends State<LoginWeb>
   /// [cookies] - Cookie列表
   /// 
   /// [name] - Cookie属性名称
-  String _getCookieValue(List<Cookie> cookies, String name)
+  String? _getCookieValue(List<Cookie> cookies, String name)
   {
     for (Cookie cookie in cookies)
     {
       if (cookie.name == name) return cookie.value.toString();
     }
-    return '';
+    return null;
   }
 
   /// 处理登录网站载入完成后的信息
@@ -35,20 +37,27 @@ class _LoginWebState extends State<LoginWeb>
   /// [url] - 载入完成的URL字符串
   void _handleLogin(String url) async
   {
+    final WebUri webURL = WebUri.uri(Uri.parse(url));
     // 初始化Cookie管理器并获取Cookie
     CookieManager cookieManager = CookieManager.instance();
-    List<Cookie> cookies = await cookieManager.getCookies(url: WebUri.uri(Uri.parse(url)));
+    List<Cookie> cookies = await cookieManager.getCookies(url: webURL);
 
     // 读取Cookie中的BDUSS和STOKEN
-    String bduss = _getCookieValue(cookies, 'BDUSS');
-    String stoken = _getCookieValue(cookies, 'STOKEN');
+    String? bduss = _getCookieValue(cookies, 'BDUSS');
+    String? stoken = _getCookieValue(cookies, 'STOKEN');
     
-    // 如果BDUSS和STOKEN都不为空，则返回上一界面
-    if (bduss != '' && stoken != '')
+    // 如果BDUSS和STOKEN都存在，则初始化用户并返回上一界面
+    if (bduss != null && stoken != null)
     {
-      if (mounted) MyFlushBar.show(context, '登录成功，即将跳转');
-      // 延迟2秒
-      await Future.delayed(const Duration(seconds: 2));
+      // 初始化用户信息
+      Account account = Account(bduss: bduss, stoken: stoken);
+      if (mounted) 
+      {
+        Provider.of<AccountManager>(context, listen: false).setAccount(account);
+        MyFlushBar.show(context, '登录成功，即将跳转');
+      }
+      await Future.delayed(const Duration(seconds: 2));    // 延迟2秒
+      await cookieManager.deleteCookies(url: webURL);    // 删除Cookie
       if (mounted) Navigator.pop(context);
     }
   }

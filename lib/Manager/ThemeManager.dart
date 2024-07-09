@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
-import 'package:tieba_next/Core/Theme.dart' as theme;    // 引入主题配置文件
+import 'package:tieba_next/Core/ThemeConfiguration.dart';    // 引入主题配置文件
 
 /// 主题管理器
 class ThemeManager with ChangeNotifier 
@@ -38,10 +38,10 @@ class ThemeManager with ChangeNotifier
   }
 
   /// 获取日间主题
-  static ThemeData get lightTheme => theme.Theme.lightTheme;
+  static ThemeData get lightTheme => ThemeConfiguration.lightTheme;
 
   /// 获取夜间主题
-  static ThemeData get darkTheme => theme.Theme.darkTheme;
+  static ThemeData get darkTheme => ThemeConfiguration.darkTheme;
 
   /// 当前主题是否为夜间
   bool get isDarkMode => _isDarkMode;

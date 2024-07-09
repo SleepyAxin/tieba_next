@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:tieba_next/Core.dart';
 
 /// 用户信息管理器
-class AccountManager with ChangeNotifier
+class AccountManager extends ChangeNotifier
 {
   /// 创建一个静态的私有实例
   static final AccountManager _instance = AccountManager._internal();
@@ -14,7 +14,7 @@ class AccountManager with ChangeNotifier
   factory AccountManager() => _instance;
 
   /// 当前用户（null代表无当前用户）
-  static late Account? _account;
+  static Account? _account;
   /// 存储用户信息的JSON文件路径
   static const String _accountJSONPath = "Account.json";
 

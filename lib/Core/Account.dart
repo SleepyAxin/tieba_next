@@ -2,11 +2,11 @@
 class Account
 {
   /// BDUSS
-  late String bduss; 
+  String? bduss; 
   /// STOKEN
-  late String stoken;
+  String? stoken;
   /// 头像ID
-  late String portrait;
+  String? portrait;
 
   /// 构造函数
   /// 

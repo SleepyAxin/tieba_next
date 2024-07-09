@@ -4,23 +4,10 @@ import 'package:provider/provider.dart';    // 引入状态管理组件库
 import 'package:tieba_next/Manager.dart';    // 引入自定义的管理类
 import 'package:tieba_next/Page/MainPage.dart';    // 引入自定义的首页类
 
-void main() 
+void main() async
 {
   WidgetsFlutterBinding.ensureInitialized();
-  AccountManager().init();    // 初始化用户管理器
-  runApp
-  (
-    MultiProvider
-    (
-      providers: 
-      [
-        ChangeNotifierProvider(create: (_) => ThemeManager()),
-        ChangeNotifierProvider(create: (_) => SettingManager()),
-        ChangeNotifierProvider(create: (_) => AccountManager())
-      ],
-      child: const MyApp(),
-    ),
-  ); 
+  runApp(ChangeNotifierProvider(create: (_) => ThemeManager(), child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget 
