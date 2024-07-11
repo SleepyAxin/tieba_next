@@ -21,20 +21,31 @@ class _MainPageState extends State<MainPage>
 {
   /// 当前选中的页面索引
   int _selectedIndex = 0;
-
+  /// 用于获取Person页面的状态
+  final GlobalKey<PersonState> _personKey = GlobalKey<PersonState>();
   /// 定义主界面四个页面
-  static const List<Widget> _pages = <Widget>[ Home(), Forums(), Message(), Person() ];
 
   /// 底部导航栏的点击事件
-  void _onItemTapped(int index) => setState(() { _selectedIndex = index; });
-
-  _MainPageState()
+  void _onItemTapped(int index)
   {
-    if (mounted) Provider.of<AccountManager>(context, listen: false).init();    // 初始化账户管理器
+    if (index != _selectedIndex)
+    {
+      setState(() { _selectedIndex = index; });
+      return;
+    }
+    // 如果点击的是当前页面，则刷新当前页面
+    switch (_selectedIndex)
+    {
+      case 0: break;
+      case 1: break;
+      case 2: break;
+      case 3: _personKey.currentState?.refresh(); break;
+      default: break;
+    }
   }
 
   @override
-  Widget build(BuildContext context) 
+  Widget build(BuildContext context)
   {
     return Scaffold
     (
@@ -45,7 +56,17 @@ class _MainPageState extends State<MainPage>
           ChangeNotifierProvider(create: (_) => AccountManager()),
           ChangeNotifierProvider(create: (_) => SettingManager())
         ],
-        child: IndexedStack(index: _selectedIndex, children: _pages)
+        child: IndexedStack
+        (
+          index: _selectedIndex, 
+          children: 
+          [ 
+            const Home(), 
+            const Forums(), 
+            const Message(), 
+            Person(key: _personKey) 
+          ]
+        )
       ),
       bottomNavigationBar: BottomNavigationBar
       (

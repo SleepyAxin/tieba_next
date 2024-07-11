@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import "package:flutter_inappwebview/flutter_inappwebview.dart";    // 引入InAppWebView组件库
-import 'package:provider/provider.dart';
 
 import 'package:tieba_next/Core.dart';    // 引入核心组件
 import 'package:tieba_next/Widget.dart';    // 引入自定义的组件
@@ -16,7 +15,8 @@ class LoginWeb extends StatefulWidget
 
 class _LoginWebState extends State<LoginWeb>
 {
-  final _loginURL = 'https://wappass.baidu.com/passport?login&tpl=tb&u=https%3A%2F%2Ftieba.baidu.com%2Findex%2Ftbwise%2Fmine%3Fsource%3Da0-bindex-c-d-e0%26shownew%3D1&source=a0-bindex-c-d-e0#/password_login';
+  /// 登录网站
+  static const String _loginURL = 'https://wappass.baidu.com/passport?login&tpl=tb&u=https%3A%2F%2Ftieba.baidu.com%2Findex%2Ftbwise%2Fmine%3Fsource%3Da0-bindex-c-d-e0%26shownew%3D1&source=a0-bindex-c-d-e0#/password_login';
 
   /// 从Cookie中读取相应属性
   /// 
@@ -35,8 +35,10 @@ class _LoginWebState extends State<LoginWeb>
   /// 处理登录网站载入完成后的信息
   /// 
   /// [url] - 载入完成的URL字符串
-  void _handleLogin(String url) async
+  Future<void> _handleLogin(String url) async
   {
+    if (url.contains(_loginURL)) return;
+    
     final WebUri webURL = WebUri.uri(Uri.parse(url));
     // 初始化Cookie管理器并获取Cookie
     CookieManager cookieManager = CookieManager.instance();
@@ -49,16 +51,14 @@ class _LoginWebState extends State<LoginWeb>
     // 如果BDUSS和STOKEN都存在，则初始化用户并返回上一界面
     if (bduss != null && stoken != null)
     {
-      // 初始化用户信息
-      Account account = Account(bduss: bduss, stoken: stoken);
+      await AccountManager().setAccount(Account(bduss: bduss, stoken: stoken));
+      await AccountManager().updateAccount();
+      await cookieManager.deleteAllCookies();
       if (mounted) 
       {
-        Provider.of<AccountManager>(context, listen: false).setAccount(account);
-        MyFlushBar.show(context, '登录成功，即将跳转');
+        Navigator.pop(context);
+        myFlushBar(context, '登录成功', 1000);
       }
-      await Future.delayed(const Duration(seconds: 2));    // 延迟2秒
-      await cookieManager.deleteCookies(url: webURL);    // 删除Cookie
-      if (mounted) Navigator.pop(context);
     }
   }
 

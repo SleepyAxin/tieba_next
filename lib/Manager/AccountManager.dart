@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:tieba_next/Core.dart';
+import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';    // 引入TieBaAPI
 
 /// 用户信息管理器
 class AccountManager extends ChangeNotifier
@@ -54,11 +55,7 @@ class AccountManager extends ChangeNotifier
   }
 
   /// 初始化用户
-  void init() async
-  {
-    _account = await _load();
-    notifyListeners();
-  }
+  static Future<void> init() async => _account = await _load();
 
   /// 获取当前用户
   Account? get account => _account;
@@ -66,7 +63,7 @@ class AccountManager extends ChangeNotifier
   /// 设置当前用户
   /// 
   /// [account] - 要设置的用户
-  void setAccount(Account account) async
+  Future<void> setAccount(Account account) async
   {
     _account = account;
     await _save();
@@ -76,16 +73,26 @@ class AccountManager extends ChangeNotifier
   /// 更新当前用户
   /// 
   /// [account] - 要更新的用户
-  void updateAccount(Account account) async
+  Future<void> updateAccount() async
   {
-    _account = account;
-    await _remove();
-    await _save();
+    if (_account == null) return;
+    String? bduss = _account?.bduss;
+    String? stoken = _account?.stoken;
+    _account = null;    // 清空当前用户
+    // 更新用户信息
+    Map<String, dynamic>? info = await TieBaAPI.getMyUserInfo(bduss, stoken);
+    _account = Account(bduss: bduss, stoken: stoken);
+    _account?.portrait = info?['data']['user_portrait'] ?? _account?.portrait;
+    _account?.name = info?['data']['user_name_weak'] ?? _account?.name;
+    _account?.username = info?['data']['user_name_weak'] ?? _account?.username;
+    _account?.nickname = info?['data']['show_nickname'] ?? _account?.nickname;
+    await _remove();    // 删除用户信息  
+    await _save();    // 重新保存用户信息
     notifyListeners();
   }
 
   /// 退出当前用户
-  void removeAccount() async
+  Future<void> removeAccount() async
   {
     _account = null;
     await _remove();

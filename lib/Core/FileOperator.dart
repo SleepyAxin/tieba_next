@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:shared_preferences/shared_preferences.dart';    // 引入本地存储库
-import 'package:path_provider/path_provider.dart';
+import 'package:path_provider/path_provider.dart';    // 引入路径库
 
 /// 对数据进行文件的读写操作
 class FileOperator 

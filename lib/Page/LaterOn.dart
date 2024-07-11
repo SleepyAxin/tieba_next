@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-class History extends StatefulWidget
+class LaterOn extends StatefulWidget
 {
-  const History({ super.key });
+  const LaterOn({ super.key });
   
   @override
-  State<History> createState() => _HistoryState();
+  State<LaterOn> createState() => _LaterOnState();
 }
 
-class _HistoryState extends State<History>
+class _LaterOnState extends State<LaterOn>
 {
   @override
   Widget build(BuildContext context) 
@@ -17,7 +17,7 @@ class _HistoryState extends State<History>
     (
       appBar: AppBar
       (
-        title: const Text('浏览历史'),
+        title: const Text('稍后再看'),
         backgroundColor: Theme.of(context).colorScheme.surface
       ),
       backgroundColor: Theme.of(context).colorScheme.surface

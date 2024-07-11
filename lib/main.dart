@@ -7,6 +7,7 @@ import 'package:tieba_next/Page/MainPage.dart';    // 引入自定义的首页�
 void main() async
 {
   WidgetsFlutterBinding.ensureInitialized();
+  //await AccountManager.init();    // 初始化用户管理器
   runApp(ChangeNotifierProvider(create: (_) => ThemeManager(), child: const MyApp()));
 }
 

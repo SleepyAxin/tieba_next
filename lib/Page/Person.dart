@@ -1,27 +1,32 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';    // 引入状态管理库
+import 'package:transparent_image/transparent_image.dart';    // 引入透明图片库
 
-import 'package:tieba_next/Manager.dart';    // 引入用户信息管理器
+import 'package:tieba_next/Manager.dart';              // 引入用户信息管理器
+import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';    // 引入贴吧API
 
 import 'package:tieba_next/Page/Util.dart' as util;    // 引入工具函数
-import 'package:tieba_next/Page/LoginWeb.dart';    // 引入登录页面
-import 'package:tieba_next/Page/User.dart';    // 引入个人资料页面
-import 'package:tieba_next/Page/Forums.dart';    // 引入我的贴吧页面
-import 'package:tieba_next/Page/Favorite.dart';    // 引入收藏页面
-import 'package:tieba_next/Page/History.dart';    // 引入浏览历史页面
-import 'package:tieba_next/Page/Settings.dart';    // 引入设置页面
-import 'package:tieba_next/Page/About.dart';    // 引入关于页面
+import 'package:tieba_next/Page/LoginWeb.dart';        // 引入登录页面
+import 'package:tieba_next/Page/User.dart';            // 引入个人资料页面
+import 'package:tieba_next/Page/Favorite.dart';        // 引入我的收藏页面
+import 'package:tieba_next/Page/LaterOn.dart';         // 引入稍后再看页面
+import 'package:tieba_next/Page/History.dart';         // 引入浏览历史页面
+import 'package:tieba_next/Page/Settings.dart';        // 引入设置页面
+import 'package:tieba_next/Page/About.dart';           // 引入关于页面
 
 class Person extends StatefulWidget
 {
   const Person({ super.key });
   
   @override
-  State<Person> createState() => _PersonState();
+  State<Person> createState() => PersonState();
 }
 
-class _PersonState extends State<Person>
+class PersonState extends State<Person>
 {
+  /// 刷新页面
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+
   /// 设置横向排列功能按钮
   /// 
   /// [text] 按钮文本
@@ -73,7 +78,7 @@ class _PersonState extends State<Person>
       (
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
-        padding: const EdgeInsets.all(10)
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0)
       ),
       child: Column
       (
@@ -113,7 +118,7 @@ class _PersonState extends State<Person>
     (
       builder: (context, accountManager, child)
       {
-        return accountManager.account == null
+        return accountManager.account != null
         // 如果已登录，显示用户信息
         ? Material
         (
@@ -124,31 +129,71 @@ class _PersonState extends State<Person>
             crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
             children: 
             [
-              // 用户头像 信息
-              Row(),
-              // 我的贴子 关注的吧 收藏 浏览历史
+              // 用户头像 信息 主页
               Container
               (
                 padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                child: Material
+                child: Row
+                (
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,       // 两端对齐
+                  crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+                  children: 
+                  [
+                    // 用户头像 信息
+                    Row
+                    (
+                      mainAxisAlignment: MainAxisAlignment.start,       // 向左对齐
+                      crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+                      children: 
+                      [
+                        Container
+                        (
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration
+                          (
+                            color: Theme.of(context).colorScheme.secondary,
+                            borderRadius: BorderRadius.circular(12.0)
+                          ),
+                          child: ClipRRect
+                          (
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: FadeInImage.memoryNetwork
+                            (
+                              placeholder: kTransparentImage,
+                              image: TieBaAPI.getAvatar(accountManager.account?.portrait, false),
+                              fit: BoxFit.contain
+                            )
+                          )
+                        )
+                      ]
+                    ),
+                  ],
+                )
+              ),
+              // 我的贴子 关注的吧 收藏 浏览历史
+              Container
+              (
+                margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                decoration: BoxDecoration
                 (
                   color: Theme.of(context).colorScheme.secondary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Row
-                  (
-                    mainAxisAlignment: MainAxisAlignment.center,       // 中心对齐
-                    crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
-                    children: 
-                    [
-                      _setColumnButton('我的贴子', const User(isMine: true), null),
-                      const SizedBox(width: 8),    // 按钮之间的间距
-                      _setColumnButton('关注的吧', const Forums(), null),
-                      const SizedBox(width: 8),    // 按钮之间的间距
-                      _setColumnButton('我的收藏', const Favorite(), null),
-                      const SizedBox(width: 8),    // 按钮之间的间距
-                      _setColumnButton('浏览历史', const History(), null)
-                    ],
-                  ),
+                  borderRadius: BorderRadius.circular(12.0)
+                ),
+                child: Row
+                (
+                  mainAxisAlignment: MainAxisAlignment.center,       // 中心对齐
+                  crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+                  children: 
+                  [
+                    _setColumnButton('我的贴子', const User(isMine: true), null),
+                    const SizedBox(width: 8),    // 按钮之间的间距
+                    _setColumnButton('我的收藏', const Favorite(), null),
+                    const SizedBox(width: 8),    // 按钮之间的间距
+                    _setColumnButton('稍后再看', const LaterOn(), null),
+                    const SizedBox(width: 8),    // 按钮之间的间距
+                    _setColumnButton('浏览历史', const History(), null)
+                  ],
                 )
               )
             ],
@@ -160,6 +205,10 @@ class _PersonState extends State<Person>
     );
   }
 
+  Future<void> refresh() async => await _refreshIndicatorKey.currentState?.show();
+
+  Future<void> _refresh() async => await AccountManager().updateAccount();
+
   @override
   Widget build(BuildContext context) 
   {
@@ -168,18 +217,30 @@ class _PersonState extends State<Person>
       appBar: AppBar
       (
         title: const Text('我的'),
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface
       ),
-      body: Column
+      body: RefreshIndicator
       (
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: 
-        [
-          _setAccountButton(),   
-          _setRowButton('设置', const Settings(), Icons.settings),
-          _setRowButton('关于', const About(), Icons.info)
-        ]
+        key: _refreshIndicatorKey,
+        onRefresh: _refresh,
+        displacement: 5.0,
+        color: Colors.blue,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: SingleChildScrollView
+        (
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column
+          (
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: 
+            [
+              _setAccountButton(),   
+              _setRowButton('设置', const Settings(), Icons.settings),
+              _setRowButton('关于', const About(), Icons.info)
+            ]
+          )
+        )
       ),
       backgroundColor: Theme.of(context).colorScheme.surface
     );

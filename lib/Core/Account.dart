@@ -7,6 +7,12 @@ class Account
   String? stoken;
   /// 头像ID
   String? portrait;
+  /// 百度账号名
+  String? name;
+  /// 用户名
+  String? username;
+  /// 昵称
+  String? nickname;
 
   /// 构造函数
   /// 

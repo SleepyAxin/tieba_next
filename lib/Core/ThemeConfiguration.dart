@@ -13,7 +13,7 @@ class ThemeConfiguration
       seedColor: Colors.white,    // 用于生成整个色彩方案的种子颜色
       primary: Colors.white,    // 应用的主色
       onPrimary: Colors.black,    // 主要颜色上的文本颜色
-      secondary: Colors.grey[200],    // 辅助颜色
+      secondary: Colors.grey[100],    // 辅助颜色
       surface: Colors.white,    // 应用的背景色
       onSurface: Colors.black,    // 背景上的文本颜色
     ),
