@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';    // 引入状态管理库
 import 'package:transparent_image/transparent_image.dart';    // 引入透明图片库
 
-import 'package:tieba_next/Manager.dart';              // 引入用户信息管理器
-import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';    // 引入贴吧API
+// 引入管理器
+import 'package:tieba_next/Manager/AccountManager.dart';
+import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入贴吧API
 
 import 'package:tieba_next/Page/Util.dart' as util;    // 引入工具函数
 import 'package:tieba_next/Page/LoginWeb.dart';        // 引入登录页面
@@ -105,7 +106,7 @@ class PersonState extends State<Person>
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 12    // 减小
             )
-          ),
+          )
         ]
       )
     );
@@ -130,45 +131,75 @@ class PersonState extends State<Person>
             children: 
             [
               // 用户头像 信息 主页
-              Container
+              GestureDetector
               (
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                child: Row
+                onTap: () => Navigator.push(context, util.createRoute(const User(isMine: true))),
+                child: Container
                 (
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,       // 两端对齐
-                  crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
-                  children: 
-                  [
-                    // 用户头像 信息
-                    Row
-                    (
-                      mainAxisAlignment: MainAxisAlignment.start,       // 向左对齐
-                      crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
-                      children: 
-                      [
-                        Container
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Row
+                  (
+                    mainAxisAlignment: MainAxisAlignment.start,       // 向左对齐
+                    crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+                    children: 
+                    [
+                      // 用户头像
+                      Container
+                      (
+                        width: 60, height: 60,
+                        decoration: BoxDecoration
                         (
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration
+                          color: Theme.of(context).colorScheme.secondary,
+                          borderRadius: BorderRadius.circular(12.0)
+                        ),
+                        child: ClipRRect
+                        (
+                          borderRadius: BorderRadius.circular(12.0),
+                          child: FadeInImage.memoryNetwork
                           (
-                            color: Theme.of(context).colorScheme.secondary,
-                            borderRadius: BorderRadius.circular(12.0)
-                          ),
-                          child: ClipRRect
-                          (
-                            borderRadius: BorderRadius.circular(12.0),
-                            child: FadeInImage.memoryNetwork
-                            (
-                              placeholder: kTransparentImage,
-                              image: TieBaAPI.getAvatar(accountManager.account?.portrait, false),
-                              fit: BoxFit.contain
-                            )
+                            placeholder: kTransparentImage,
+                            image: api.getAvatar(accountManager.account?.portrait, false),
+                            fit: BoxFit.contain
                           )
                         )
-                      ]
-                    ),
-                  ],
+                      ),
+                      // 用户昵称 关注 粉丝
+                      Container
+                      (
+                        height: 60,
+                        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        child: Column
+                        (
+                          crossAxisAlignment: CrossAxisAlignment.start,    // 左端对齐
+                          children: 
+                          [
+                            Text
+                            (
+                              accountManager.account?.nickname ?? '', 
+                              style: TextStyle
+                              (
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Theme.of(context).colorScheme.onSurface
+                              )
+                            ),
+                            const SizedBox(height: 2),
+                            Text
+                            (
+                              '关注 ${accountManager.account?.followNum ?? ''}  '
+                              '粉丝 ${accountManager.account?.fansNum ?? ''}',
+                              style: TextStyle
+                              (
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurface
+                              )
+                            )
+                          ]
+                        )
+                      ),
+                      // 前往个人主页
+                    ]
+                  ),
                 )
               ),
               // 我的贴子 关注的吧 收藏 浏览历史
@@ -186,7 +217,7 @@ class PersonState extends State<Person>
                   crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
                   children: 
                   [
-                    _setColumnButton('我的贴子', const User(isMine: true), null),
+                    _setColumnButton('我的贴子', const User(isMine: true), accountManager.account?.threadNum),
                     const SizedBox(width: 8),    // 按钮之间的间距
                     _setColumnButton('我的收藏', const Favorite(), null),
                     const SizedBox(width: 8),    // 按钮之间的间距
@@ -205,10 +236,11 @@ class PersonState extends State<Person>
     );
   }
 
+  /// 刷新界面 更新账号信息
   Future<void> refresh() async => await _refreshIndicatorKey.currentState?.show();
 
+  /// 更新账号信息
   Future<void> _refresh() async => await AccountManager().updateAccount();
-
   @override
   Widget build(BuildContext context) 
   {

@@ -3,7 +3,10 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';    // 引入状态管理组件库
 
-import 'package:tieba_next/Manager.dart';    // 引入自定义的管理类
+// 引入自定义的管理类
+import 'package:tieba_next/Manager/AccountManager.dart';
+import 'package:tieba_next/Manager/SettingManager.dart';
+
 import 'package:tieba_next/Page/Home.dart';    // 引入首页
 import 'package:tieba_next/Page/Forums.dart';    // 引入贴吧界面
 import 'package:tieba_next/Page/Message.dart';    // 引入消息

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';    // 引入状态管理组件库
 
-import 'package:tieba_next/Manager.dart';    // 引入自定义的管理类
+// 引入自定义的管理类
+import 'package:tieba_next/Manager/AccountManager.dart';
+import 'package:tieba_next/Manager/ThemeManager.dart';
+
 import 'package:tieba_next/Page/MainPage.dart';    // 引入自定义的首页类
 
 void main() async
 {
   WidgetsFlutterBinding.ensureInitialized();
-  //await AccountManager.init();    // 初始化用户管理器
+  await AccountManager().init();    // 初始化账号管理器
+  await AccountManager().updateAccount();    // 更新账号信息
   runApp(ChangeNotifierProvider(create: (_) => ThemeManager(), child: const MyApp()));
 }
 

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
-import 'package:tieba_next/Core.dart';
-import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';    // 引入TieBaAPI
+
+import 'package:tieba_next/Core/Account.dart';
+import 'package:tieba_next/Core/User.dart';
+import 'package:tieba_next/Core/FileOperator.dart';
+import 'package:tieba_next/Core/DataHandler.dart';
+import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
 
 /// 用户信息管理器
 class AccountManager extends ChangeNotifier
@@ -20,12 +24,13 @@ class AccountManager extends ChangeNotifier
   static const String _accountJSONPath = "Account.json";
 
   /// 保存用户信息到JSON文件
-  static Future<void> _save() async
+  static Future<void> _save(Account? account) async
   {
     try 
     {
-      Map<String, dynamic> accountMap = _account!.toMap();
-      await FileOperator.saveJSON(accountMap, _accountJSONPath);
+      String bduss = DataHandler.encrypt(account!.bduss!);
+      String stoken = DataHandler.encrypt(account.stoken!);
+      await FileOperator.saveJSON(Account(bduss, stoken).toMap(), _accountJSONPath);
     }
     catch (error) { debugPrint("保存用户信息失败: $error"); }
   }
@@ -38,7 +43,10 @@ class AccountManager extends ChangeNotifier
     try
     {
       Map<String, dynamic>? accountMap = await FileOperator.loadJSON(_accountJSONPath);
-      return accountMap == null ? null : Account.fromMap(accountMap);
+      if (accountMap == null) return null;
+      String bduss = DataHandler.decrypt(accountMap['bduss']);
+      String stoken = DataHandler.decrypt(accountMap['stoken']);
+      return Account(bduss, stoken);
     }
     catch (error)
     {
@@ -55,7 +63,10 @@ class AccountManager extends ChangeNotifier
   }
 
   /// 初始化用户
-  static Future<void> init() async => _account = await _load();
+  Future<void> init() async
+  {
+    _account = await _load();
+  }
 
   /// 获取当前用户
   Account? get account => _account;
@@ -66,28 +77,20 @@ class AccountManager extends ChangeNotifier
   Future<void> setAccount(Account account) async
   {
     _account = account;
-    await _save();
+    await _save(account);
     notifyListeners();
   }
 
   /// 更新当前用户
-  /// 
-  /// [account] - 要更新的用户
   Future<void> updateAccount() async
   {
     if (_account == null) return;
-    String? bduss = _account?.bduss;
-    String? stoken = _account?.stoken;
-    _account = null;    // 清空当前用户
+
     // 更新用户信息
-    Map<String, dynamic>? info = await TieBaAPI.getMyUserInfo(bduss, stoken);
-    _account = Account(bduss: bduss, stoken: stoken);
-    _account?.portrait = info?['data']['user_portrait'] ?? _account?.portrait;
-    _account?.name = info?['data']['user_name_weak'] ?? _account?.name;
-    _account?.username = info?['data']['user_name_weak'] ?? _account?.username;
-    _account?.nickname = info?['data']['show_nickname'] ?? _account?.nickname;
-    await _remove();    // 删除用户信息  
-    await _save();    // 重新保存用户信息
+    User? user = await api.getMyUserInfo(_account!.bduss, _account!.stoken);
+    if (user == null) return;
+    _account!.copy(user);
+  
     notifyListeners();
   }
 
