@@ -20,6 +20,7 @@ class FileOperator
     try 
     {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await removeMap(key);
       await prefs.setString(key, value);
     }
     catch (error) { debugPrint('文件保存失败: $error'); }
@@ -32,10 +33,8 @@ class FileOperator
   {
     try 
     {
-      // 初始化
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      // 读取数据
-      return prefs.getString(key) ?? '';
+      return prefs.getString(key);
     }
     catch (error)
     {

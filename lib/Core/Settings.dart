@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-/// 主题
-class ThemeConfiguration
+class Settings 
 {
+  // 主题
+
   /// 日间主题
-  static final lightTheme = ThemeData
+  final ThemeData lightTheme = ThemeData
   (
     brightness: Brightness.light,    // 日间模式
     colorScheme: ColorScheme.fromSeed
@@ -19,9 +20,8 @@ class ThemeConfiguration
     ),
     useMaterial3: true    // 使用Material 3组件
   );
-
   /// 夜间主题
-  static final darkTheme = ThemeData
+  final ThemeData darkTheme = ThemeData
   (
     brightness: Brightness.dark,    // 夜间模式
     colorScheme: ColorScheme.fromSeed
@@ -36,4 +36,8 @@ class ThemeConfiguration
     ),
     useMaterial3: true    // 使用Material 3组件
   );
+  /// 是否开启主题手动切换 - 默认：false
+  bool isThemeManual = false;
+  /// 当前主题是否为夜间 - 默认：false
+  bool isDarkTheme = false;
 }

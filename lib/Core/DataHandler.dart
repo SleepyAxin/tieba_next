@@ -3,12 +3,10 @@ import 'package:encrypt/encrypt.dart';    // 引入加密解密库
 /// 数据处理 - 加密 解密
 class DataHandler
 {
-  /// 加密密钥字符串 32位字符长
-  static const String _keyString = 'SleepyAxin.SleepyAxin.SleepyAxin';
   /// 加密密钥
-  static final Key _key = Key.fromUtf8(_keyString);
+  static final Key _key = Key.fromUtf8('SleepyAxin.SleepyAxin.SleepyAxin');
   /// 加密初始化向量
-  static final IV _iv = IV.fromLength(16);
+  static final IV _iv = IV.fromUtf8('...SleepyAxin...');
   /// 加密器
   static final Encrypter _encrypter = Encrypter(AES(_key));
 

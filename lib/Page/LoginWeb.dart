@@ -35,14 +35,13 @@ class _LoginWebState extends State<LoginWeb>
   /// 处理登录网站载入完成后的信息
   /// 
   /// [url] - 载入完成的URL字符串
-  Future<void> _handleLogin(String url) async
+  Future<void> _handleLogin(WebUri? url) async
   {
-    if (url.contains(_loginURL)) return;
+    if (url.toString().contains(_loginURL) || url == null) return;
     
-    final WebUri webURL = WebUri.uri(Uri.parse(url));
     // 初始化Cookie管理器并获取Cookie
     CookieManager cookieManager = CookieManager.instance();
-    List<Cookie> cookies = await cookieManager.getCookies(url: webURL);
+    List<Cookie> cookies = await cookieManager.getCookies(url: url);
 
     // 读取Cookie中的BDUSS和STOKEN
     String? bduss = _getCookieValue(cookies, 'BDUSS');
@@ -79,8 +78,8 @@ class _LoginWebState extends State<LoginWeb>
           InAppWebView
           (
             // 载入登录网站
-            initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(_loginURL))),
-            onLoadStop: (controller, url) => _handleLogin(url.toString()),
+            initialUrlRequest: URLRequest(url: WebUri(_loginURL)),
+            onLoadStop: (controller, url) => _handleLogin(url),
           )
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:tieba_next/Core/DataHandler.dart';
 import 'package:tieba_next/Core/User.dart';
 
 /// 账号信息
@@ -15,13 +16,25 @@ class Account extends User
   /// [stoken] - STOKEN
   Account(this.bduss, this.stoken);
 
-  /// 将账号信息转化为键值对
-  Map<String, dynamic> toMap() => { "BDUSS": bduss, "STOKEN": stoken };
+  /// 将账号信息转化为加密键值对
+  Map<String, dynamic> toEncryptedMap() => 
+  { 
+    "BDUSS": DataHandler.encrypt(bduss!), 
+    "STOKEN": DataHandler.encrypt(stoken!)
+  };
 
-  /// 将键值对转化为账号信息
+  /// 将加密键值对转化为账号信息
   /// 
   /// [map] - 键值对
-  static Account fromMap(Map<String, dynamic> map) => Account(map["BDUSS"], map["STOKEN"]);
+  static Account fromEncryptedMap(Map<String, dynamic> map)
+  {
+    Account account = Account
+    (
+      DataHandler.decrypt(map["BDUSS"]), 
+      DataHandler.decrypt(map["STOKEN"])
+    );
+    return account;
+  }
 
   void copy(User user)
   {

@@ -1,11 +1,10 @@
 // 主界面
 // 包括：首页 进吧 消息 我的
 import 'package:flutter/material.dart';    // 引入Material组件库
-import 'package:provider/provider.dart';    // 引入状态管理组件库
 
 // 引入自定义的管理类
 import 'package:tieba_next/Manager/AccountManager.dart';
-import 'package:tieba_next/Manager/SettingManager.dart';
+// import 'package:tieba_next/Manager/SettingsManager.dart';
 
 import 'package:tieba_next/Page/Home.dart';    // 引入首页
 import 'package:tieba_next/Page/Forums.dart';    // 引入贴吧界面
@@ -47,29 +46,45 @@ class _MainPageState extends State<MainPage>
     }
   }
 
+  /// 初始化数据
+  Future<void> initData() async
+  {
+    await AccountManager().init();    // 初始化账号管理器
+    await AccountManager().updateAccount();    // 更新账号信息
+  }
+
   @override
   Widget build(BuildContext context)
   {
     return Scaffold
     (
-      body: MultiProvider
+      body: FutureBuilder<void>
       (
-        providers: 
-        [
-          ChangeNotifierProvider(create: (_) => AccountManager()),
-          ChangeNotifierProvider(create: (_) => SettingManager())
-        ],
-        child: IndexedStack
-        (
-          index: _selectedIndex, 
-          children: 
-          [ 
-            const Home(), 
-            const Forums(), 
-            const Message(), 
-            Person(key: _personKey) 
-          ]
-        )
+        future: initData(),    // 初始化数据
+        builder: (context, snapshot)
+        {
+          // 数据尚未加载完成，显示加载指示器
+          if (snapshot.connectionState == ConnectionState.waiting) 
+          {
+            return const CircularProgressIndicator();
+          } 
+          // 数据加载失败，显示错误信息
+          else if (snapshot.hasError) 
+          {
+          }
+          // 数据加载完成，显示主界面
+          return IndexedStack
+          (
+            index: _selectedIndex, 
+            children: 
+            [ 
+              const Home(), 
+              const Forums(), 
+              const Message(), 
+              Person(key: _personKey) 
+            ]
+          );
+        }
       ),
       bottomNavigationBar: BottomNavigationBar
       (

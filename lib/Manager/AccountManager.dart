@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/User.dart';
 import 'package:tieba_next/Core/FileOperator.dart';
-import 'package:tieba_next/Core/DataHandler.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
 
 /// 用户信息管理器
@@ -20,33 +19,35 @@ class AccountManager extends ChangeNotifier
 
   /// 当前用户（null代表无当前用户）
   static Account? _account;
-  /// 存储用户信息的JSON文件路径
-  static const String _accountJSONPath = "Account.json";
 
-  /// 保存用户信息到JSON文件
-  static Future<void> _save(Account? account) async
+  /// 保存用户信息到本地
+  static Future<void> _save(Account account) async
   {
     try 
     {
-      String bduss = DataHandler.encrypt(account!.bduss!);
-      String stoken = DataHandler.encrypt(account.stoken!);
-      await FileOperator.saveJSON(Account(bduss, stoken).toMap(), _accountJSONPath);
+      Map<String, dynamic> encryptedMap = account.toEncryptedMap();
+      for (String key in encryptedMap.keys)
+      {
+        await FileOperator.saveMap(key, encryptedMap[key]);
+      }
     }
     catch (error) { debugPrint("保存用户信息失败: $error"); }
   }
 
-  /// 从JSON文件中加载用户信息
+  /// 从本地加载用户信息
   /// 
   /// 如果文件不存在，则返回null
   static Future<Account?> _load() async
   {
     try
     {
-      Map<String, dynamic>? accountMap = await FileOperator.loadJSON(_accountJSONPath);
-      if (accountMap == null) return null;
-      String bduss = DataHandler.decrypt(accountMap['bduss']);
-      String stoken = DataHandler.decrypt(accountMap['stoken']);
-      return Account(bduss, stoken);
+      Map<String, dynamic> map = 
+      {
+        'BDUSS': await FileOperator.loadMap('BDUSS'),
+        'STOKEN': await FileOperator.loadMap('STOKEN')
+      };
+
+      return Account.fromEncryptedMap(map);
     }
     catch (error)
     {
@@ -56,17 +57,20 @@ class AccountManager extends ChangeNotifier
   }
 
   /// 从JSON文件中删除用户信息
-  static Future<void> _remove() async
+  static Future<void> _remove(Account account) async
   {
-    try { await FileOperator.removeJSON(_accountJSONPath); }
+    try 
+    { 
+      for (String key in account.toEncryptedMap().keys)
+      {
+        await FileOperator.removeMap(key);
+      }
+    }
     catch (error) { debugPrint("删除用户信息失败: $error"); }
   }
 
   /// 初始化用户
-  Future<void> init() async
-  {
-    _account = await _load();
-  }
+  Future<void> init() async => _account = await _load();
 
   /// 获取当前用户
   Account? get account => _account;
@@ -74,8 +78,9 @@ class AccountManager extends ChangeNotifier
   /// 设置当前用户
   /// 
   /// [account] - 要设置的用户
-  Future<void> setAccount(Account account) async
+  Future<void> setAccount(Account? account) async
   {
+    if (account == null) return;
     _account = account;
     await _save(account);
     notifyListeners();
@@ -86,7 +91,6 @@ class AccountManager extends ChangeNotifier
   {
     if (_account == null) return;
 
-    // 更新用户信息
     User? user = await api.getMyUserInfo(_account!.bduss, _account!.stoken);
     if (user == null) return;
     _account!.copy(user);
@@ -97,8 +101,9 @@ class AccountManager extends ChangeNotifier
   /// 退出当前用户
   Future<void> removeAccount() async
   {
+    if (_account == null) return;
     _account = null;
-    await _remove();
+    await _remove(_account!);
     notifyListeners();
   }
 }

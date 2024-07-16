@@ -38,7 +38,7 @@ dependencies:
   another_flushbar: ^1.12.30    # 浮动弹窗
   provider: ^6.1.2    # 状态管理
   shared_preferences: ^2.2.3    # 读写键值对到文件
-  encrypt: ^5.0.3    # 数据的加密和解密
+  encrypt: ^5.0.1    # 数据的加密和解密
   http: ^1.2.1    # 网络请求
   path_provider: ^2.1.3    # 存取文件
   transparent_image: ^2.0.1    # 透明占位符图片

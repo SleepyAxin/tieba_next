@@ -2,18 +2,10 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';    // 引入状态管理库
 import 'package:transparent_image/transparent_image.dart';    // 引入透明图片库
 
+import 'package:tieba_next/CreateRoute.dart';    // 引入路由
 // 引入管理器
 import 'package:tieba_next/Manager/AccountManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入贴吧API
-
-import 'package:tieba_next/Page/Util.dart' as util;    // 引入工具函数
-import 'package:tieba_next/Page/LoginWeb.dart';        // 引入登录页面
-import 'package:tieba_next/Page/User.dart';            // 引入个人资料页面
-import 'package:tieba_next/Page/Favorite.dart';        // 引入我的收藏页面
-import 'package:tieba_next/Page/LaterOn.dart';         // 引入稍后再看页面
-import 'package:tieba_next/Page/History.dart';         // 引入浏览历史页面
-import 'package:tieba_next/Page/Settings.dart';        // 引入设置页面
-import 'package:tieba_next/Page/About.dart';           // 引入关于页面
 
 class Person extends StatefulWidget
 {
@@ -32,17 +24,17 @@ class PersonState extends State<Person>
   /// 
   /// [text] 按钮文本
   /// 
-  /// [page] 按钮跳转页面
+  /// [routeName] 按钮跳转路由
   /// 
   /// [icon] 按钮图标
-  Material _setRowButton(String text, dynamic page, IconData icon)
+  Material _setRowButton(String text, Widget page, IconData icon)
   {
     return Material
     (
       color: Theme.of(context).colorScheme.surface,
       child: InkWell
       (
-        onTap: () => Navigator.push(context, util.createRoute(page)),
+        onTap: () => Navigator.push(context, createRoute(page)),
         child: Container
         (
           padding: const EdgeInsets.all(16.0),    // 上下间距
@@ -51,12 +43,7 @@ class PersonState extends State<Person>
           (
             mainAxisAlignment: MainAxisAlignment.start,       // 左端对齐
             crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
-            children: 
-            [
-              Icon(icon, color: Theme.of(context).colorScheme.onSurface),
-              const SizedBox(width: 8),    // 图标和文本之间的间距
-              Text(text, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-            ]
+            children: [ Icon(icon), const SizedBox(width: 8), Text(text) ]
           )
         )
       )
@@ -67,14 +54,14 @@ class PersonState extends State<Person>
   /// 
   /// [text] 按钮文本
   /// 
-  /// [page] 按钮跳转页面
+  /// [routeName] 按钮跳转页面路由
   /// 
   /// [count] 按钮计数数字
-  ElevatedButton _setColumnButton(String text, dynamic page, int? count)
+  ElevatedButton _setColumnButton(String text, Widget page, int? count)
   {
     return ElevatedButton
     (
-      onPressed: () => Navigator.push(context, util.createRoute(page)),
+      onPressed: () => Navigator.push(context, createRoute(page)),
       style: ElevatedButton.styleFrom
       (
         backgroundColor: Colors.transparent,
@@ -126,21 +113,22 @@ class PersonState extends State<Person>
           color: Theme.of(context).colorScheme.surface,
           child: Column
           (
-            mainAxisAlignment: MainAxisAlignment.start,       // 左端对齐
-            crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+            mainAxisAlignment: MainAxisAlignment.start,       
+            crossAxisAlignment: CrossAxisAlignment.center,    
             children: 
             [
               // 用户头像 信息 主页
-              GestureDetector
+              InkWell
               (
-                onTap: () => Navigator.push(context, util.createRoute(const User(isMine: true))),
+                onTap: () => Navigator.push(context, createRoute(const User())),
                 child: Container
                 (
                   padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
                   child: Row
                   (
-                    mainAxisAlignment: MainAxisAlignment.start,       // 向左对齐
-                    crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+                    mainAxisAlignment: MainAxisAlignment.start,       
+                    crossAxisAlignment: CrossAxisAlignment.center,    
                     children: 
                     [
                       // 用户头像
@@ -164,40 +152,58 @@ class PersonState extends State<Person>
                         )
                       ),
                       // 用户昵称 关注 粉丝
-                      Container
+                      Expanded
                       (
-                        height: 60,
-                        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                        child: Column
+                        child: Container
                         (
-                          crossAxisAlignment: CrossAxisAlignment.start,    // 左端对齐
-                          children: 
-                          [
-                            Text
-                            (
-                              accountManager.account?.nickname ?? '', 
-                              style: TextStyle
+                          height: 60,
+                          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          child: Column
+                          (
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: 
+                            [
+                              Text
                               (
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Theme.of(context).colorScheme.onSurface
-                              )
-                            ),
-                            const SizedBox(height: 2),
-                            Text
-                            (
-                              '关注 ${accountManager.account?.followNum ?? ''}  '
-                              '粉丝 ${accountManager.account?.fansNum ?? ''}',
-                              style: TextStyle
+                                accountManager.account?.nickname ?? '', 
+                                style: TextStyle
+                                (
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                )
+                              ),
+                              const SizedBox(height: 2),
+                              Text
                               (
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurface
+                                '关注 ${accountManager.account?.followNum ?? ''}  '
+                                '粉丝 ${accountManager.account?.fansNum ?? ''}',
+                                style: TextStyle
+                                (
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                )
                               )
-                            )
-                          ]
-                        )
+                            ]
+                          )
+                        ),
                       ),
                       // 前往个人主页
+                      const SizedBox
+                      (
+                        height: 60,
+                        child: Row
+                        (
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children:
+                          [
+                            Text('个人主页', style: TextStyle(fontWeight: FontWeight.bold)),
+                            SizedBox(height: 2),
+                            Icon(Icons.keyboard_arrow_right)
+                          ]
+                        ),
+                      )
                     ]
                   ),
                 )
@@ -217,7 +223,7 @@ class PersonState extends State<Person>
                   crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
                   children: 
                   [
-                    _setColumnButton('我的贴子', const User(isMine: true), accountManager.account?.threadNum),
+                    _setColumnButton('我的贴子', const User(), accountManager.account?.threadNum),
                     const SizedBox(width: 8),    // 按钮之间的间距
                     _setColumnButton('我的收藏', const Favorite(), null),
                     const SizedBox(width: 8),    // 按钮之间的间距
@@ -268,8 +274,8 @@ class PersonState extends State<Person>
             children: 
             [
               _setAccountButton(),   
-              _setRowButton('设置', const Settings(), Icons.settings),
-              _setRowButton('关于', const About(), Icons.info)
+              _setRowButton('设置', const Settings(), Icons.settings_outlined),
+              _setRowButton('关于', const About(), Icons.info_outlined)
             ]
           )
         )

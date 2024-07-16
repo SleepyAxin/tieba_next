@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 
 class User extends StatefulWidget
 {
-  final bool isMine;
-
   /// 个人资料页面
   /// 
   /// [isMine] 是否是当前用户
-  const User({ super.key, required this.isMine });
+  const User({ super.key});
   
   @override
   State<User> createState() => _UserState();
