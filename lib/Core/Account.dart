@@ -1,4 +1,4 @@
-import 'package:tieba_next/Core/DataHandler.dart';
+import 'package:tieba_next/Core/Data.dart' as data;
 import 'package:tieba_next/Core/User.dart';
 
 /// 账号信息
@@ -19,8 +19,8 @@ class Account extends User
   /// 将账号信息转化为加密键值对
   Map<String, dynamic> toEncryptedMap() => 
   { 
-    "BDUSS": DataHandler.encrypt(bduss!), 
-    "STOKEN": DataHandler.encrypt(stoken!)
+    "BDUSS": data.encrypt(bduss!), 
+    "STOKEN": data.encrypt(stoken!)
   };
 
   /// 将加密键值对转化为账号信息
@@ -30,8 +30,8 @@ class Account extends User
   {
     Account account = Account
     (
-      DataHandler.decrypt(map["BDUSS"]), 
-      DataHandler.decrypt(map["STOKEN"])
+      data.decrypt(map["BDUSS"]), 
+      data.decrypt(map["STOKEN"])
     );
     return account;
   }

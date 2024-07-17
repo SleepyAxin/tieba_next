@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-import 'package:tieba_next/TieBaAPI/API/GetAvatar.dart';
-import 'package:tieba_next/TieBaAPI/API/GetUserInfo.dart';
-import 'package:tieba_next/TieBaAPI/API/GetTBS.dart';
-import 'package:tieba_next/TieBaAPI/API/GetThreads.dart';
+import 'package:tieba_next/TieBaAPI/API/Avatar.dart';
+import 'package:tieba_next/TieBaAPI/API/UserInfo.dart';
+import 'package:tieba_next/TieBaAPI/API/TBS.dart';
+import 'package:tieba_next/TieBaAPI/API/Threads.dart';
 
 import 'package:tieba_next/Core/User.dart';    // 引入用户类
 
@@ -20,29 +20,19 @@ Future<User?> getMyUserInfo(String? bduss, String? stoken) async
     return null;
   }
 
-  Map<String, dynamic>? basicInfo = await GetUserInfo.mineBasic(bduss, stoken);
-  if (basicInfo == null || basicInfo['no'] != 0)
-  {
-    debugPrint('请求个人基本信息时发生错误');
-    return null;
-  }
-  
-  User user = User();
-  user.name = basicInfo['data']['user_name_weak'];
-  user.username = basicInfo['data']['user_name_show'];
-  user.nickname = basicInfo['data']['show_nickname'];
-  user.portrait = basicInfo['data']['user_portrait'];
-  
-  Map<String, dynamic>? detailInfo = await GetUserInfo.mineDetail(bduss, stoken, 1, 'f');
+  Map<String, dynamic>? detailInfo = await UserInfo.mineDetail(bduss, stoken, 1, 'f');
   if (detailInfo == null || detailInfo['no'] != 0)
   {
     debugPrint('请求个人详细信息时发生错误');
-    return user;
+    return null;
   }
+
+  User user = User();
+  user.name = detailInfo['data']['name'];
+  user.nickname = detailInfo['data']['name_show'];
+  user.portrait = detailInfo['data']['portrait'];
   user.followNum = detailInfo['data']['concern_num'];
   user.fansNum  = detailInfo['data']['fans_num'];
-  user.likeForumNum = detailInfo['data']['like_forum_num'];
-  user.threadNum = detailInfo['data']['post_num'];
   return user;
 }
 
@@ -61,7 +51,7 @@ String getAvatar(String? portrait, bool isBig)
     return invalidURL;
   }
 
-  String imageURL = isBig ? GetAvatar.bigImage(portrait) : GetAvatar.smallImage(portrait);
+  String imageURL = isBig ? Avatar.bigImage(portrait) : Avatar.smallImage(portrait);
   if (imageURL.isNotEmpty) return imageURL;
   debugPrint('头像网址图片无效');    // 头像网址图片无效
   return invalidURL;
@@ -77,10 +67,10 @@ Future<String?> getTBS(String? bduss, String? stoken) async
   if (bduss == null || stoken == null)
   {
     debugPrint('请求TBS时BDUSS或STOKEN不存在，将调用非登录接口');
-    return await GetTBS.withoutLogin();
+    return await TBS.withoutLogin();
   }
 
-  return await GetTBS.withLogin(bduss, stoken);
+  return await TBS.withLogin(bduss, stoken);
 }
 
 /// 获取本人发的帖子
@@ -96,5 +86,5 @@ Future<Map<String, dynamic>?> getMyThreads(String? bduss, String? stoken) async
     return null;
   }
 
-  return await GetThreads.mine(bduss, stoken, 1, 20);
+  return await Threads.mine(bduss, stoken, 1, 20);
 }

@@ -15,23 +15,4 @@ class SettingsManager extends ChangeNotifier
   static final Settings _settings = Settings();
   /// 获取Settings实例
   Settings get settings => _settings;
-
-  /// 设置是否手动切换主题
-  set isThemeManual(bool isThemeManual)
-  {
-    _settings.isThemeManual = isThemeManual;
-    notifyListeners();
-  }
-
-  /// 设置是否为暗色主题
-  set isDarkTheme(bool isDarkTheme)
-  {
-    _settings.isDarkTheme = isDarkTheme;
-    notifyListeners();
-  }
-
-  /// 获取当前主题模式
-  ThemeMode get currentThemeMode => _settings.isThemeManual 
-  ? (_settings.isDarkTheme ? ThemeMode.dark : ThemeMode.light) 
-  : ThemeMode.system;
 }

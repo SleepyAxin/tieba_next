@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import "package:flutter_inappwebview/flutter_inappwebview.dart";    // 引入InAppWebView组件库
 
-import 'package:tieba_next/Core/Account.dart';    // 引入核心组件
+import 'package:tieba_next/Core/Account.dart';    // 引入账户信息类
 import 'package:tieba_next/Widget/MyFlushBar.dart';
-import 'package:tieba_next/Manager/AccountManager.dart';    // 引入用户信息管理器
+import 'package:tieba_next/Core/AccountManager.dart';    // 引入用户信息管理器
 
 class LoginWeb extends StatefulWidget 
 {

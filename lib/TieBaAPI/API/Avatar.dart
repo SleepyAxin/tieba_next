@@ -1,5 +1,5 @@
 /// 获取头像URL
-class GetAvatar
+class Avatar
 {
   /// 小头像图片地址
   static const String _smallAvatarUrl = 'http://himg.bdimg.com/sys/portrait/item/';

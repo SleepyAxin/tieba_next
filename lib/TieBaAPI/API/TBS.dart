@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;    // HTTP请求
 import 'package:tieba_next/TieBaAPI/API/BasicURL.dart';
 
 /// 获取TBS
-class GetTBS
+class TBS
 {
   static const String _url = '$webURL/dc/common/tbs/';
   /// 最新的TBS

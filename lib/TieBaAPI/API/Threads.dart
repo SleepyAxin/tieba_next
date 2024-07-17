@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;    // HTTP请求
 import 'package:tieba_next/TieBaAPI/API/BasicURL.dart';
 
 /// 获取帖子列表
-class GetThreads
+class Threads
 {
   /// 获取本人发的帖子
   /// 

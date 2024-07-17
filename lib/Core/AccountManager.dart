@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 
 import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/User.dart';
-import 'package:tieba_next/Core/FileOperator.dart';
+import 'package:tieba_next/Core/File.dart' as file;
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
 
 /// 用户信息管理器
@@ -28,7 +28,7 @@ class AccountManager extends ChangeNotifier
       Map<String, dynamic> encryptedMap = account.toEncryptedMap();
       for (String key in encryptedMap.keys)
       {
-        await FileOperator.saveMap(key, encryptedMap[key]);
+        await file.saveMap(key, encryptedMap[key]);
       }
     }
     catch (error) { debugPrint("保存用户信息失败: $error"); }
@@ -43,8 +43,8 @@ class AccountManager extends ChangeNotifier
     {
       Map<String, dynamic> map = 
       {
-        'BDUSS': await FileOperator.loadMap('BDUSS'),
-        'STOKEN': await FileOperator.loadMap('STOKEN')
+        'BDUSS': await file.loadMap('BDUSS'),
+        'STOKEN': await file.loadMap('STOKEN')
       };
 
       return Account.fromEncryptedMap(map);
@@ -63,14 +63,14 @@ class AccountManager extends ChangeNotifier
     { 
       for (String key in account.toEncryptedMap().keys)
       {
-        await FileOperator.removeMap(key);
+        await file.removeMap(key);
       }
     }
     catch (error) { debugPrint("删除用户信息失败: $error"); }
   }
 
   /// 初始化用户
-  Future<void> init() async => _account = await _load();
+  static Future<void> init() async => _account = await _load();
 
   /// 获取当前用户
   Account? get account => _account;
