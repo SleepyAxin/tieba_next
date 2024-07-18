@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:http/http.dart' as http;    // HTTP请求
-import 'package:tieba_next/TieBaAPI/API/BasicURL.dart';
+import 'package:tieba_next/TieBaAPI/API/BasicData.dart';
 
 /// 获取TBS
 class TBS
@@ -27,10 +27,6 @@ class TBS
   }
 
   /// 登录状态下获取TBS
-  /// 
-  /// [bduss] 登录百度账号的bduss
-  /// 
-  /// [stoken] 登录百度账号的stoken
   static Future<String?> withLogin(String bduss, String stoken) async
   {
     if (!_check()) return _tbs;

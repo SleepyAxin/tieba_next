@@ -14,14 +14,8 @@ import 'package:tieba_next/Core/Forum.dart';    // 引入贴吧类
 /// [bduss] - BDUSS
 /// 
 /// [stoken] - STOKEN
-Future<User?> getMyUserInfo(String? bduss, String? stoken) async
+Future<User?> getMyUserInfo(String bduss, String stoken) async
 {
-  if (bduss == null || stoken == null)
-  {
-    debugPrint('请求个人信息时BDUSS或STOKEN不存在');
-    return null;
-  }
-
   Map<String, dynamic>? detailInfo = await UserInfo.mineDetail(bduss, stoken, 1, 'f');
   if (detailInfo == null || detailInfo['no'] != 0)
   {
@@ -65,9 +59,9 @@ String getAvatar(String? portrait, bool isBig)
 /// [bduss] - BDUSS
 /// 
 /// [stoken] - STOKEN
-Future<String?> getTBS(String? bduss, String? stoken) async
+Future<String?> getTBS({String bduss = '', String stoken = ''}) async
 {
-  if (bduss == null || stoken == null)
+  if (bduss == '' || stoken == '')
   {
     debugPrint('请求TBS时BDUSS或STOKEN不存在，将调用非登录接口');
     return await TBS.withoutLogin();
@@ -87,14 +81,8 @@ Future<String?> getTBS(String? bduss, String? stoken) async
 /// [pn] 页码 
 /// 
 /// [rn] 每页数量
-Future<List<Forum>?> getMyLikeForums(String? bduss, String? stoken, int st, int pn, int rn) async
+Future<List<Forum>?> getMyLikeForums(String bduss, String stoken, int st, int pn, int rn) async
 {
-  if (bduss == null || stoken == null)
-  {
-    debugPrint('请求个人关注贴吧时BDUSS或STOKEN不存在');
-    return null;
-  }
-
   final Map<String, dynamic>? data = await Forums.mylikes(bduss, stoken, st, pn, rn);
 
   if (data == null || data['errno'] != 0)
@@ -131,13 +119,16 @@ Future<List<Forum>?> getMyLikeForums(String? bduss, String? stoken, int st, int 
 /// [bduss] 登录百度账号的bduss
 /// 
 /// [stoken] 登录百度账号的stoken
-Future<Map<String, dynamic>?> getMyThreads(String? bduss, String? stoken) async
+Future<Map<String, dynamic>?> getMyThreads(String bduss, String stoken) async
 {
-  if (bduss == null || stoken == null)
-  {
-    debugPrint('请求个人发帖信息时BDUSS或STOKEN不存在');
-    return null;
-  }
-
   return await Threads.mine(bduss, stoken, 1, 20);
+}
+
+/// 获取推荐帖子
+/// 
+/// [bduss] BDUSS
+getRecommendThreads(String bduss) async
+{
+  Map<String, dynamic>? data = await Threads.recommend(bduss, 15, 1);
+  debugPrint(data.toString());
 }

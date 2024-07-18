@@ -7,6 +7,8 @@ import 'package:tieba_next/Page/Forums.dart';    // 引入贴吧界面
 import 'package:tieba_next/Page/Message.dart';    // 引入消息
 import 'package:tieba_next/Page/Person.dart';    // 引入我的
 
+import 'package:tieba_next/Core/AccountManager.dart';
+
 class MainPage extends StatefulWidget 
 {
   const MainPage({ super.key });
@@ -19,28 +21,38 @@ class _MainPageState extends State<MainPage>
 {
   /// 当前选中的页面索引
   int _selectedIndex = 0;
-  /// 用于获取进吧页面的状态
-  final GlobalKey<ForumsState> _forumsKey = GlobalKey<ForumsState>();
-  /// 用于获取Person页面的状态
-  final GlobalKey<PersonState> _personKey = GlobalKey<PersonState>();
+  /// 是否第一次点击某页面
+  final List<bool> _isFirstClick = [ false, false, false, true ];
+  /// 用于获取页面的状态
+  final List _key = 
+  [
+    GlobalKey<PersonState>(), GlobalKey<ForumsState>(), 
+    GlobalKey<PersonState>(), GlobalKey<PersonState>()
+  ];
 
   /// 底部导航栏的点击事件
   void _onItemTapped(int index)
   {
+    if (!_isFirstClick[index])
+    {
+      _isFirstClick[index] = true;
+      _key[index].currentState?.refresh();
+    }
+
     if (index != _selectedIndex)
     {
-      setState(() { _selectedIndex = index; });
+      setState(() => _selectedIndex = index);
       return;
     }
     // 如果点击的是当前页面，则刷新当前页面
-    switch (_selectedIndex)
-    {
-      case 0: break;
-      case 1: _forumsKey.currentState?.refresh(); break;
-      case 2: break;
-      case 3: _personKey.currentState?.refresh(); break;
-      default: break;
-    }
+    _key[index].currentState?.refresh();
+  }
+
+  @override
+  void initState() 
+  { 
+    super.initState();
+    AccountManager().updateAccount();
   }
 
   @override
@@ -54,9 +66,9 @@ class _MainPageState extends State<MainPage>
         children: 
         [ 
           const Home(), 
-          Forums(key: _forumsKey), 
+          Forums(key: _key[1]), 
           const Message(), 
-          Person(key: _personKey) 
+          Person(key: _key[3]) 
         ]
       ),
       bottomNavigationBar: BottomNavigationBar

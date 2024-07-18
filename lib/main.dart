@@ -33,7 +33,6 @@ class MyApp extends StatelessWidget
   Future<void> _initData() async
   {
     await AccountManager.init();    // 初始化账号信息
-    AccountManager().updateAccount();    // 初始化时更新账户信息
   }
 
   Consumer<ThemeManager> _showPage(Widget page)

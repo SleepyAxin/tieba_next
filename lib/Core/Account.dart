@@ -5,9 +5,9 @@ import 'package:tieba_next/Core/User.dart';
 class Account extends User
 {
   /// BDUSS
-  String? bduss; 
+  String bduss; 
   /// STOKEN
-  String? stoken;
+  String stoken;
 
   /// 构造函数
   /// 
@@ -19,8 +19,8 @@ class Account extends User
   /// 将账号信息转化为加密键值对
   Map<String, dynamic> toEncryptedMap() => 
   { 
-    "BDUSS": data.encrypt(bduss!), 
-    "STOKEN": data.encrypt(stoken!)
+    "BDUSS": data.encrypt(bduss), 
+    "STOKEN": data.encrypt(stoken)
   };
 
   /// 将加密键值对转化为账号信息

@@ -19,10 +19,4 @@ class User
   int? threadNum;
   /// 回帖数
   int? postNum;
-  /// 收藏帖子数
-  int? favoriteNum;
-  /// 稍后再看数
-  int? laterOnNum;
-  /// 浏览历史数
-  int? historyNum;
 }

@@ -2,16 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:http/http.dart' as http;    // HTTP请求
 
-import 'package:tieba_next/TieBaAPI/API/BasicURL.dart';
+import 'package:tieba_next/TieBaAPI/API/BasicData.dart';
 
 /// 获取帖子列表
 class Threads
 {
   /// 获取本人发的帖子
-  /// 
-  /// [bduss] 登录百度账号的bduss
-  /// 
-  /// [stoken] 登录百度账号的stoken
   static Future<Map<String, dynamic>?> mine(String bduss, String stoken, int pn, int rn) async
   {
     final String url = '$webURL/mg/o/userpost?pn=$pn&rn=$rn&is_thread=1';
@@ -26,6 +22,45 @@ class Threads
     catch (error)
     {
       debugPrint('获取本人发帖信息失败: $error');
+      return null;
+    }
+  }
+
+  /// 获取主页推荐帖
+  static Future<Map<String, dynamic>?> recommend(String bduss, int count, int pn) async
+  {
+    const String url = '$clientURL/c/f/excellent/personalized';
+
+    final Map<String, dynamic> data = 
+    {
+      "BDUSS": bduss,
+      "page_thread_count": count,
+      "pn": pn,
+      "pre_ad_thread_count": 0,
+      "request_time": DateTime.now().millisecondsSinceEpoch,
+      "invoke_source": "",
+      "load_type": 1,
+      "_client_version": clientVersion,
+    };
+
+    try 
+    {
+      final response = await http.post
+      (
+        Uri.parse(url),
+        headers: 
+        {
+          // 'User-Agent': chromeUA,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: jsonEncode(data)
+      );
+      if (response.statusCode == 200) return jsonDecode(response.body);
+      return null;
+    }
+    catch (error)
+    {
+      debugPrint('获取主页推荐帖失败: $error');
       return null;
     }
   }

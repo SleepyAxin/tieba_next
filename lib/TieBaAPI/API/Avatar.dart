@@ -7,12 +7,8 @@ class Avatar
   static const String _bigAvatarUrl = 'https://gss0.baidu.com/7Ls0a8Sm2Q5IlBGlnYG/sys/portraith/item/';
 
   /// 获取缩略头像图片地址字符串
-  /// 
-  /// [portrait] 头像ID
   static String smallImage(String portrait) => _smallAvatarUrl + portrait;
 
   /// 获取清晰头像图片地址字符串
-  /// 
-  /// [portrait] 头像ID
   static String bigImage(String portrait) => _bigAvatarUrl + portrait;
 }

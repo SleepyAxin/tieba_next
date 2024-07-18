@@ -5,7 +5,6 @@ import 'package:transparent_image/transparent_image.dart';    // 引入透明图
 import 'package:tieba_next/Core/Forum.dart';    // 引入吧类
 import 'package:tieba_next/Core/Account.dart';    // 引入用户信息
 import 'package:tieba_next/Core/AccountManager.dart';    // 引入用户信息管理器
-import 'package:tieba_next/Core/ThemeManager.dart';    // 引入主题管理器
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
 
 class Forums extends StatefulWidget
@@ -23,20 +22,17 @@ class ForumsState extends State<Forums>
   /// 刷新页面
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
-  /// 刷新界面 更新关注贴吧
-  Future<void> refresh() async => await _refreshIndicatorKey.currentState?.show();
-
-  /// 更新关注贴吧
+  /// 获得关注或推荐贴吧
   /// 
   /// [account] 用户信息
-  Future<void> _refresh(Account? account) async
+  Future<List<Forum>> _getForums(Account? account) async
   {
-    if (account == null) return;
+    if (account == null) return [];
 
     String? bduss = account.bduss;
     String? stoken = account.stoken;
     int likeForumNum = account.likeForumNum ?? -1;
-    final List<Forum> likeForums = [];
+    final List<Forum> forums = [];
 
     List<Future<List<Forum>?>> futures = [];
     for (int i = 1; i <= likeForumNum / 20 + 1; i++)
@@ -45,9 +41,21 @@ class ForumsState extends State<Forums>
     }
 
     final List<List<Forum>?> results = await Future.wait(futures);
-    for (List<Forum>? data in results) { if (data != null) likeForums.addAll(data); }
+    for (List<Forum>? data in results) { if (data != null) forums.addAll(data); }
 
-    setState(() => _likeForums = likeForums);
+    return forums;
+  }
+
+  /// 刷新界面 更新关注贴吧
+  Future<void> refresh() async => await _refreshIndicatorKey.currentState?.show();
+
+  /// 更新关注贴吧
+  /// 
+  /// [account] 用户信息
+  Future<void> _refresh(Account? account) async
+  {
+    final List<Forum> forums = await _getForums(account);
+    setState(() => _likeForums = forums);
   }
 
   /// 处理过长吧名
@@ -58,11 +66,9 @@ class ForumsState extends State<Forums>
   /// 处理吧热度值为字符串
   /// 
   /// [hotNum] 吧热度值
-  String _handleHotNum(int hotNum)
-  {
-    if (hotNum < 10000) return hotNum.toString();
-    return '${(hotNum / 10000).toStringAsFixed(1)}万';
-  }
+  String _handleHotNum(int hotNum) => hotNum < 10000
+  ? hotNum.toString()
+  : '${(hotNum / 10000).toStringAsFixed(1)}万';
 
   List<Widget> _setForumGrid(List<Forum> forums)
   {
@@ -178,6 +184,30 @@ class ForumsState extends State<Forums>
     return list;
   }
 
+  /// 设置分区域文本
+  /// 
+  /// [text] 文本内容
+  /// 
+  /// [icon] 图标
+  Container _setInfoText(String text, IconData icon)
+  {
+    return Container
+    (
+      padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+      child: Row
+      (
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: 
+        [
+          Icon(icon, size: 16.0),
+          const SizedBox(width: 4.0),
+          Text(text, style: const TextStyle(fontSize: 16))
+        ]
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) 
   {
@@ -192,28 +222,31 @@ class ForumsState extends State<Forums>
       body: Consumer<AccountManager>
       (
         builder: (context, accountManager, child) => RefreshIndicator
-        (
-          key: _refreshIndicatorKey,
-          onRefresh: () => _refresh(accountManager.account),
-          displacement: 5.0,
-          color: Colors.blue,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: ListView
           (
-            children: 
-            [
-              _likeForums.isNotEmpty
-              ? GridView.count
-              (
-                crossAxisCount: 2, childAspectRatio: 3.5,
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-                children: _setForumGrid(_likeForums)
-              )
-              : const Center(child: Text('暂无关注吧'))
-            ],
+            key: _refreshIndicatorKey,
+            onRefresh: () => _refresh(accountManager.account),
+            displacement: 5.0,
+            color: Colors.blue,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: ListView
+            (
+              children: 
+              [
+                accountManager.account != null
+                ? _setInfoText('关注的吧', Icons.forum_outlined)
+                : _setInfoText('推荐关注', Icons.forum_outlined),
+                _likeForums.isNotEmpty 
+                ? GridView.count
+                (
+                  crossAxisCount: 2, childAspectRatio: 3.5,
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+                  children: _setForumGrid(_likeForums)
+                )
+                : const SizedBox()
+              ]
+            )
           )
-        )
       ),
       backgroundColor: Theme.of(context).colorScheme.surface
     );

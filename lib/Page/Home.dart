@@ -19,7 +19,8 @@ class _HomeState extends State<Home>
       appBar: AppBar
       (
         title: const Text('首页'),
-        backgroundColor: Theme.of(context).colorScheme.surface
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        surfaceTintColor: Theme.of(context).colorScheme.surface,
       ),
       backgroundColor: Theme.of(context).colorScheme.surface
     );
