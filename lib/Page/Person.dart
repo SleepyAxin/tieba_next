@@ -71,15 +71,15 @@ class PersonState extends State<Person>
       ),
       child: Column
       (
-        mainAxisAlignment: MainAxisAlignment.center,       // 中心对齐
-        crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: 
         [
           Icon
           (
             icon,
             size: 30,
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.onSecondary,
           ),
           const SizedBox(height: 4),    // 图标和文本之间的间距
           Text
@@ -87,7 +87,7 @@ class PersonState extends State<Person>
             text, 
             style: TextStyle
             (
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).colorScheme.onSecondary,
               fontSize: 12    // 减小
             )
           )
@@ -138,7 +138,7 @@ class PersonState extends State<Person>
                       (
                         placeholder: kTransparentImage,
                         image: api.getAvatar(account.portrait, false),
-                        fit: BoxFit.contain
+                        fit: BoxFit.cover
                       )
                     )
                   ),
@@ -148,7 +148,7 @@ class PersonState extends State<Person>
                     child: Container
                     (
                       height: 60,
-                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
                       child: Column
                       (
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +292,6 @@ class PersonState extends State<Person>
       );
     }
   );
-  
 
   /// 前往其他页面
   Function() toAnotherPage(Widget page) => () => Navigator.push(context, createRoute(page));

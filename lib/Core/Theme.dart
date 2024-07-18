@@ -11,6 +11,7 @@ final ThemeData lightTheme = ThemeData
     primary: Colors.white,    // 应用的主色
     onPrimary: Colors.black,    // 主要颜色上的文本颜色
     secondary: Colors.grey[100],    // 辅助颜色
+    onSecondary: Colors.black,    // 辅助颜色上的文本颜色
     surface: Colors.white,    // 应用的背景色
     onSurface: Colors.black,    // 背景上的文本颜色
   ),
@@ -28,6 +29,7 @@ final ThemeData darkTheme = ThemeData
     primary: Colors.grey[850],    // 应用的主色
     onPrimary: Colors.white,    // 主要颜色上的文本颜色
     secondary: Colors.grey[850],    // 辅助颜色
+    onSecondary: Colors.white,    // 辅助颜色上的文本颜色
     surface: Colors.grey[900],    // 应用的背景色
     onSurface: Colors.white,    // 背景上的文本颜色
   ),

@@ -19,6 +19,8 @@ class _MainPageState extends State<MainPage>
 {
   /// 当前选中的页面索引
   int _selectedIndex = 0;
+  /// 用于获取进吧页面的状态
+  final GlobalKey<ForumsState> _forumsKey = GlobalKey<ForumsState>();
   /// 用于获取Person页面的状态
   final GlobalKey<PersonState> _personKey = GlobalKey<PersonState>();
 
@@ -34,7 +36,7 @@ class _MainPageState extends State<MainPage>
     switch (_selectedIndex)
     {
       case 0: break;
-      case 1: break;
+      case 1: _forumsKey.currentState?.refresh(); break;
       case 2: break;
       case 3: _personKey.currentState?.refresh(); break;
       default: break;
@@ -52,7 +54,7 @@ class _MainPageState extends State<MainPage>
         children: 
         [ 
           const Home(), 
-          const Forums(), 
+          Forums(key: _forumsKey), 
           const Message(), 
           Person(key: _personKey) 
         ]
