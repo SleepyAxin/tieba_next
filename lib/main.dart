@@ -8,9 +8,10 @@ import 'package:tieba_next/Core/SettingsManager.dart';
 
 import 'package:tieba_next/CreateRoute.dart';    // 引入路由
 
-void main()
+void main() async
 {
   WidgetsFlutterBinding.ensureInitialized();
+  await ThemeManager.init();    // 初始化主题管理器
   runApp
   (
     MultiProvider
@@ -19,7 +20,7 @@ void main()
       [
         ChangeNotifierProvider(create: (_) => AccountManager()),    // 账号管理器
         ChangeNotifierProvider(create: (_) => ThemeManager()),    // 主题管理器
-         ChangeNotifierProvider(create: (_) => SettingsManager())    // 设置管理器
+        ChangeNotifierProvider(create: (_) => SettingsManager())    // 设置管理器
       ],
       child: const MyApp()    // 运行应用
     )
@@ -32,7 +33,9 @@ class MyApp extends StatelessWidget
 
   Future<void> _initData() async
   {
-    await AccountManager.init();    // 初始化账号信息
+    final futures = [AccountManager.init()];
+    await Future.wait(futures);    // 等待所有异步操作完成
+    AccountManager().updateAccount();    // 更新账号信息
   }
 
   Consumer<ThemeManager> _showPage(Widget page)
@@ -59,16 +62,10 @@ class MyApp extends StatelessWidget
   {
     return FutureBuilder<void>
     (
-      future: ThemeManager.init(),    // 初始化主题信息
+      future: _initData(),
       builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-      ? FutureBuilder<void>
-      (
-        future: _initData(),
-        builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-        ? _showPage(const MainPage())    // 初始化完成，显示主页
-        : _showPage(const LoadingScreen()),    // 初始化未完成，显示加载页面
-      )
-      : const SizedBox.shrink()
+      ? _showPage(const MainPage())    // 初始化完成，显示主页
+      : _showPage(const LoadingScreen()),    // 初始化未完成，显示加载页面
     );
   }
 }

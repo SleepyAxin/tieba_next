@@ -156,7 +156,7 @@ class PersonState extends State<Person>
                         [
                           Text
                           (
-                            account.nickname ?? '', 
+                            account.nickname, 
                             style: TextStyle
                             (
                               fontWeight: FontWeight.bold,
@@ -167,8 +167,8 @@ class PersonState extends State<Person>
                           const SizedBox(height: 2),
                           Text
                           (
-                            '关注 ${account.followNum ?? ''}  '
-                            '粉丝 ${account.fansNum ?? ''}',
+                            '关注 ${account.followNum}  '
+                            '粉丝 ${account.fansNum}',
                             style: TextStyle
                             (
                               fontSize: 12,
@@ -258,19 +258,19 @@ class PersonState extends State<Person>
                 RadioListTile<ThemeMode>
                 (
                   title: const Text('跟随系统'), value: ThemeMode.system, groupValue: themeMode,
-                  activeColor: Theme.of(context).colorScheme.onSurface,
+                  fillColor: WidgetStateProperty.resolveWith<Color>((states) => Theme.of(context).colorScheme.onSurface),
                   onChanged: (value) => setState(() => themeMode = ThemeMode.system)
                 ),
                 RadioListTile<ThemeMode>
                 (
                   title: const Text('浅色'), value: ThemeMode.light, groupValue: themeMode,
-                  activeColor: Theme.of(context).colorScheme.onSurface,
+                  fillColor: WidgetStateProperty.resolveWith<Color>((states) => Theme.of(context).colorScheme.onSurface),
                   onChanged: (value) => setState(() => themeMode = ThemeMode.light)
                 ),
                 RadioListTile<ThemeMode>
                 (
                   title: const Text('深色'), value: ThemeMode.dark, groupValue: themeMode,
-                  activeColor: Theme.of(context).colorScheme.onSurface,
+                  fillColor: WidgetStateProperty.resolveWith<Color>((states) => Theme.of(context).colorScheme.onSurface),
                   onChanged: (value) => setState(() => themeMode = ThemeMode.dark)
                 )
               ]
@@ -336,7 +336,7 @@ class PersonState extends State<Person>
       (
         key: _refreshIndicatorKey,
         onRefresh: _refresh,
-        displacement: 5.0,
+        displacement: 0.0,
         color: Colors.blue,
         backgroundColor: Theme.of(context).colorScheme.primary,
         child: SingleChildScrollView

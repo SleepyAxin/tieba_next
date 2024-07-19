@@ -38,15 +38,11 @@ Future<User?> getMyUserInfo(String bduss, String stoken) async
 /// [portrait] - 头像ID
 /// 
 /// [isBig] - 是否是清晰的大头像
-String getAvatar(String? portrait, bool isBig)
+String getAvatar(String portrait, bool isBig)
 {
   // 无效网址 占位图片
   String invalidURL = 'https://via.placeholder.com/150/000000/FFFFFF/?text=';
-  if (portrait == null)
-  {
-    debugPrint('头像ID不存在');
-    return invalidURL;
-  }
+  if (portrait.isEmpty) return invalidURL;
 
   String imageURL = isBig ? Avatar.bigImage(portrait) : Avatar.smallImage(portrait);
   if (imageURL.isNotEmpty) return imageURL;
@@ -104,10 +100,10 @@ Future<List<Forum>?> getMyLikeForums(String bduss, String stoken, int st, int pn
   {
     Forum forum = Forum();
     forum.avatarURL = forumData['avatar'] ?? invalidURL;
-    forum.id = forumData['forum_id'];
-    forum.name = forumData['forum_name'];
-    forum.hotNum = forumData['hot_num'];
-    forum.userLevel = forumData['level_id'];
+    forum.id = forumData['forum_id'] ?? '';
+    forum.name = forumData['forum_name'] ?? '';
+    forum.hotNum = forumData['hot_num'] ?? 0;
+    forum.userLevel = forumData['level_id'] ?? 0;
     forums.add(forum);
   }
 

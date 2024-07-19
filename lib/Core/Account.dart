@@ -5,16 +5,22 @@ import 'package:tieba_next/Core/User.dart';
 class Account extends User
 {
   /// BDUSS
-  String bduss; 
+  final String _bduss; 
   /// STOKEN
-  String stoken;
+  final String _stoken;
 
   /// 构造函数
   /// 
-  /// [bduss] - BDUSS
+  /// [_bduss] BDUSS
   /// 
-  /// [stoken] - STOKEN
-  Account(this.bduss, this.stoken);
+  /// [_stoken] STOKEN
+  Account(this._bduss, this._stoken);
+
+  /// 获取BDUSS
+  String get bduss => _bduss;
+
+  /// 获取STOKEN
+  String get stoken => _stoken;
 
   /// 将账号信息转化为加密键值对
   Map<String, dynamic> toEncryptedMap() => 

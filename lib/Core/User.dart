@@ -2,21 +2,21 @@
 class User
 {
   /// 百度账号名
-  String? name;
+  String name = '';
   /// 用户名
-  String? username;
+  String username = '';
   /// 昵称
-  String? nickname;
+  String nickname = '';
   /// 头像ID
-  String? portrait;
+  String portrait = '';
   /// 关注数
-  int? followNum;
+  int followNum = -1;
   /// 粉丝数
-  int? fansNum;
+  int fansNum = -1;
   /// 关注的吧的数量
-  int? likeForumNum;
+  int likeForumNum = -1;
   /// 发帖数
-  int? threadNum;
+  int threadNum = -1;
   /// 回帖数
-  int? postNum;
+  int postNum = -1;
 }

@@ -30,7 +30,7 @@ class UserInfo
   static Future<Map<String, dynamic>?> mineDetail
   (String bduss, String stoken, int needUser, String referrer) async
   {
-    final String url = '$webURL/mo/q/newmoindex?need_user=$needUser&referrer=$referrer';
+    final String url = '$wapURL/mo/q/newmoindex?need_user=$needUser&referrer=$referrer';
     final String cookies = 'BDUSS=$bduss; STOKEN=$stoken';
 
     try 

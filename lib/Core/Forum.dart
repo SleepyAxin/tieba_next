@@ -2,13 +2,13 @@
 class Forum
 {
   /// 吧头像
-  String? avatarURL;
+  String avatarURL = '';
   /// 吧id
-  int? id;
+  int id = -1;
   /// 吧名
-  String? name;
+  String name = '';
   /// 吧热度
-  int? hotNum;
+  int hotNum = -1;
   /// 用户吧等级
-  int? userLevel;
+  late int? userLevel;
 }

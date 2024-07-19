@@ -7,8 +7,6 @@ import 'package:tieba_next/Page/Forums.dart';    // 引入贴吧界面
 import 'package:tieba_next/Page/Message.dart';    // 引入消息
 import 'package:tieba_next/Page/Person.dart';    // 引入我的
 
-import 'package:tieba_next/Core/AccountManager.dart';
-
 class MainPage extends StatefulWidget 
 {
   const MainPage({ super.key });
@@ -21,39 +19,28 @@ class _MainPageState extends State<MainPage>
 {
   /// 当前选中的页面索引
   int _selectedIndex = 0;
-  /// 是否第一次点击某页面
-  final List<bool> _isFirstClick = [ false, false, false, true ];
-  /// 用于获取页面的状态
-  final List _key = 
-  [
-    GlobalKey<PersonState>(), GlobalKey<ForumsState>(), 
-    GlobalKey<PersonState>(), GlobalKey<PersonState>()
-  ];
+  /// 用于获取Forums页面的状态
+  final GlobalKey<ForumsState> _forumsKey = GlobalKey<ForumsState>();
+  /// 用于获取Person页面的状态
+  final GlobalKey<PersonState> _personKey = GlobalKey<PersonState>();
+
+  /// 刷新某个页面
+  ///
+  /// [index] 页面索引
+  void _refreshPage(int index)
+  {
+    switch (index)
+    {
+      case 1: _forumsKey.currentState?.refresh(); return;
+      case 3: _personKey.currentState?.refresh(); return;
+      default: return;
+    }
+  }
 
   /// 底部导航栏的点击事件
-  void _onItemTapped(int index)
-  {
-    if (!_isFirstClick[index])
-    {
-      _isFirstClick[index] = true;
-      _key[index].currentState?.refresh();
-    }
-
-    if (index != _selectedIndex)
-    {
-      setState(() => _selectedIndex = index);
-      return;
-    }
-    // 如果点击的是当前页面，则刷新当前页面
-    _key[index].currentState?.refresh();
-  }
-
-  @override
-  void initState() 
-  { 
-    super.initState();
-    AccountManager().updateAccount();
-  }
+  void _onItemTapped(int index) => index != _selectedIndex
+  ? setState(() => _selectedIndex = index)
+  : _refreshPage(index);
 
   @override
   Widget build(BuildContext context)
@@ -66,9 +53,9 @@ class _MainPageState extends State<MainPage>
         children: 
         [ 
           const Home(), 
-          Forums(key: _key[1]), 
+          Forums(key: _forumsKey), 
           const Message(), 
-          Person(key: _key[3]) 
+          Person(key: _personKey) 
         ]
       ),
       bottomNavigationBar: BottomNavigationBar
