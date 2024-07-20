@@ -41,6 +41,7 @@ dependencies:
   encrypt: ^5.0.1    # 数据的加密和解密
   http: ^1.2.1    # 网络请求
   transparent_image: ^2.0.1    # 透明占位符图片
+  crypto: ^3.0.3    # 加密算法
 
 dev_dependencies:
   flutter_test:

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 
 import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/User.dart';
+import 'package:tieba_next/Core/Data.dart' as data;
 import 'package:tieba_next/Core/File.dart' as file;
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
 
@@ -25,10 +26,11 @@ class AccountManager extends ChangeNotifier
   {
     try 
     {
-      Map<String, dynamic> encryptedMap = account.toEncryptedMap();
-      for (String key in encryptedMap.keys)
+      Map<String, String?> encryptedMap = Account.emptyMap();
+      for (final String key in encryptedMap.keys)
       {
-        await file.saveMap(key, encryptedMap[key]);
+        encryptedMap[key] = data.encrypt(encryptedMap[key]!);
+        await file.saveMap(key, encryptedMap[key]!);
       }
     }
     catch (error) { debugPrint("保存用户信息失败: $error"); }
@@ -41,13 +43,14 @@ class AccountManager extends ChangeNotifier
   {
     try
     {
-      Map<String, dynamic> map = 
-      {
-        'BDUSS': await file.loadMap('BDUSS'),
-        'STOKEN': await file.loadMap('STOKEN')
-      };
-
-      return Account.fromEncryptedMap(map);
+      Map<String, String?> map = Account.emptyMap();
+      for (final String key in map.keys) 
+      { 
+        map[key] = await file.loadMap(key);
+        if (map[key] == null) return null;
+        map[key] = data.decrypt(map[key]!);
+      }
+      return Account.fromMap(map);
     }
     catch (error)
     {
@@ -57,15 +60,9 @@ class AccountManager extends ChangeNotifier
   }
 
   /// 从JSON文件中删除用户信息
-  static Future<void> _remove(Account account) async
+  static Future<void> _remove() async
   {
-    try 
-    { 
-      for (String key in account.toEncryptedMap().keys)
-      {
-        await file.removeMap(key);
-      }
-    }
+    try { for (final String key in Account.emptyMap().keys) { await file.removeMap(key); } }
     catch (error) { debugPrint("删除用户信息失败: $error"); }
   }
 
@@ -94,7 +91,7 @@ class AccountManager extends ChangeNotifier
     User? user = await api.getMyUserInfo(_account!.bduss, _account!.stoken);
     if (user == null) return;
     _account!.copy(user);
-  
+
     notifyListeners();
   }
 
@@ -103,7 +100,7 @@ class AccountManager extends ChangeNotifier
   {
     if (_account == null) return;
     _account = null;
-    await _remove(_account!);
+    await _remove();
     notifyListeners();
   }
 }

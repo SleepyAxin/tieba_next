@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-import 'package:tieba_next/TieBaAPI/API/Avatar.dart';
-import 'package:tieba_next/TieBaAPI/API/UserInfo.dart';
-import 'package:tieba_next/TieBaAPI/API/TBS.dart';
-import 'package:tieba_next/TieBaAPI/API/Threads.dart';
-import 'package:tieba_next/TieBaAPI/API/Forums.dart';
+import 'package:tieba_next/TieBaAPI/API/Web/_Web.dart' as web;
 
 import 'package:tieba_next/Core/User.dart';    // 引入用户类
 import 'package:tieba_next/Core/Forum.dart';    // 引入贴吧类
@@ -16,7 +12,7 @@ import 'package:tieba_next/Core/Forum.dart';    // 引入贴吧类
 /// [stoken] - STOKEN
 Future<User?> getMyUserInfo(String bduss, String stoken) async
 {
-  Map<String, dynamic>? detailInfo = await UserInfo.mineDetail(bduss, stoken, 1, 'f');
+  Map<String, dynamic>? detailInfo = await web.User.mineDetail(bduss, stoken);
   if (detailInfo == null || detailInfo['no'] != 0)
   {
     debugPrint('请求个人详细信息时响应体为空或数据错误');
@@ -44,7 +40,7 @@ String getAvatar(String portrait, bool isBig)
   String invalidURL = 'https://via.placeholder.com/150/000000/FFFFFF/?text=';
   if (portrait.isEmpty) return invalidURL;
 
-  String imageURL = isBig ? Avatar.bigImage(portrait) : Avatar.smallImage(portrait);
+  String imageURL = isBig ? web.Avatar.bigImage(portrait) : web.Avatar.smallImage(portrait);
   if (imageURL.isNotEmpty) return imageURL;
   debugPrint('头像网址图片无效');    // 头像网址图片无效
   return invalidURL;
@@ -55,15 +51,15 @@ String getAvatar(String portrait, bool isBig)
 /// [bduss] - BDUSS
 /// 
 /// [stoken] - STOKEN
-Future<String?> getTBS({String bduss = '', String stoken = ''}) async
+Future<String?> getTBS([String? bduss, String? stoken]) async
 {
-  if (bduss == '' || stoken == '')
+  if (bduss == null || stoken == null)
   {
     debugPrint('请求TBS时BDUSS或STOKEN不存在，将调用非登录接口');
-    return await TBS.withoutLogin();
+    return await web.TBS.withoutLogin();
   }
 
-  return await TBS.withLogin(bduss, stoken);
+  return await web.TBS.withLogin(bduss, stoken);
 }
 
 /// 获取本人关注的贴吧列表
@@ -79,7 +75,7 @@ Future<String?> getTBS({String bduss = '', String stoken = ''}) async
 /// [rn] 每页数量
 Future<List<Forum>?> getMyLikeForums(String bduss, String stoken, int st, int pn, int rn) async
 {
-  final Map<String, dynamic>? data = await Forums.mylikes(bduss, stoken, st, pn, rn);
+  final Map<String, dynamic>? data = await web.Forums.mylikes(bduss, stoken, st, pn, rn);
 
   if (data == null || data['errno'] != 0)
   {
@@ -117,14 +113,5 @@ Future<List<Forum>?> getMyLikeForums(String bduss, String stoken, int st, int pn
 /// [stoken] 登录百度账号的stoken
 Future<Map<String, dynamic>?> getMyThreads(String bduss, String stoken) async
 {
-  return await Threads.mine(bduss, stoken, 1, 20);
-}
-
-/// 获取推荐帖子
-/// 
-/// [bduss] BDUSS
-getRecommendThreads(String bduss) async
-{
-  Map<String, dynamic>? data = await Threads.recommend(bduss, 15, 1);
-  debugPrint(data.toString());
+  return await web.Threads.mine(bduss, stoken, 1, 20);
 }

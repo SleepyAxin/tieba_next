@@ -1,10 +1,7 @@
 // 贴吧接口基本数据
 
-/// 贴吧电脑网页接口
+/// 贴吧网页接口
 const String webURL = 'https://tieba.baidu.com';
-
-/// 贴吧手机网页接口
-const String wapURL = 'https://tieba.baidu.com';
 
 /// 贴吧客户端接口
 const String clientURL = 'http://c.tieba.baidu.com';

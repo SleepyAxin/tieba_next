@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;    // HTTP请求
 import 'package:tieba_next/TieBaAPI/API/BasicData.dart';
 
 /// 获取用户信息
-class UserInfo
+class User
 {
   /// 获取本人基本用户信息
   static Future<Map<String, dynamic>?> mineBasic(String bduss, String stoken) async
@@ -27,10 +27,9 @@ class UserInfo
   }
 
   /// 获取本人详细用户信息
-  static Future<Map<String, dynamic>?> mineDetail
-  (String bduss, String stoken, int needUser, String referrer) async
+  static Future<Map<String, dynamic>?> mineDetail(String bduss, String stoken) async
   {
-    final String url = '$wapURL/mo/q/newmoindex?need_user=$needUser&referrer=$referrer';
+    const String url = '$webURL/mo/q/newmoindex?need_user=1&referrer=f';
     final String cookies = 'BDUSS=$bduss; STOKEN=$stoken';
 
     try 
