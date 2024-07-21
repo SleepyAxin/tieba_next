@@ -13,7 +13,7 @@ class Forums
   {
     const String url = '$clientURL/c/f/forum/favolike';
     final Map<String ,dynamic> data = { 'BDUSS': bduss, 'pn': pn};
-    // data['sign'] = clientSign(data);
+    data['sign'] = clientSign(data);
 
     try 
     {

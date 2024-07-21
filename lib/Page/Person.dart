@@ -79,7 +79,7 @@ class PersonState extends State<Person>
           (
             icon,
             size: 30,
-            color: Theme.of(context).colorScheme.onSecondary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           const SizedBox(height: 4),    // 图标和文本之间的间距
           Text
@@ -87,7 +87,7 @@ class PersonState extends State<Person>
             text, 
             style: TextStyle
             (
-              color: Theme.of(context).colorScheme.onSecondary,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 12    // 减小
             )
           )
@@ -282,7 +282,7 @@ class PersonState extends State<Person>
             (
               onPressed: () 
               {
-                themeManager.themeMode = themeMode;
+                themeManager.set(themeMode);
                 Navigator.of(context).pop();
               },
               child: Text('确定', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))

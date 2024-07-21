@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
-import 'package:tieba_next/Core/File.dart' as file;    // 引入文件操作
+import 'package:flutter/material.dart';
+import 'package:tieba_next/Core/FileManager.dart';
 
 class ThemeManager extends ChangeNotifier 
 {
@@ -28,7 +28,7 @@ class ThemeManager extends ChangeNotifier
       default: break;
     }
 
-    try { await file.saveMap('themeMode', themeModeString); }
+    try { await FileManager.saveMap('themeMode', themeModeString); }
     catch (error) { debugPrint('保存主题模式失败: $error'); }
   }
 
@@ -37,7 +37,7 @@ class ThemeManager extends ChangeNotifier
   {
     try 
     {
-      String? themeModeString = await file.loadMap('themeMode');
+      String? themeModeString = await FileManager.loadMap('themeMode');
 
       switch (themeModeString)
       {
@@ -54,16 +54,21 @@ class ThemeManager extends ChangeNotifier
     }
   }
 
-  static Future<void> init() async => _themeMode = await _load();
+  /// 初始化主题配置
+  Future<void> init() async
+  {
+    _themeMode = await _load();
+    notifyListeners();
+  }
 
   /// 设置当前主题
   /// 
   /// [themeMode] 主题模式
-  set themeMode(ThemeMode themeMode)
+  Future<void> set(ThemeMode themeMode) async
   {
     _themeMode = themeMode;
-    _save(_themeMode);
     notifyListeners();
+    await _save(_themeMode);
   }
 
   /// 获取当前主题模式

@@ -21,8 +21,8 @@ class Account extends User
   /// 获取STOKEN
   String get stoken => _stoken;
 
-  /// 账号信息空槽键值对
-  static Map<String, String?> emptyMap() => { 'BDUSS': null, 'STOKEN': null };
+  /// 账号信息成员变量列表
+  static const List<String> variableList = [ 'BDUSS', 'STOKEN' ];
 
   /// 将账号信息转化为键值对
   Map<String, String> toMap() => { 'BDUSS': bduss, 'STOKEN': stoken };
@@ -30,7 +30,7 @@ class Account extends User
   /// 将键值对转化为账号信息
   /// 
   /// [map] - 键值对
-  static Account? fromMap(Map<String, String?> map)
+  static Account? fromMap(Map<String, String> map)
   {
     String? bduss = map['BDUSS'], stoken = map['STOKEN'];
     if (bduss == null || stoken == null) return null;
@@ -38,6 +38,9 @@ class Account extends User
     return account;
   }
 
+  /// 复制用户信息
+  /// 
+  /// [user] - 用户信息
   void copy(User user)
   {
     name = user.name;

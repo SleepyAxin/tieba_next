@@ -8,10 +8,9 @@ import 'package:tieba_next/Core/SettingsManager.dart';
 
 import 'package:tieba_next/CreateRoute.dart';    // 引入路由
 
-void main() async
+void main() //async
 {
   WidgetsFlutterBinding.ensureInitialized();
-  await ThemeManager.init();    // 初始化主题管理器
   runApp
   (
     MultiProvider
@@ -33,9 +32,9 @@ class MyApp extends StatelessWidget
 
   Future<void> _initData() async
   {
-    final futures = [AccountManager.init()];
+    final List<Future<void>> futures = [AccountManager().init(), ThemeManager().init()];
     await Future.wait(futures);    // 等待所有异步操作完成
-    AccountManager().updateAccount();    // 更新账号信息
+    await AccountManager().updateAccount();    // 更新账号信息
   }
 
   Consumer<ThemeManager> _showPage(Widget page)

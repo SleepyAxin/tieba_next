@@ -26,4 +26,23 @@ class Forums
       return null;
     }
   }
+
+  /// 获取本人关注的贴吧列表详细信息，如是否签到，经验等
+  static Future<Map<String, dynamic>?> mylikesDetial(String bduss, String stoken) async
+  {
+    const String url = '$webURL/mo/q/newmoindex';
+    final String cookies = 'BDUSS=$bduss; STOKEN=$stoken';
+
+    try 
+    {
+      final response = await http.get(Uri.parse(url), headers: {'cookie': cookies});
+      if (response.statusCode == 200) return jsonDecode(response.body);
+      return null;
+    }
+    catch (error)
+    {
+      debugPrint('获取本人关注贴吧列表详细信息失败: $error');
+      return null;
+    }
+  }
 }

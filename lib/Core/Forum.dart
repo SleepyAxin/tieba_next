@@ -10,5 +10,11 @@ class Forum
   /// 吧热度
   int hotNum = -1;
   /// 用户吧等级
-  late int? userLevel;
+  int userLevel = 0;
+  /// 用户吧等级经验
+  int userLevelExp = 0;
+  /// 是否关注
+  bool isliked = false;
+  /// 是否签到
+  bool isSign = false;
 }

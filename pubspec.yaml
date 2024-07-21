@@ -39,7 +39,7 @@ dependencies:
   provider: ^6.1.2    # 状态管理
   shared_preferences: ^2.2.3    # 读写键值对到文件
   encrypt: ^5.0.1    # 数据的加密和解密
-  http: ^1.2.1    # 网络请求
+  http: ^1.2.2    # 网络请求
   transparent_image: ^2.0.1    # 透明占位符图片
   crypto: ^3.0.3    # 加密算法
 

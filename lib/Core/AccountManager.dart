@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/User.dart';
 import 'package:tieba_next/Core/Data.dart' as data;
-import 'package:tieba_next/Core/File.dart' as file;
+import 'package:tieba_next/Core/FileManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
 
 /// 用户信息管理器
@@ -26,11 +26,11 @@ class AccountManager extends ChangeNotifier
   {
     try 
     {
-      Map<String, String?> encryptedMap = Account.emptyMap();
-      for (final String key in encryptedMap.keys)
+      Map<String, String> map = account.toMap();
+      for (final String name in Account.variableList)
       {
-        encryptedMap[key] = data.encrypt(encryptedMap[key]!);
-        await file.saveMap(key, encryptedMap[key]!);
+        String value = data.encrypt(map[name]!);
+        await FileManager.saveMap(name, value);
       }
     }
     catch (error) { debugPrint("保存用户信息失败: $error"); }
@@ -43,12 +43,12 @@ class AccountManager extends ChangeNotifier
   {
     try
     {
-      Map<String, String?> map = Account.emptyMap();
-      for (final String key in map.keys) 
+      final Map<String, String> map = {};
+      for (final String name in Account.variableList) 
       { 
-        map[key] = await file.loadMap(key);
-        if (map[key] == null) return null;
-        map[key] = data.decrypt(map[key]!);
+        String? value = await FileManager.loadMap(name);
+        if (value == null) return null;
+        map.addAll({ name: data.decrypt(value) });
       }
       return Account.fromMap(map);
     }
@@ -62,12 +62,22 @@ class AccountManager extends ChangeNotifier
   /// 从JSON文件中删除用户信息
   static Future<void> _remove() async
   {
-    try { for (final String key in Account.emptyMap().keys) { await file.removeMap(key); } }
+    try 
+    { 
+      for (final String name in Account.variableList) 
+      { 
+        await FileManager.removeMap(name); 
+      } 
+    }
     catch (error) { debugPrint("删除用户信息失败: $error"); }
   }
 
   /// 初始化用户
-  static Future<void> init() async => _account = await _load();
+  Future<void> init() async
+  {
+    _account = await _load();
+    if (_account != null) notifyListeners();
+  }
 
   /// 获取当前用户
   Account? get account => _account;

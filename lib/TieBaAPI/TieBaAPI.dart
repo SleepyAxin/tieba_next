@@ -68,39 +68,49 @@ Future<String?> getTBS([String? bduss, String? stoken]) async
 /// 
 /// [stoken] STOKEN
 /// 
-/// [st] 排序方式 
-/// 
-/// [pn] 页码 
-/// 
-/// [rn] 每页数量
-Future<List<Forum>?> getMyLikeForums(String bduss, String stoken, int st, int pn, int rn) async
+/// [forumNum] 关注贴吧数量 
+Future<List<Forum>?> getMyLikeForums(String bduss, String stoken, int forumNum) async
 {
-  final Map<String, dynamic>? data = await web.Forums.mylikes(bduss, stoken, st, pn, rn);
+  final List<Future<Map<String, dynamic>?>> futures = [];
+  futures.add(web.Forums.mylikes(bduss, stoken, 0, 1, forumNum));
+  futures.add(web.Forums.mylikesDetial(bduss, stoken));
+  final List<Map<String, dynamic>?> data = await Future.wait(futures);
 
-  if (data == null || data['errno'] != 0)
+  if (data[0] == null || data[1] == null)
+  {
+    debugPrint('请求个人关注贴吧时返回为空');
+    return null;
+  }
+
+  if (data[0]!['errno'] != 0 || data[1]!['no'] != 0)
   {
     debugPrint('请求个人关注贴吧时数据错误');
     return null;
   }
 
-  if (data['data']['like_forum']['page']['cur_page'] > 
-      data['data']['like_forum']['page']['total_page']) return null;
-
-  List list = data['data']['like_forum']['list'];
+  List basic = data[0]!['data']['like_forum']['list'];
+  List detail = data[1]!['data']['like_forum'];
   List<Forum> forums = [];
 
   // 无效网址 占位图片
   String invalidURL = 'https://via.placeholder.com/150/000000/FFFFFF/?text=';
 
-  for (Map<String, dynamic> forumData in list)
+  for (Map<String, dynamic> forumData in basic)
   {
     Forum forum = Forum();
     forum.avatarURL = forumData['avatar'] ?? invalidURL;
-    forum.id = forumData['forum_id'] ?? '';
-    forum.name = forumData['forum_name'] ?? '';
-    forum.hotNum = forumData['hot_num'] ?? 0;
-    forum.userLevel = forumData['level_id'] ?? 0;
+    forum.id = forumData['forum_id'] ?? forum.id;
+    forum.name = forumData['forum_name'] ?? forum.name;
+    forum.hotNum = forumData['hot_num'] ?? forum.hotNum;
+    forum.userLevel = forumData['level_id'] ?? forum.userLevel;
+    forum.isliked = true;
     forums.add(forum);
+  }
+
+  for (Map<String, dynamic> forumData in detail)
+  {
+    int index = forums.indexWhere((element) => element.id == forumData['forum_id']);
+    if (index != -1) forums[index].isSign = forumData['is_sign'] == 1;
   }
 
   return forums; 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';
+import 'package:tieba_next/Core/SettingsManager.dart';
 import 'package:transparent_image/transparent_image.dart';    // 引入透明图片库
 
 import 'package:tieba_next/Core/Forum.dart';    // 引入吧类
@@ -21,6 +22,8 @@ class ForumsState extends State<Forums>
   final List<Forum> _likeForums = [];
   /// 刷新页面
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  /// 是否已经初始化
+  bool _isInit = false;
 
   /// 获得关注或推荐贴吧
   /// 
@@ -28,22 +31,11 @@ class ForumsState extends State<Forums>
   Future<List<Forum>> _getForums(Account? account) async
   {
     if (account == null) return [];
-
-    String? bduss = account.bduss;
-    String? stoken = account.stoken;
-    int likeForumNum = account.likeForumNum;
-    final List<Forum> forums = [];
-
-    final List<Future<List<Forum>?>> futures = [];
-    for (int i = 1; i <= likeForumNum / 10 + 1; i++)
-    {
-      futures.add(api.getMyLikeForums(bduss, stoken, 0, i, 10));
-    }
-
-    final List<List<Forum>?> results = await Future.wait(futures);
-    for (List<Forum>? data in results) { if (data != null) forums.addAll(data); }
-
-    return forums;
+    final String bduss = account.bduss;
+    final String stoken = account.stoken;
+    final int likeForumNum = account.likeForumNum;
+    final List<Forum>? forums = await api.getMyLikeForums(bduss, stoken, likeForumNum);
+    return forums ?? [];
   }
 
   /// 初始化吧列表数据
@@ -51,9 +43,11 @@ class ForumsState extends State<Forums>
   /// [account] 用户信息
   Future<void> _initData(Account? account) async
   {
-    if (_likeForums.isNotEmpty) return;
+    if (_isInit) return;
+    await Future.delayed(const Duration(milliseconds: 1000));
     final List<Forum> forums = await _getForums(account);
     _likeForums.replaceRange(0, _likeForums.length, forums);
+    setState(() => _isInit = true);
   }
 
   /// 刷新界面 更新关注贴吧
@@ -95,24 +89,45 @@ class ForumsState extends State<Forums>
         [
           const SizedBox(width: 12.0),
           // 吧头像
-          Container
+          Stack
           (
-            width: 36, height: 36,
-            decoration: BoxDecoration
-            (
-              color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(8.0)
-            ),
-            child: ClipRRect
-            (
-              borderRadius: BorderRadius.circular(8.0),
-              child: FadeInImage.memoryNetwork
+            clipBehavior: Clip.none,    // 允许溢出部分显示
+            children: 
+            [
+              Container
               (
-                placeholder: kTransparentImage,
-                image: forums[index].avatarURL,
-                fit: BoxFit.cover
+                width: 36, height: 36,
+                decoration: BoxDecoration
+                (
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(4.0)
+                ),
+                child: ClipRRect
+                (
+                  borderRadius: BorderRadius.circular(4.0),
+                  child: FadeInImage.memoryNetwork
+                  (
+                    placeholder: kTransparentImage,
+                    image: forums[index].avatarURL,
+                    fit: BoxFit.cover
+                  )
+                )
+              ),
+              if(forums[index].isSign) Positioned
+              (
+                right: 0, bottom: 0,
+                child: Container
+                (
+                  width: 12, height: 12,
+                  decoration: BoxDecoration
+                  (
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(4.0))
+                  ),
+                  child: const Icon(Icons.check_outlined, size: 10)
+                )
               )
-            )
+            ],
           ),
           // 吧名字 用户等级 热度
           Expanded
@@ -142,7 +157,7 @@ class ForumsState extends State<Forums>
                           color: Theme.of(context).colorScheme.onSurface
                         )
                       ),
-                      if (forums[index].userLevel != null) Container
+                      Container
                       (
                         padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
                         decoration: BoxDecoration
@@ -152,7 +167,7 @@ class ForumsState extends State<Forums>
                         ),
                         child: Text
                         (
-                          'Lv.${forums[index].userLevel!}',
+                          'Lv.${forums[index].userLevel}',
                           style: TextStyle
                           (
                             fontSize: 10, 
@@ -162,11 +177,11 @@ class ForumsState extends State<Forums>
                       )
                     ],
                   ),
-                  // 吧热度
+                  // 吧热度 是否签到
                   Row
                   (
-                    mainAxisAlignment: MainAxisAlignment.start,       // 左端对齐
-                    crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: 
                     [ 
                       const Icon(Icons.local_fire_department_outlined, size: 12.0), 
@@ -229,15 +244,50 @@ class ForumsState extends State<Forums>
         account != null
         ? _setInfoText('关注的吧', Icons.forum_outlined)
         : _setInfoText('推荐关注', Icons.forum_outlined),
-        _likeForums.isNotEmpty 
-        ? GridView.count
+        Consumer<SettingsManager>
+        (
+          builder: (context, settingsManager, child) => Container
+          (
+            margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            decoration: BoxDecoration
+            (
+              color: Theme.of(context).colorScheme.secondary,
+              borderRadius: BorderRadius.circular(4.0)
+            ),
+            child: Row
+            (
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: 
+              [
+                Text
+                (
+                  '吧头像右下角打勾表示已签到哦',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSecondary)
+                ),
+                InkWell
+                (
+                  onTap: () => {},
+                  child: Text
+                  (
+                    '不再显示',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Colors.blue)
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        GridView.count
         (
           crossAxisCount: 2, childAspectRatio: 3.5,
           padding: const EdgeInsets.symmetric(vertical: 4.0),
           physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
           children: _setForumGrid(_likeForums)
         )
-        : const SizedBox()
       ]
     )
   );
@@ -298,9 +348,9 @@ class ForumsState extends State<Forums>
         builder: (context, accountManager, child) => FutureBuilder
         (
           future: _initData(accountManager.account),
-          builder: (context, snapshot) => _likeForums.isNotEmpty
+          builder: (context, snapshot) => _isInit
           ? _buildForums(accountManager.account)
-          : _buildEmpty()
+          : _buildEmpty(),
         )
       ),
       backgroundColor: Theme.of(context).colorScheme.surface

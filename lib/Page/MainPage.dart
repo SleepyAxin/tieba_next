@@ -19,6 +19,8 @@ class _MainPageState extends State<MainPage>
 {
   /// 当前选中的页面索引
   int _selectedIndex = 0;
+  /// 页面
+  static final List<Widget> _pages = <Widget>[];
   /// 用于获取Forums页面的状态
   final GlobalKey<ForumsState> _forumsKey = GlobalKey<ForumsState>();
   /// 用于获取Person页面的状态
@@ -43,6 +45,21 @@ class _MainPageState extends State<MainPage>
   : _refreshPage(index);
 
   @override
+  void initState() 
+  { 
+    _pages.addAll
+    (
+      [ 
+        const Home(), 
+        Forums(key: _forumsKey), 
+        const Message(), 
+        Person(key: _personKey) 
+      ]
+    ); 
+    super.initState(); 
+  }
+
+  @override
   Widget build(BuildContext context)
   {
     return Scaffold
@@ -50,13 +67,7 @@ class _MainPageState extends State<MainPage>
       body: IndexedStack
       (
         index: _selectedIndex, 
-        children: 
-        [ 
-          const Home(), 
-          Forums(key: _forumsKey), 
-          const Message(), 
-          Person(key: _personKey) 
-        ]
+        children: _pages
       ),
       bottomNavigationBar: BottomNavigationBar
       (
