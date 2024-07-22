@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';
 import 'package:tieba_next/Core/SettingsManager.dart';
+import 'package:tieba_next/Widget/MyFlushBar.dart';
 import 'package:transparent_image/transparent_image.dart';    // 引入透明图片库
 
 import 'package:tieba_next/Core/Forum.dart';    // 引入吧类
@@ -19,7 +20,9 @@ class Forums extends StatefulWidget
 class ForumsState extends State<Forums>
 {
   /// 我关注的吧列表
-  final List<Forum> _likeForums = [];
+  List<Forum> _likeForums = [];
+  /// 置顶吧列表
+  List<Forum> _topForums = [];
   /// 刷新页面
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   /// 是否已经初始化
@@ -27,7 +30,7 @@ class ForumsState extends State<Forums>
 
   /// 获得关注或推荐贴吧
   /// 
-  /// [account] 用户信息
+  /// [account] 当前账户
   Future<List<Forum>> _getForums(Account? account) async
   {
     if (account == null) return [];
@@ -39,27 +42,40 @@ class ForumsState extends State<Forums>
   }
 
   /// 初始化吧列表数据
-  /// 
-  /// [account] 用户信息
-  Future<void> _initData(Account? account) async
+  Future<void> _initData() async
   {
     if (_isInit) return;
-    await Future.delayed(const Duration(milliseconds: 1000));
-    final List<Forum> forums = await _getForums(account);
-    _likeForums.replaceRange(0, _likeForums.length, forums);
+    final List<Forum> likeforums = await _getForums(AccountManager().account);
+    _likeForums = List<Forum>.from(likeforums);
+    
+    final List<Forum> topForums = [];
+    for (int id in SettingsManager().topForums)
+    {
+      int index = likeforums.indexWhere((element) => element.id == id);
+      if (index != -1) topForums.add(likeforums[index]);
+    }
+    _topForums = List<Forum>.from(topForums);
     setState(() => _isInit = true);
   }
 
   /// 刷新界面 更新关注贴吧
   Future<void> refresh() async => await _refreshIndicatorKey.currentState?.show();
 
-  /// 更新关注贴吧
+  /// 更新关注和置顶贴吧
   /// 
-  /// [account] 用户信息
+  /// [account] 当前账户
   Future<void> _updateForums(Account? account) async
   {
     final List<Forum> forums = await _getForums(account);
-    setState(() => _likeForums.replaceRange(0, _likeForums.length, forums) );
+    setState(() => _likeForums = List.from(forums) );
+
+    final List<Forum> topForums = [];
+    for (int id in SettingsManager().topForums)
+    {
+      int index = forums.indexWhere((element) => element.id == id);
+      if (index != -1) topForums.add(forums[index]);
+    }
+    setState(() => _topForums = List<Forum>.from(topForums) );
   }
 
   /// 处理过长吧名
@@ -80,7 +96,21 @@ class ForumsState extends State<Forums>
   List<Widget> _setForumGrid(List<Forum> forums) => List<Widget>.generate
   (forums.length, (index) => InkWell
     (
-      onTap: () => {},
+      onTap: ()
+      {
+        // TODO: 点击处理
+      },
+      onDoubleTap: () 
+      {
+        final Forum forum = forums[index];
+        !_topForums.contains(forum)
+        ? { setState(() => _topForums.add(forum) ), SettingsManager().addTopForum(forum.id) }
+        : { setState(() => _topForums.remove(forum) ), SettingsManager().removeTopForum(forum.id) };
+      },
+      onLongPress: () 
+      {
+        // TODO: 长按处理
+      },
       child: Row
       (
         mainAxisAlignment: MainAxisAlignment.start,
@@ -228,68 +258,82 @@ class ForumsState extends State<Forums>
   }
 
   /// 创建吧列表
-  /// 
-  /// [account] 当前登录账号
-  RefreshIndicator _buildForums(Account? account) => RefreshIndicator
+  Consumer<AccountManager> _buildForums() => Consumer<AccountManager>
   (
-    key: _refreshIndicatorKey,
-    onRefresh: () => _updateForums(account),
-    displacement: 0.0,
-    color: Colors.blue,
-    backgroundColor: Theme.of(context).colorScheme.primary,
-    child: ListView
+    builder: (context, accountManager, child) => accountManager.account != null 
+    ? RefreshIndicator
     (
-      children: 
-      [
-        account != null
-        ? _setInfoText('关注的吧', Icons.forum_outlined)
-        : _setInfoText('推荐关注', Icons.forum_outlined),
-        Consumer<SettingsManager>
-        (
-          builder: (context, settingsManager, child) => Container
+      key: _refreshIndicatorKey,
+      onRefresh: () => _updateForums(accountManager.account),
+      displacement: 0.0,
+      color: Colors.blue,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      child: ListView
+      (
+        children: 
+        [
+          if (_topForums.isNotEmpty) ...
+          [
+            _setInfoText('置顶的吧', Icons.forum_outlined),
+            GridView.count
+            (
+              crossAxisCount: 2, childAspectRatio: 3.5,
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+              children: _setForumGrid(_topForums)
+            )
+          ],
+          _setInfoText('关注的吧', Icons.forum_outlined),
+          Consumer<SettingsManager>
           (
-            margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 24.0),
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            decoration: BoxDecoration
+            builder: (context, settingsManager, child) => settingsManager.showSignTip
+            ? Container
             (
-              color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(4.0)
-            ),
-            child: Row
-            (
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: 
-              [
-                Text
-                (
-                  '吧头像右下角打勾表示已签到哦',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSecondary)
-                ),
-                InkWell
-                (
-                  onTap: () => {},
-                  child: Text
+              margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 24.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              decoration: BoxDecoration
+              (
+                color: Theme.of(context).colorScheme.secondary,
+                borderRadius: BorderRadius.circular(4.0)
+              ),
+              child: Row
+              (
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: 
+                [
+                  Text
                   (
-                    '不再显示',
+                    '吧头像右下角打勾表示已签到哦',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, color: Colors.blue)
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSecondary)
                   ),
-                )
-              ],
-            ),
+                  InkWell
+                  (
+                    onTap: () => {},
+                    child: const Text
+                    (
+                      '不再显示',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.blue)
+                    ),
+                  )
+                ],
+              ),
+            )
+            : const SizedBox.shrink()
           ),
-        ),
-        GridView.count
-        (
-          crossAxisCount: 2, childAspectRatio: 3.5,
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-          children: _setForumGrid(_likeForums)
-        )
-      ]
+          GridView.count
+          (
+            crossAxisCount: 2, childAspectRatio: 3.5,
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+            children: _setForumGrid(_likeForums)
+          )
+        ]
+      )
     )
+    : const SizedBox.shrink()
   );
 
   /// 创建加载空部件
@@ -339,19 +383,53 @@ class ForumsState extends State<Forums>
     (
       appBar: AppBar
       (
-        title: const Text('我的吧'),
+        leading: IconButton
+        (
+          icon: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurface),
+          onPressed: () => myFlushBar(context, '双击置顶吧，长按复制吧名', 3000)
+        ),
+        title: InkWell
+        (
+          child: Container
+          (
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+            height: 32,
+            decoration: BoxDecoration
+            (
+              color: Theme.of(context).colorScheme.secondary,
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            child: Row
+            (
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: 
+              [
+                Icon(Icons.search, size: 16, color: Theme.of(context).colorScheme.onSecondary),
+                const SizedBox(width: 8.0),
+                Text('搜索', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSecondary))
+              ],
+            )
+          )
+        ),
+        actions: <Widget>
+        [
+          IconButton
+          (
+            icon: Icon(Icons.check_circle_outline_rounded, color: Theme.of(context).colorScheme.onSurface),
+            onPressed: () {},
+          ),
+        ],
         backgroundColor: Theme.of(context).colorScheme.surface,
         surfaceTintColor: Theme.of(context).colorScheme.surface,
       ),
-      body: Consumer<AccountManager>
+      body: FutureBuilder
       (
-        builder: (context, accountManager, child) => FutureBuilder
-        (
-          future: _initData(accountManager.account),
-          builder: (context, snapshot) => _isInit
-          ? _buildForums(accountManager.account)
-          : _buildEmpty(),
-        )
+        future: _initData(),
+        builder: (context, snapshot) => _isInit
+        ? _buildForums()
+        : _buildEmpty(),
       ),
       backgroundColor: Theme.of(context).colorScheme.surface
     );

@@ -14,8 +14,6 @@ class SettingsManager extends ChangeNotifier
 
   /// 创建一个静态的Settings实例
   static Settings _settings = Settings();
-  /// 获取Settings实例
-  Settings get settings => _settings;
 
   /// 保存单个设置到文件
   /// 
@@ -71,25 +69,32 @@ class SettingsManager extends ChangeNotifier
     notifyListeners();
   }
 
-  /// 更改设置
-  /// 
-  /// [name] 要更改的设置名称
-  /// 
-  /// [settings] 要更改的设置信息
-  Future<void> change(String name, Settings settings) async
+  /// 设置是否显示签到提示
+  set showSignTip(bool value)
   {
-    final Map<String, String> map = settings.toMap();
-
-    if (!Settings.variableList.contains(name))
-    {
-      debugPrint('设置名称错误: $name');
-      return;
-    }
-
-    _settings.copy(settings);    // 更新设置信息
-    notifyListeners();    // 通知监听器
-
-    try { await _saveOne(name, map[name]!); }
-    catch (error) { debugPrint('保存设置失败: $error'); }
+    _settings.showSignTip = value;
+    notifyListeners();
+    _saveOne('showSignTip', value.toString());
   }
+  /// 获取是否显示签到提示
+  bool get showSignTip => _settings.showSignTip;
+
+  /// 增加置顶贴吧
+  void addTopForum(int id)
+  {
+    if (_settings.topForums.contains(id)) return;
+    _settings.topForums.add(id); 
+    _saveOne('topForums', Settings.listToString(_settings.topForums));
+    notifyListeners();
+  }
+  /// 移除置顶贴吧
+  void removeTopForum(int id) 
+  {
+    if (!_settings.topForums.contains(id)) return;
+    _settings.topForums.remove(id); 
+    _saveOne('topForums', Settings.listToString(_settings.topForums));
+    notifyListeners();
+  }
+  /// 获取用户置顶的贴吧列表
+  List<int> get topForums => _settings.topForums;
 }

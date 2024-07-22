@@ -16,10 +16,16 @@ class Person extends StatefulWidget
   State<Person> createState() => PersonState();
 }
 
-class PersonState extends State<Person>
+class PersonState extends State<Person> with SingleTickerProviderStateMixin
 {
   /// 刷新页面
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  /// 是否显示选择主题的选项
+  bool _showThemeOptions = false;
+  /// 主题按钮右侧图标
+  IconData _themeExpandIcon = Icons.keyboard_arrow_left;
+  /// 动画控制器
+  late AnimationController _animationController;
 
   /// 设置横向排列功能按钮
   /// 
@@ -27,29 +33,30 @@ class PersonState extends State<Person>
   /// 
   /// [action] 按钮执行动作
   /// 
-  /// [icon] 按钮图标
-  Material _setRowButton(String text, Function() action, IconData icon)
-  {
-    return Material
+  /// [lIcon] 最左边按钮图标
+  /// 
+  /// [rIcon] 最右边按钮图标（可选）
+  InkWell _setRowButton(String text, Function() action, IconData lIcon, [IconData? rIcon]) => InkWell
+  (
+    onTap: action,
+    child: Container
     (
-      color: Theme.of(context).colorScheme.surface,
-      child: InkWell
+      padding: const EdgeInsets.all(16.0),    // 上下间距
+      child: Row
       (
-        onTap: action,
-        child: Container
-        (
-          padding: const EdgeInsets.all(16.0),    // 上下间距
-          decoration: const BoxDecoration(color: Colors.transparent),
-          child: Row
-          (
-            mainAxisAlignment: MainAxisAlignment.start,       // 左端对齐
-            crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
-            children: [ Icon(icon), const SizedBox(width: 8), Text(text) ]
-          )
-        )
+        mainAxisAlignment: MainAxisAlignment.start,       // 左端对齐
+        crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+        children: 
+        [ 
+          Icon(lIcon), 
+          const SizedBox(width: 8), 
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
+          if (rIcon != null) Icon(rIcon)
+        ]
       )
-    );
-  }
+    )
+  );
+  
 
   /// 设置竖向排列功能按钮
   /// 
@@ -96,201 +103,161 @@ class PersonState extends State<Person>
     );
   }
 
-  /// 设置用户信息按钮
-  Material _setAccountButton(Account account)
-  {
-    return Material
+  /// 设置用户头像、信息、前往主页
+  /// 
+  /// [account] 账号信息
+  Container _setUserInfoButton(Account account) => Container
+  (
+    height: 60,
+    margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+    decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
+    child: InkWell
     (
-      color: Theme.of(context).colorScheme.surface,
-      child: Column
+      onTap: () => Navigator.push(context, createRoute(const User())),
+      child: Row
       (
         mainAxisAlignment: MainAxisAlignment.start,       
         crossAxisAlignment: CrossAxisAlignment.center,    
         children: 
         [
-          // 用户头像 信息 主页
-          InkWell
-          (
-            onTap: () => Navigator.push(context, createRoute(const User())),
-            child: Container
-            (
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
-              child: Row
-              (
-                mainAxisAlignment: MainAxisAlignment.start,       
-                crossAxisAlignment: CrossAxisAlignment.center,    
-                children: 
-                [
-                  // 用户头像
-                  Container
-                  (
-                    width: 60, height: 60,
-                    decoration: BoxDecoration
-                    (
-                      color: Theme.of(context).colorScheme.secondary,
-                      borderRadius: BorderRadius.circular(12.0)
-                    ),
-                    child: ClipRRect
-                    (
-                      borderRadius: BorderRadius.circular(12.0),
-                      child: FadeInImage.memoryNetwork
-                      (
-                        placeholder: kTransparentImage,
-                        image: api.getAvatar(account.portrait, false),
-                        fit: BoxFit.cover
-                      )
-                    )
-                  ),
-                  // 用户昵称 关注 粉丝
-                  Expanded
-                  (
-                    child: Container
-                    (
-                      height: 60,
-                      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                      child: Column
-                      (
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: 
-                        [
-                          Text
-                          (
-                            account.nickname, 
-                            style: TextStyle
-                            (
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              color: Theme.of(context).colorScheme.onSurface
-                            )
-                          ),
-                          const SizedBox(height: 2),
-                          Text
-                          (
-                            '关注 ${account.followNum}  '
-                            '粉丝 ${account.fansNum}',
-                            style: TextStyle
-                            (
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurface
-                            )
-                          )
-                        ]
-                      )
-                    ),
-                  ),
-                  // 前往个人主页
-                  const SizedBox
-                  (
-                    height: 60,
-                    child: Row
-                    (
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children:
-                      [
-                        Text('个人主页', style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 2),
-                        Icon(Icons.keyboard_arrow_right)
-                      ]
-                    ),
-                  )
-                ]
-              ),
-            )
-          ),
-          // 我的贴子 关注的吧 收藏 浏览历史
+          // 用户头像
           Container
           (
-            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            width: 60,
             decoration: BoxDecoration
             (
               color: Theme.of(context).colorScheme.secondary,
               borderRadius: BorderRadius.circular(12.0)
             ),
-            child: Row
+            child: ClipRRect
             (
-              mainAxisAlignment: MainAxisAlignment.center,       // 中心对齐
-              crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
-              children: 
-              [
-                _setColumnButton('我的贴子', const User(), Icons.article_outlined),
-                const SizedBox(width: 12),    // 按钮之间的间距
-                _setColumnButton('我的收藏', const Favorite(), Icons.favorite_outline),
-                const SizedBox(width: 12),    // 按钮之间的间距
-                _setColumnButton('稍后再看', const LaterOn(), Icons.timer_outlined),
-                const SizedBox(width: 12),    // 按钮之间的间距
-                _setColumnButton('浏览历史', const History(), Icons.history_outlined)
-              ],
-            )
-          )
-        ],
-      )
-    );
-  }
-
-  Function() _selectTheme() => () => showDialog
-  (
-    context: context,
-    barrierDismissible: true,    // 允许点击空白区域关闭对话框
-    builder: (BuildContext context) 
-    {
-      /// 主题管理器
-      ThemeManager themeManager = ThemeManager();
-      /// 主题模式
-      ThemeMode themeMode = themeManager.themeMode;
-
-      return StatefulBuilder
-      (
-        builder: (context, setState) => AlertDialog
-        (
-          title: const Text('选择主题'),
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          iconColor: Theme.of(context).colorScheme.onSurface,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
-          content: SingleChildScrollView
-          (
-            child: ListBody
-            (
-              children: <Widget>
-              [
-                const SizedBox(height: 8),
-                RadioListTile<ThemeMode>
-                (
-                  title: const Text('跟随系统'), value: ThemeMode.system, groupValue: themeMode,
-                  fillColor: WidgetStateProperty.resolveWith<Color>((states) => Theme.of(context).colorScheme.onSurface),
-                  onChanged: (value) => setState(() => themeMode = ThemeMode.system)
-                ),
-                RadioListTile<ThemeMode>
-                (
-                  title: const Text('浅色'), value: ThemeMode.light, groupValue: themeMode,
-                  fillColor: WidgetStateProperty.resolveWith<Color>((states) => Theme.of(context).colorScheme.onSurface),
-                  onChanged: (value) => setState(() => themeMode = ThemeMode.light)
-                ),
-                RadioListTile<ThemeMode>
-                (
-                  title: const Text('深色'), value: ThemeMode.dark, groupValue: themeMode,
-                  fillColor: WidgetStateProperty.resolveWith<Color>((states) => Theme.of(context).colorScheme.onSurface),
-                  onChanged: (value) => setState(() => themeMode = ThemeMode.dark)
-                )
-              ]
+              borderRadius: BorderRadius.circular(12.0),
+              child: FadeInImage.memoryNetwork
+              (
+                placeholder: kTransparentImage,
+                image: api.getAvatar(account.portrait, false),
+                fit: BoxFit.cover
+              )
             )
           ),
-          actions: <Widget>
-          [
-            TextButton
+          // 用户昵称 关注 粉丝
+          Expanded
+          (
+            child: Container
             (
-              onPressed: () 
-              {
-                themeManager.set(themeMode);
-                Navigator.of(context).pop();
-              },
-              child: Text('确定', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))
-            )
-          ]
-        )
-      );
-    }
+              padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              child: Column
+              (
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: 
+                [
+                  Text
+                  (
+                    account.nickname, 
+                    style: TextStyle
+                    (
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Theme.of(context).colorScheme.onSurface
+                    )
+                  ),
+                  const SizedBox(height: 2),
+                  Text
+                  (
+                    '关注 ${account.followNum}  '
+                    '粉丝 ${account.fansNum}',
+                    style: TextStyle
+                    (
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurface
+                    )
+                  )
+                ]
+              )
+            ),
+          ),
+          // 前往个人主页
+          const Row
+          (
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [ Text('个人主页'), SizedBox(height: 2), Icon(Icons.keyboard_arrow_right) ]
+          )
+        ]
+      )
+    )
+  ); 
+
+  /// 设置我的贴子、关注的吧、收藏、浏览历史
+  /// 
+  /// [account] 账号信息
+  Container _setFunctionButton(Account account) => Container
+  (
+    margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+    decoration: BoxDecoration
+    (
+      color: Theme.of(context).colorScheme.secondary,
+      borderRadius: BorderRadius.circular(12.0)
+    ),
+    child: Row
+    (
+      mainAxisAlignment: MainAxisAlignment.center,       // 中心对齐
+      crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+      children: 
+      [
+        _setColumnButton('我的贴子', const User(), Icons.article_outlined),
+        const SizedBox(width: 12),    // 按钮之间的间距
+        _setColumnButton('我的收藏', const Favorite(), Icons.favorite_outline),
+        const SizedBox(width: 12),    // 按钮之间的间距
+        _setColumnButton('稍后再看', const LaterOn(), Icons.timer_outlined),
+        const SizedBox(width: 12),    // 按钮之间的间距
+        _setColumnButton('浏览历史', const History(), Icons.history_outlined)
+      ],
+    )
+  );
+
+  /// 是否展示选择主题的选项
+  Function() _selectTheme() => () 
+  {
+    setState
+    (() {
+      _showThemeOptions = !_showThemeOptions;
+      _showThemeOptions 
+      ? { _animationController.forward(), _themeExpandIcon = Icons.keyboard_arrow_down } 
+      : { _animationController.reverse(), _themeExpandIcon = Icons.keyboard_arrow_left };
+    });
+  };
+
+  /// 设置主题的选项
+  /// 
+  /// [text] 选项的文本
+  /// 
+  /// [value] 选项的值
+  Widget _setThemeRadioListTile(String text, ThemeMode value) => Consumer<ThemeManager>
+  (
+    builder: (context, themeManager, child) => RadioListTile<ThemeMode>
+    (
+      title: Text(text, style: const TextStyle(fontSize: 14)),
+      contentPadding: const EdgeInsets.only(left: 36.0),
+      value: value, groupValue: themeManager.themeMode,
+      fillColor: WidgetStateProperty.resolveWith<Color>((states) => Theme.of(context).colorScheme.onSurface),
+      onChanged: (value) => themeManager.themeMode = value!
+    )
+  );
+
+  /// 展示选择主题的选项
+  SizeTransition _setThemeOptions() => SizeTransition
+  (
+    sizeFactor: CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    child: Column
+    (
+      children: 
+      [
+        _setThemeRadioListTile('跟随系统', ThemeMode.system),
+        _setThemeRadioListTile('浅色', ThemeMode.light),
+        _setThemeRadioListTile('深色', ThemeMode.dark)
+      ]
+    )
   );
 
   /// 前往其他页面
@@ -306,11 +273,21 @@ class PersonState extends State<Person>
         builder: (context, accountManager, child)
         {
           return accountManager.account != null
-          ? _setAccountButton(accountManager.account!)
+          ? Column
+          (
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: 
+            [ 
+              _setUserInfoButton(accountManager.account!),
+              _setFunctionButton(accountManager.account!)
+            ]
+          )
           : _setRowButton('前往登录', toAnotherPage(const LoginWeb()), Icons.login);
         }
       ),
-      _setRowButton('选择主题', _selectTheme(), Icons.color_lens_outlined),
+      _setRowButton('选择主题', _selectTheme(), Icons.color_lens_outlined, _themeExpandIcon),
+      _setThemeOptions(),
       _setRowButton('设置', toAnotherPage(const Settings()), Icons.settings_outlined),
       _setRowButton('关于', toAnotherPage(const About()), Icons.info_outlined)
     ];
@@ -319,8 +296,23 @@ class PersonState extends State<Person>
   /// 刷新界面 更新账号信息
   Future<void> refresh() async => await _refreshIndicatorKey.currentState?.show();
 
-  /// 更新账号信息
-  Future<void> _refresh() async => await AccountManager().updateAccount();
+  @override
+  void initState()
+  {
+    super.initState();
+    _animationController = AnimationController
+    (
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
+  @override
+  void dispose() 
+  {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) 
@@ -335,7 +327,7 @@ class PersonState extends State<Person>
       body: RefreshIndicator
       (
         key: _refreshIndicatorKey,
-        onRefresh: _refresh,
+        onRefresh: () async => AccountManager().updateAccount(),
         displacement: 0.0,
         color: Colors.blue,
         backgroundColor: Theme.of(context).colorScheme.primary,

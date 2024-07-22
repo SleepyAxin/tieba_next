@@ -64,11 +64,11 @@ class ThemeManager extends ChangeNotifier
   /// 设置当前主题
   /// 
   /// [themeMode] 主题模式
-  Future<void> set(ThemeMode themeMode) async
+  set themeMode(ThemeMode themeMode)
   {
     _themeMode = themeMode;
+    _save(_themeMode);
     notifyListeners();
-    await _save(_themeMode);
   }
 
   /// 获取当前主题模式

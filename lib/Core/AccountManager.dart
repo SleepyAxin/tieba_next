@@ -76,7 +76,7 @@ class AccountManager extends ChangeNotifier
   Future<void> init() async
   {
     _account = await _load();
-    if (_account != null) notifyListeners();
+    notifyListeners();
   }
 
   /// 获取当前用户

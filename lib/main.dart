@@ -17,9 +17,9 @@ void main() //async
     (
       providers: 
       [
-        ChangeNotifierProvider(create: (_) => AccountManager()),    // 账号管理器
-        ChangeNotifierProvider(create: (_) => ThemeManager()),    // 主题管理器
-        ChangeNotifierProvider(create: (_) => SettingsManager())    // 设置管理器
+        ChangeNotifierProvider(create: (context) => AccountManager()),    // 账号管理器
+        ChangeNotifierProvider(create: (context) => ThemeManager()),    // 主题管理器
+        ChangeNotifierProvider(create: (context) => SettingsManager())    // 设置管理器
       ],
       child: const MyApp()    // 运行应用
     )
@@ -32,9 +32,14 @@ class MyApp extends StatelessWidget
 
   Future<void> _initData() async
   {
-    final List<Future<void>> futures = [AccountManager().init(), ThemeManager().init()];
+    final List<Future<void>> futures = 
+    [
+      AccountManager().init(), 
+      ThemeManager().init(),
+      SettingsManager().init()
+    ];
     await Future.wait(futures);    // 等待所有异步操作完成
-    await AccountManager().updateAccount();    // 更新账号信息
+    await AccountManager().updateAccount();
   }
 
   Consumer<ThemeManager> _showPage(Widget page)
