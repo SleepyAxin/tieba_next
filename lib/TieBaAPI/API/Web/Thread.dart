@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;    // HTTP请求
 import 'package:tieba_next/TieBaAPI/API/BasicData.dart';
 
 /// 获取帖子列表
-class Threads
+class Thread
 {
   /// 获取本人发的帖子
   static Future<Map<String, dynamic>?> mine(String bduss, String stoken, int pn, int rn) async

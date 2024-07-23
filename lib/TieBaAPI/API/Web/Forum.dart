@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;    // HTTP请求
 import 'package:tieba_next/TieBaAPI/API/BasicData.dart';
 
 /// 获取吧数据列表
-class Forums
+class Forum
 {
   /// 获取本人关注的贴吧列表
   static Future<Map<String, dynamic>?> mylikes

@@ -6,6 +6,10 @@ import 'package:tieba_next/TieBaAPI/API/BasicData.dart';
 /// 获取TBS
 class TBS
 {
+  static final TBS _instance = TBS._internal();
+  TBS._internal();
+  factory TBS() => _instance;
+
   static const String _url = '$webURL/dc/common/tbs/';
   /// 最新的TBS
   static String? _tbs;
@@ -27,15 +31,19 @@ class TBS
   }
 
   /// 登录状态下获取TBS
-  static Future<String?> withLogin(String bduss, String stoken) async
+  static Future<String?> withLogin(String bduss) async
   {
     if (!_check()) return _tbs;
 
     try 
     {
-      final String cookies = 'BDUSS=$bduss; STOKEN=$stoken';
+      final String cookies = 'BDUSS=$bduss';
       final response = await http.get(Uri.parse(_url), headers: {'cookie': cookies});
-      if (response.statusCode == 200) return jsonDecode(response.body)['tbs'];
+      if (response.statusCode == 200)
+      {
+        _tbs = jsonDecode(response.body)['tbs'];
+        return _tbs;
+      }
       return null;
     }
     catch (error)
@@ -53,7 +61,11 @@ class TBS
     try 
     {
       final response = await http.get(Uri.parse(_url));
-      if (response.statusCode == 200) return jsonDecode(response.body)['tbs'];
+      if (response.statusCode == 200)
+      {
+        _tbs = jsonDecode(response.body)['tbs'];
+        return _tbs;
+      }
       return null;
     }
     catch (error)

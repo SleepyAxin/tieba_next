@@ -6,7 +6,7 @@ import 'package:tieba_next/TieBaAPI/API/BasicData.dart';
 import 'package:tieba_next/TieBaAPI/API/Util.dart';
 
 /// 获取帖子列表
-class Threads
+class Thread
 {
   /// 获取主页推荐帖
   static Future<Map<String, dynamic>?> recommend(String bduss, int count, int pn) async
@@ -24,7 +24,7 @@ class Threads
       "load_type": 1,
       "_client_version": clientVersion,
     };
-    data['sign'] = clientSign(data);
+    // data['sign'] = clientSign(data);
 
     try 
     {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
 import 'package:tieba_next/TieBaAPI/API/Web/_Web.dart' as web;
+import 'package:tieba_next/TieBaAPI/API/Client/_Client.dart' as client;
 
 import 'package:tieba_next/Core/User.dart';    // 引入用户类
 import 'package:tieba_next/Core/Forum.dart';    // 引入贴吧类
@@ -46,22 +47,6 @@ String getAvatar(String portrait, bool isBig)
   return invalidURL;
 }
 
-/// 获取TBS
-/// 
-/// [bduss] - BDUSS
-/// 
-/// [stoken] - STOKEN
-Future<String?> getTBS([String? bduss, String? stoken]) async
-{
-  if (bduss == null || stoken == null)
-  {
-    debugPrint('请求TBS时BDUSS或STOKEN不存在，将调用非登录接口');
-    return await web.TBS.withoutLogin();
-  }
-
-  return await web.TBS.withLogin(bduss, stoken);
-}
-
 /// 获取本人关注的贴吧列表
 /// 
 /// [bduss] BDUSS 
@@ -72,8 +57,8 @@ Future<String?> getTBS([String? bduss, String? stoken]) async
 Future<List<Forum>?> getMyLikeForums(String bduss, String stoken, int forumNum) async
 {
   final List<Future<Map<String, dynamic>?>> futures = [];
-  futures.add(web.Forums.mylikes(bduss, stoken, 0, 1, forumNum));
-  futures.add(web.Forums.mylikesDetial(bduss, stoken));
+  futures.add(web.Forum.mylikes(bduss, stoken, 0, 1, forumNum));
+  futures.add(web.Forum.mylikesDetial(bduss, stoken));
   final List<Map<String, dynamic>?> data = await Future.wait(futures);
 
   if (data[0] == null || data[1] == null)
@@ -116,12 +101,20 @@ Future<List<Forum>?> getMyLikeForums(String bduss, String stoken, int forumNum) 
   return forums; 
 }
 
-/// 获取本人发的帖子
+/// 签到指定吧
 /// 
-/// [bduss] 登录百度账号的bduss
+/// [bduss] - BDUSS
 /// 
-/// [stoken] 登录百度账号的stoken
-Future<Map<String, dynamic>?> getMyThreads(String bduss, String stoken) async
+/// [forumName] - 贴吧名称
+Future<void> signForum(String bduss, String forumName, int forumID) async
 {
-  return await web.Threads.mine(bduss, stoken, 1, 20);
+  String? tbs = await web.TBS.withLogin(bduss);
+
+  if (tbs == null)
+  {
+    debugPrint('签到$forumName吧时请求TBS时失败');
+    return;
+  }
+
+  await client.Forum.sign(bduss, forumName, forumID, tbs);
 }

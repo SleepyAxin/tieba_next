@@ -55,7 +55,7 @@ class _MainPageState extends State<MainPage>
         const MessagePage(), 
         PersonPage(key: _personKey) 
       ]
-    ); 
+    );
     super.initState(); 
   }
 

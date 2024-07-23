@@ -1,2 +1,2 @@
-export 'package:tieba_next/TieBaAPI/API/Client/Forums.dart';
-export 'package:tieba_next/TieBaAPI/API/Client/Threads.dart';
+export 'package:tieba_next/TieBaAPI/API/Client/Forum.dart';
+export 'package:tieba_next/TieBaAPI/API/Client/Thread.dart';

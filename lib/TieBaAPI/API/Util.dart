@@ -3,13 +3,11 @@ import 'package:crypto/crypto.dart';    // 引入加密函数库
 
 /// 客户端签名加密算法
 /// 
-/// [map] 需要签名加密的键值对
-String clientSign(Map<String, dynamic> map) 
+/// [data] 需要签名加密的键值对
+String clientSign(Map<String, String> data) 
 {
-  String mapString = '';
-  for (String key in map.keys) { mapString += '$key=${map[key]} '; }
-  mapString += 'tiebaclient!!!';
-  final bytes = utf8.encode(mapString);
-  final digest = md5.convert(bytes);
-  return digest.toString();
+  final sortedKeys = data.keys.toList()..sort();
+  final s = sortedKeys.map((k) => '$k=${data[k]}').join('');
+  final sign = md5.convert(utf8.encode('$s tiebaclient!!!')).toString().toUpperCase();
+  return json.encode({...data, 'sign': sign});
 }
