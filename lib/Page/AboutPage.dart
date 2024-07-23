@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-class Favorite extends StatefulWidget
+class AboutPage extends StatefulWidget
 {
-  const Favorite({ super.key });
+  const AboutPage({ super.key });
   
   @override
-  State<Favorite> createState() => _FavoriteState();
+  State<AboutPage> createState() => _AboutPageState();
 }
 
-class _FavoriteState extends State<Favorite>
+class _AboutPageState extends State<AboutPage>
 {
   @override
   Widget build(BuildContext context) 
@@ -17,7 +17,7 @@ class _FavoriteState extends State<Favorite>
     (
       appBar: AppBar
       (
-        title: const Text('我的收藏'),
+        title: const Text('关于'),
         backgroundColor: Theme.of(context).colorScheme.surface
       ),
       backgroundColor: Theme.of(context).colorScheme.surface

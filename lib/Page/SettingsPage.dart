@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-class User extends StatefulWidget
+class SettingsPage extends StatefulWidget
 {
-  /// 个人资料页面
-  /// 
-  /// [isMine] 是否是当前用户
-  const User({ super.key});
+  const SettingsPage({ super.key });
   
   @override
-  State<User> createState() => _UserState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _UserState extends State<User>
+class _SettingsPageState extends State<SettingsPage>
 {
   @override
   Widget build(BuildContext context) 
@@ -20,6 +17,7 @@ class _UserState extends State<User>
     (
       appBar: AppBar
       (
+        title: const Text('设置'),
         backgroundColor: Theme.of(context).colorScheme.surface
       ),
       backgroundColor: Theme.of(context).colorScheme.surface

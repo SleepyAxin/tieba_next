@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-class About extends StatefulWidget
+class LaterOnPage extends StatefulWidget
 {
-  const About({ super.key });
+  const LaterOnPage({ super.key });
   
   @override
-  State<About> createState() => _AboutState();
+  State<LaterOnPage> createState() => _LaterOnPageState();
 }
 
-class _AboutState extends State<About>
+class _LaterOnPageState extends State<LaterOnPage>
 {
   @override
   Widget build(BuildContext context) 
@@ -17,7 +17,7 @@ class _AboutState extends State<About>
     (
       appBar: AppBar
       (
-        title: const Text('关于'),
+        title: const Text('稍后再看'),
         backgroundColor: Theme.of(context).colorScheme.surface
       ),
       backgroundColor: Theme.of(context).colorScheme.surface

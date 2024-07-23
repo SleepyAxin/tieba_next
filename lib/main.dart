@@ -18,7 +18,7 @@ void main() //async
       providers: 
       [
         ChangeNotifierProvider(create: (context) => AccountManager()),    // 账号管理器
-        ChangeNotifierProvider(create: (context) => ThemeManager()),    // 主题管理器
+        ChangeNotifierProvider(create: (context) => ThemeManager()),      // 主题管理器
         ChangeNotifierProvider(create: (context) => SettingsManager())    // 设置管理器
       ],
       child: const MyApp()    // 运行应用
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget
       SettingsManager().init()
     ];
     await Future.wait(futures);    // 等待所有异步操作完成
-    await AccountManager().updateAccount();
+    AccountManager().updateAccount();
   }
 
   Consumer<ThemeManager> _showPage(Widget page)
@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget
       future: _initData(),
       builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
       ? _showPage(const MainPage())    // 初始化完成，显示主页
-      : _showPage(const LoadingScreen()),    // 初始化未完成，显示加载页面
+      : _showPage(const LoadingScreenPage()),    // 初始化未完成，显示加载页面
     );
   }
 }

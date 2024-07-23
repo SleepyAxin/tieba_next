@@ -9,15 +9,15 @@ import 'package:tieba_next/Core/Account.dart';    // 引入用户信息
 import 'package:tieba_next/Core/AccountManager.dart';    // 引入用户信息管理器
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
 
-class Forums extends StatefulWidget
+class ForumsPage extends StatefulWidget
 {
-  const Forums({ super.key });
+  const ForumsPage({ super.key });
   
   @override
-  State<Forums> createState() => ForumsState();
+  State<ForumsPage> createState() => ForumsPageState();
 }
 
-class ForumsState extends State<Forums>
+class ForumsPageState extends State<ForumsPage>
 {
   /// 我关注的吧列表
   List<Forum> _likeForums = [];
@@ -66,6 +66,7 @@ class ForumsState extends State<Forums>
   /// [account] 当前账户
   Future<void> _updateForums(Account? account) async
   {
+    debugPrint('更新吧列表');
     final List<Forum> forums = await _getForums(account);
     setState(() => _likeForums = List.from(forums) );
 
@@ -96,20 +97,13 @@ class ForumsState extends State<Forums>
   List<Widget> _setForumGrid(List<Forum> forums) => List<Widget>.generate
   (forums.length, (index) => InkWell
     (
-      onTap: ()
-      {
-        // TODO: 点击处理
-      },
-      onDoubleTap: () 
+      onTap: () {},
+      onLongPress: () 
       {
         final Forum forum = forums[index];
         !_topForums.contains(forum)
         ? { setState(() => _topForums.add(forum) ), SettingsManager().addTopForum(forum.id) }
         : { setState(() => _topForums.remove(forum) ), SettingsManager().removeTopForum(forum.id) };
-      },
-      onLongPress: () 
-      {
-        // TODO: 长按处理
       },
       child: Row
       (
@@ -257,125 +251,6 @@ class ForumsState extends State<Forums>
     );
   }
 
-  /// 创建吧列表
-  Consumer<AccountManager> _buildForums() => Consumer<AccountManager>
-  (
-    builder: (context, accountManager, child) => accountManager.account != null 
-    ? RefreshIndicator
-    (
-      key: _refreshIndicatorKey,
-      onRefresh: () => _updateForums(accountManager.account),
-      displacement: 0.0,
-      color: Colors.blue,
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      child: ListView
-      (
-        children: 
-        [
-          if (_topForums.isNotEmpty) ...
-          [
-            _setInfoText('置顶的吧', Icons.forum_outlined),
-            GridView.count
-            (
-              crossAxisCount: 2, childAspectRatio: 3.5,
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-              children: _setForumGrid(_topForums)
-            )
-          ],
-          _setInfoText('关注的吧', Icons.forum_outlined),
-          Consumer<SettingsManager>
-          (
-            builder: (context, settingsManager, child) => settingsManager.showSignTip
-            ? Container
-            (
-              margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 24.0),
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              decoration: BoxDecoration
-              (
-                color: Theme.of(context).colorScheme.secondary,
-                borderRadius: BorderRadius.circular(4.0)
-              ),
-              child: Row
-              (
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: 
-                [
-                  Text
-                  (
-                    '吧头像右下角打勾表示已签到哦',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSecondary)
-                  ),
-                  InkWell
-                  (
-                    onTap: () => {},
-                    child: const Text
-                    (
-                      '不再显示',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.blue)
-                    ),
-                  )
-                ],
-              ),
-            )
-            : const SizedBox.shrink()
-          ),
-          GridView.count
-          (
-            crossAxisCount: 2, childAspectRatio: 3.5,
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-            children: _setForumGrid(_likeForums)
-          )
-        ]
-      )
-    )
-    : const SizedBox.shrink()
-  );
-
-  /// 创建加载空部件
-  GridView _buildEmpty() => GridView.count
-  (
-    crossAxisCount: 2, childAspectRatio: 3.5,
-    padding: const EdgeInsets.symmetric(vertical: 4.0),
-    physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-    children: List.generate
-    (30, (index) => Row
-    (
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: 
-      [
-        const SizedBox(width: 12.0),
-        Container
-        (
-          width: 36, height: 36,
-          decoration: BoxDecoration
-          (
-            color: Theme.of(context).colorScheme.secondary,
-            borderRadius: BorderRadius.circular(8.0)
-          ),
-        ),
-        const SizedBox(width: 4.0),
-        Column
-        (
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: 
-          [
-            Container(width: 64, height: 16, color: Theme.of(context).colorScheme.secondary),
-            const SizedBox(height: 4.0),
-            Container(width: 80, height: 12, color: Theme.of(context).colorScheme.secondary)
-          ]
-        )
-      ]
-    )
-    )
-  );
-
   @override
   Widget build(BuildContext context) 
   {
@@ -428,8 +303,125 @@ class ForumsState extends State<Forums>
       (
         future: _initData(),
         builder: (context, snapshot) => _isInit
-        ? _buildForums()
-        : _buildEmpty(),
+        ? Consumer<AccountManager>
+        (
+          builder: (context, accountManager, child) => accountManager.account != null
+          ? RefreshIndicator
+          (
+            key: _refreshIndicatorKey,
+            onRefresh: () async => _updateForums(accountManager.account),
+            displacement: 0.0,
+            color: Colors.blue,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: ListView
+            (
+              children: 
+              [
+                if (_topForums.isNotEmpty) ...
+                [
+                  _setInfoText('置顶的吧', Icons.forum_outlined),
+                  GridView.count
+                  (
+                    crossAxisCount: 2, childAspectRatio: 3.5,
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+                    children: _setForumGrid(_topForums)
+                  )
+                ],
+                _setInfoText('关注的吧', Icons.forum_outlined),
+                Consumer<SettingsManager>
+                (
+                  builder: (context, settingsManager, child) => settingsManager.showSignTip
+                  ? Container
+                  (
+                    margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 24.0),
+                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    decoration: BoxDecoration
+                    (
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.circular(4.0)
+                    ),
+                    child: Row
+                    (
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: 
+                      [
+                        Text
+                        (
+                          '吧头像右下角打勾表示已签到哦',
+                          textAlign: TextAlign.center,
+                          style: TextStyle
+                          (
+                            fontSize: 12, 
+                            color: Theme.of(context).colorScheme.onSecondary
+                          )
+                        ),
+                        InkWell
+                        (
+                          onTap: () => {},
+                          child: const Text
+                          (
+                            '不再显示',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, color: Colors.blue)
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                  : const SizedBox.shrink()
+                ),
+                GridView.count
+                (
+                  crossAxisCount: 2, childAspectRatio: 3.5,
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+                  children: _setForumGrid(_likeForums)
+                )
+              ]
+            )
+          )
+          : const SizedBox.shrink()
+        )
+        : GridView.count
+        (
+          crossAxisCount: 2, childAspectRatio: 3.5,
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+          children: List.generate
+          (30, (index) => Row
+          (
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: 
+            [
+              const SizedBox(width: 12.0),
+              Container
+              (
+                width: 36, height: 36,
+                decoration: BoxDecoration
+                (
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(8.0)
+                ),
+              ),
+              const SizedBox(width: 4.0),
+              Column
+              (
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: 
+                [
+                  Container(width: 64, height: 16, color: Theme.of(context).colorScheme.secondary),
+                  const SizedBox(height: 4.0),
+                  Container(width: 80, height: 12, color: Theme.of(context).colorScheme.secondary)
+                ]
+              )
+            ]
+          )
+          )
+        )
       ),
       backgroundColor: Theme.of(context).colorScheme.surface
     );

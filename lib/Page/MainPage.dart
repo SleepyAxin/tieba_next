@@ -2,10 +2,10 @@
 // 包括：首页 进吧 消息 我的
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-import 'package:tieba_next/Page/Home.dart';    // 引入首页
-import 'package:tieba_next/Page/Forums.dart';    // 引入贴吧界面
-import 'package:tieba_next/Page/Message.dart';    // 引入消息
-import 'package:tieba_next/Page/Person.dart';    // 引入我的
+import 'package:tieba_next/Page/HomePage.dart';    // 引入首页
+import 'package:tieba_next/Page/ForumsPage.dart';    // 引入贴吧界面
+import 'package:tieba_next/Page/MessagePage.dart';    // 引入消息
+import 'package:tieba_next/Page/PersonPage.dart';    // 引入我的
 
 class MainPage extends StatefulWidget 
 {
@@ -22,9 +22,9 @@ class _MainPageState extends State<MainPage>
   /// 页面
   static final List<Widget> _pages = <Widget>[];
   /// 用于获取Forums页面的状态
-  final GlobalKey<ForumsState> _forumsKey = GlobalKey<ForumsState>();
+  final GlobalKey<ForumsPageState> _forumsKey = GlobalKey<ForumsPageState>();
   /// 用于获取Person页面的状态
-  final GlobalKey<PersonState> _personKey = GlobalKey<PersonState>();
+  final GlobalKey<PersonPageState> _personKey = GlobalKey<PersonPageState>();
 
   /// 刷新某个页面
   ///
@@ -50,10 +50,10 @@ class _MainPageState extends State<MainPage>
     _pages.addAll
     (
       [ 
-        const Home(), 
-        Forums(key: _forumsKey), 
-        const Message(), 
-        Person(key: _personKey) 
+        const HomePage(), 
+        ForumsPage(key: _forumsKey), 
+        const MessagePage(), 
+        PersonPage(key: _personKey) 
       ]
     ); 
     super.initState(); 

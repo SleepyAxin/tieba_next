@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-class LaterOn extends StatefulWidget
+class UserPage extends StatefulWidget
 {
-  const LaterOn({ super.key });
+  /// 个人资料页面
+  const UserPage({ super.key});
   
   @override
-  State<LaterOn> createState() => _LaterOnState();
+  State<UserPage> createState() => _UserPageState();
 }
 
-class _LaterOnState extends State<LaterOn>
+class _UserPageState extends State<UserPage>
 {
   @override
   Widget build(BuildContext context) 
@@ -17,7 +18,6 @@ class _LaterOnState extends State<LaterOn>
     (
       appBar: AppBar
       (
-        title: const Text('稍后再看'),
         backgroundColor: Theme.of(context).colorScheme.surface
       ),
       backgroundColor: Theme.of(context).colorScheme.surface

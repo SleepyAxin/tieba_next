@@ -5,15 +5,15 @@ import 'package:tieba_next/Core/Account.dart';    // 引入账户信息类
 import 'package:tieba_next/Widget/MyFlushBar.dart';
 import 'package:tieba_next/Core/AccountManager.dart';    // 引入用户信息管理器
 
-class LoginWeb extends StatefulWidget 
+class LoginWebPage extends StatefulWidget 
 {
-  const LoginWeb({super.key});
+  const LoginWebPage({super.key});
 
   @override
-  State<LoginWeb> createState() => _LoginWebState();
+  State<LoginWebPage> createState() => _LoginWebPageState();
 }
 
-class _LoginWebState extends State<LoginWeb>
+class _LoginWebPageState extends State<LoginWebPage>
 {
   /// 登录网站
   static const String _loginURL = 'https://wappass.baidu.com/passport?login&tpl=tb&u=https%3A%2F%2Ftieba.baidu.com%2Findex%2Ftbwise%2Fmine%3Fsource%3Da0-bindex-c-d-e0%26shownew%3D1&source=a0-bindex-c-d-e0#/password_login';

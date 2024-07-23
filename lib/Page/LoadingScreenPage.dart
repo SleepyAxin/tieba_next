@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-class LoadingScreen extends StatefulWidget
+class LoadingScreenPage extends StatefulWidget
 {
-  const LoadingScreen({ super.key });
+  const LoadingScreenPage({ super.key });
   
   @override
-  State<LoadingScreen> createState() => _LoadingScreenState();
+  State<LoadingScreenPage> createState() => _LoadingScreenPageState();
 }
 
 
-class _LoadingScreenState extends State<LoadingScreen> 
+class _LoadingScreenPageState extends State<LoadingScreenPage> 
 {
   @override
   Widget build(BuildContext context) 

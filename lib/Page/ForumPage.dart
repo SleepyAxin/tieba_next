@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-class Message extends StatefulWidget
+class ForumPage extends StatefulWidget
 {
-  const Message({ super.key });
+  final int forumID;
+
+  const ForumPage(this.forumID,{ super.key });
   
   @override
-  State<Message> createState() => _MessageState();
+  State<ForumPage> createState() => _ForumPageState();
 }
 
-class _MessageState extends State<Message>
+class _ForumPageState extends State<ForumPage>
 {
   @override
   Widget build(BuildContext context) 
@@ -17,7 +19,7 @@ class _MessageState extends State<Message>
     (
       appBar: AppBar
       (
-        title: const Text('消息'),
+        title: Text(widget.forumID.toString()),
         backgroundColor: Theme.of(context).colorScheme.surface
       ),
       backgroundColor: Theme.of(context).colorScheme.surface

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/User.dart';
+import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/Data.dart' as data;
 import 'package:tieba_next/Core/FileManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
@@ -97,11 +97,9 @@ class AccountManager extends ChangeNotifier
   Future<void> updateAccount() async
   {
     if (_account == null) return;
-
     User? user = await api.getMyUserInfo(_account!.bduss, _account!.stoken);
     if (user == null) return;
     _account!.copy(user);
-
     notifyListeners();
   }
 

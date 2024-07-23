@@ -8,15 +8,15 @@ import 'package:tieba_next/Core/AccountManager.dart';
 import 'package:tieba_next/Core/ThemeManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入贴吧API
 
-class Person extends StatefulWidget
+class PersonPage extends StatefulWidget
 {
-  const Person({ super.key });
+  const PersonPage({ super.key });
   
   @override
-  State<Person> createState() => PersonState();
+  State<PersonPage> createState() => PersonPageState();
 }
 
-class PersonState extends State<Person> with SingleTickerProviderStateMixin
+class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMixin
 {
   /// 刷新页面
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
@@ -113,7 +113,7 @@ class PersonState extends State<Person> with SingleTickerProviderStateMixin
     decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
     child: InkWell
     (
-      onTap: () => Navigator.push(context, createRoute(const User())),
+      onTap: () => Navigator.push(context, createRoute(const UserPage())),
       child: Row
       (
         mainAxisAlignment: MainAxisAlignment.start,       
@@ -205,13 +205,13 @@ class PersonState extends State<Person> with SingleTickerProviderStateMixin
       crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
       children: 
       [
-        _setColumnButton('我的贴子', const User(), Icons.article_outlined),
+        _setColumnButton('我的贴子', const UserPage(), Icons.article_outlined),
         const SizedBox(width: 12),    // 按钮之间的间距
-        _setColumnButton('我的收藏', const Favorite(), Icons.favorite_outline),
+        _setColumnButton('我的收藏', const FavoritePage(), Icons.favorite_outline),
         const SizedBox(width: 12),    // 按钮之间的间距
-        _setColumnButton('稍后再看', const LaterOn(), Icons.timer_outlined),
+        _setColumnButton('稍后再看', const LaterOnPage(), Icons.timer_outlined),
         const SizedBox(width: 12),    // 按钮之间的间距
-        _setColumnButton('浏览历史', const History(), Icons.history_outlined)
+        _setColumnButton('浏览历史', const HistoryPage(), Icons.history_outlined)
       ],
     )
   );
@@ -283,13 +283,13 @@ class PersonState extends State<Person> with SingleTickerProviderStateMixin
               _setFunctionButton(accountManager.account!)
             ]
           )
-          : _setRowButton('前往登录', toAnotherPage(const LoginWeb()), Icons.login);
+          : _setRowButton('前往登录', toAnotherPage(const LoginWebPage()), Icons.login);
         }
       ),
       _setRowButton('选择主题', _selectTheme(), Icons.color_lens_outlined, _themeExpandIcon),
       _setThemeOptions(),
-      _setRowButton('设置', toAnotherPage(const Settings()), Icons.settings_outlined),
-      _setRowButton('关于', toAnotherPage(const About()), Icons.info_outlined)
+      _setRowButton('设置', toAnotherPage(const SettingsPage()), Icons.settings_outlined),
+      _setRowButton('关于', toAnotherPage(const AboutPage()), Icons.info_outlined)
     ];
   }
 
