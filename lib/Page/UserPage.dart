@@ -12,15 +12,12 @@ class UserPage extends StatefulWidget
 class _UserPageState extends State<UserPage>
 {
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
-      (
-        backgroundColor: Theme.of(context).colorScheme.surface
-      ),
       backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

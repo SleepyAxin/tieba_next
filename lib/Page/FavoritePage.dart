@@ -11,16 +11,13 @@ class FavoritePage extends StatefulWidget
 class _FavoritePageState extends State<FavoritePage>
 {
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
-      (
-        title: const Text('我的收藏'),
-        backgroundColor: Theme.of(context).colorScheme.surface
-      ),
+      title: const Text('我的收藏'),
       backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

@@ -4,7 +4,7 @@ import 'package:tieba_next/Core/SettingsManager.dart';
 import 'package:tieba_next/CreateRoute.dart';
 import 'package:tieba_next/Page/ForumPage.dart';
 import 'package:tieba_next/Widget/MyFlushBar.dart';
-import 'package:transparent_image/transparent_image.dart';    // 引入透明图片库
+import 'package:tieba_next/Widget/ForumGrid.dart';
 
 import 'package:tieba_next/Core/Forum.dart';    // 引入吧类
 import 'package:tieba_next/Core/Account.dart';    // 引入用户信息
@@ -25,17 +25,17 @@ class ForumsPageState extends State<ForumsPage>
   List<Forum> _likeForums = [];
   /// 置顶吧列表
   List<Forum> _topForums = [];
+  /// 初始化加载的数据
+  late Future<void> _dataFuture;
   /// 刷新页面
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  /// 是否已经初始化
-  bool _isInit = false;
 
   /// 初始化吧列表数据
   Future<void> _initData() async
   {
     Account? account = AccountManager().account;
 
-    if (account == null) { setState(() => _isInit = true); return; }
+    if (account == null) { return; }
 
     final String bduss = account.bduss;
     final String stoken = account.stoken;
@@ -49,7 +49,6 @@ class ForumsPageState extends State<ForumsPage>
       if (index != -1) topForums.add(likeforums[index]);
     }
     _topForums = List<Forum>.from(topForums);
-    setState(() => _isInit = true);
   }
 
   /// 刷新界面 更新关注贴吧
@@ -74,18 +73,6 @@ class ForumsPageState extends State<ForumsPage>
     setState(() => _topForums = List<Forum>.from(topForums) );
   }
 
-  /// 处理过长吧名
-  /// 
-  /// [name] 吧名
-  String _handleForumName(String name) => name.length >= 6 ? name.substring(0, 6) : name;
-
-  /// 处理吧热度值为字符串
-  /// 
-  /// [hotNum] 吧热度值
-  String _handleHotNum(int hotNum) => hotNum < 10000
-  ? hotNum.toString()
-  : '${(hotNum / 10000).toStringAsFixed(1)}万';
-
   /// 设置吧列表
   /// 
   /// [forums] 吧列表
@@ -93,7 +80,7 @@ class ForumsPageState extends State<ForumsPage>
   (forums.length, (index) => InkWell
     (
       // 点击跳转到吧页面
-      onTap: () => Navigator.push(context, createRoute(ForumPage(forums[index].id))),
+      onTap: () => Navigator.push(context, createRoute(ForumPage(forums[index].name))),
       // 长按置顶吧
       onLongPress: ()
       {
@@ -102,125 +89,7 @@ class ForumsPageState extends State<ForumsPage>
         ? { setState(() => _topForums.add(forum) ), SettingsManager().addTopForum(forum.id) }
         : { setState(() => _topForums.remove(forum) ), SettingsManager().removeTopForum(forum.id) };
       },
-      child: Row
-      (
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: 
-        [
-          const SizedBox(width: 12.0),
-          // 吧头像
-          Stack
-          (
-            clipBehavior: Clip.none,    // 允许溢出部分显示
-            children: 
-            [
-              Container
-              (
-                width: 36, height: 36,
-                decoration: BoxDecoration
-                (
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(4.0)
-                ),
-                child: ClipRRect
-                (
-                  borderRadius: BorderRadius.circular(4.0),
-                  child: FadeInImage.memoryNetwork
-                  (
-                    placeholder: kTransparentImage,
-                    image: forums[index].avatarURL,
-                    fit: BoxFit.cover
-                  )
-                )
-              ),
-              if(forums[index].isSign) Positioned
-              (
-                right: 0, bottom: 0,
-                child: Container
-                (
-                  width: 12, height: 12,
-                  decoration: BoxDecoration
-                  (
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(4.0))
-                  ),
-                  child: const Icon(Icons.check_outlined, size: 10)
-                )
-              )
-            ],
-          ),
-          // 吧名字 用户等级 热度
-          Expanded
-          (
-            child: Container
-            (
-              height: 36,
-              padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 5.0),
-              child: Column
-              (
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: 
-                [
-                  // 吧名字 用户等级
-                  Row
-                  (
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: 
-                    [
-                      Text
-                      (
-                        _handleForumName(forums[index].name), 
-                        style: TextStyle
-                        (
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onSurface
-                        )
-                      ),
-                      Container
-                      (
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-                        decoration: BoxDecoration
-                        (
-                          color: Theme.of(context).colorScheme.secondary,
-                          borderRadius: BorderRadius.circular(4.0)
-                        ),
-                        child: Text
-                        (
-                          'Lv.${forums[index].userLevel}',
-                          style: TextStyle
-                          (
-                            fontSize: 10, 
-                            color: Theme.of(context).colorScheme.onSecondary
-                          )
-                        ),
-                      )
-                    ],
-                  ),
-                  // 吧热度 是否签到
-                  Row
-                  (
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: 
-                    [ 
-                      const Icon(Icons.local_fire_department_outlined, size: 12.0), 
-                      const SizedBox(width: 2),
-                      Text
-                      (
-                        '热度：${_handleHotNum(forums[index].hotNum)}', 
-                        style: const TextStyle(fontSize: 10)
-                      )
-                    ]
-                  )
-                ]
-              )
-            )
-          ),
-          const SizedBox(width: 12.0),
-        ]
-      )
+      child: ForumGrid(forum: forums[index])
     )
   );
 
@@ -229,24 +98,21 @@ class ForumsPageState extends State<ForumsPage>
   /// [text] 文本内容
   /// 
   /// [icon] 图标
-  Container _setInfoText(String text, IconData icon)
-  {
-    return Container
+  Widget _setInfoText(String text, IconData icon) => Container
+  (
+    padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+    child: Row
     (
-      padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
-      child: Row
-      (
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: 
-        [
-          Icon(icon, size: 16.0),
-          const SizedBox(width: 4.0),
-          Text(text, style: const TextStyle(fontSize: 16))
-        ]
-      ),
-    );
-  }
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: 
+      [
+        Icon(icon, size: 16.0),
+        const SizedBox(width: 4.0),
+        Text(text, style: const TextStyle(fontSize: 16))
+      ]
+    ),
+  );
 
   Widget _buildForums(Account account) => RefreshIndicator
   (
@@ -330,112 +196,74 @@ class ForumsPageState extends State<ForumsPage>
     crossAxisCount: 2, childAspectRatio: 3.5,
     padding: const EdgeInsets.symmetric(vertical: 4.0),
     physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-    children: List.generate
-    (30, (index) => Row
-      (
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: 
-        [
-          const SizedBox(width: 12.0),
-          Container
-          (
-            width: 36, height: 36,
-            decoration: BoxDecoration
-            (
-              color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(8.0)
-            ),
-          ),
-          const SizedBox(width: 4.0),
-          Column
-          (
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: 
-            [
-              Container(width: 64, height: 16, color: Theme.of(context).colorScheme.secondary),
-              const SizedBox(height: 4.0),
-              Container(width: 80, height: 12, color: Theme.of(context).colorScheme.secondary)
-            ]
-          )
-        ]
-      )
-    )
+    children: List.generate(30, (index) => const ForumGridPlaceholder() )
   );
 
   @override
   void initState() 
   { 
     super.initState();
-    _initData();
+    _dataFuture = _initData();
   }
 
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
+      leading: IconButton
       (
-        leading: IconButton
-        (
-          icon: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurface),
-          onPressed: () => myFlushBar(context, '长按将吧置顶', 1000)
-        ),
-        title: InkWell
-        (
-          child: Container
-          (
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-            height: 32,
-            decoration: BoxDecoration
-            (
-              color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-            child: Row
-            (
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: 
-              [
-                Icon(Icons.search, size: 16, color: Theme.of(context).colorScheme.onSecondary),
-                const SizedBox(width: 8.0),
-                Text('搜索', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSecondary))
-              ],
-            )
-          )
-        ),
-        actions: <Widget>
-        [
-          IconButton
-          (
-            icon: Icon(Icons.check_circle_outline_rounded, color: Theme.of(context).colorScheme.onSurface),
-            onPressed: () 
-            {
-              api.signForum
-              (
-                AccountManager().account!.bduss, 
-                _likeForums[0].name,
-                _likeForums[0].id
-              );
-            },
-          ),
-        ],
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        surfaceTintColor: Theme.of(context).colorScheme.surface,
+        icon: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurface),
+        onPressed: () => myFlushBar(context: context, message: '长按将吧置顶', duration: 1000)
       ),
-      body: _isInit
+      title: InkWell
+      (
+        child: Container
+        (
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+          height: 32,
+          decoration: BoxDecoration
+          (
+            color: Theme.of(context).colorScheme.secondary,
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+          child: Row
+          (
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: 
+            [
+              Icon(Icons.search, size: 16, color: Theme.of(context).colorScheme.onSecondary),
+              const SizedBox(width: 8.0),
+              Text('搜索', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSecondary))
+            ],
+          )
+        )
+      ),
+      actions: <Widget>
+      [
+        IconButton
+        (
+          icon: Icon(Icons.check_circle_outline_rounded, color: Theme.of(context).colorScheme.onSurface),
+          onPressed: () {}
+        ),
+      ],
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      surfaceTintColor: Theme.of(context).colorScheme.surface,
+    ),
+    body: FutureBuilder<void>
+    (
+      future: _dataFuture,
+      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
       ? Consumer<AccountManager>
       (
         builder: (context, accountManager, child) => accountManager.account != null
         ? _buildForums(accountManager.account!)
         : const SizedBox.shrink()
       )
-      : _buildPlaceHolder(),
-      backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+      : _buildPlaceHolder()
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

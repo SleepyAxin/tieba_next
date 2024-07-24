@@ -42,34 +42,28 @@ class MyApp extends StatelessWidget
     AccountManager().updateAccount();
   }
 
-  Consumer<ThemeManager> _showPage(Widget page)
-  {
-    return Consumer<ThemeManager>
-    (
-      builder: (context, themeManager, child)
-      {
-        return MaterialApp
-        (
-          theme: theme.lightTheme,    // 日间模式
-          darkTheme: theme.darkTheme,    // 夜间模式
-          // 如果手动切换，则使用设置的主题；如果自动切换，则使用系统主题
-          themeMode: themeManager.themeMode,
-          debugShowCheckedModeBanner: false,    // 隐藏调试标签
-          home: page,    // 主页
-        );
-      }
-    );
-  }
+  Widget _showPage(Widget page) => Consumer<ThemeManager>
+  (
+    builder: (context, themeManager, child)
+    {
+      return MaterialApp
+      (
+        theme: theme.lightTheme,    // 日间模式
+        darkTheme: theme.darkTheme,    // 夜间模式
+        // 如果手动切换，则使用设置的主题；如果自动切换，则使用系统主题
+        themeMode: themeManager.themeMode,
+        debugShowCheckedModeBanner: false,    // 隐藏调试标签
+        home: page,    // 主页
+      );
+    }
+  );
   
   @override
-  Widget build(BuildContext context) 
-  {
-    return FutureBuilder<void>
-    (
-      future: _initData(),
-      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-      ? _showPage(const MainPage())    // 初始化完成，显示主页
-      : _showPage(const LoadingScreenPage()),    // 初始化未完成，显示加载页面
-    );
-  }
+  Widget build(BuildContext context) => FutureBuilder<void>
+  (
+    future: _initData(),
+    builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
+    ? _showPage(const MainPage())    // 初始化完成，显示主页
+    : _showPage(const LoadingScreenPage()),    // 初始化未完成，显示加载页面
+  );
 }

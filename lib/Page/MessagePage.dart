@@ -11,16 +11,13 @@ class MessagePage extends StatefulWidget
 class _MessagePageState extends State<MessagePage>
 {
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
-      (
-        title: const Text('消息'),
-        backgroundColor: Theme.of(context).colorScheme.surface
-      ),
+      title: const Text('消息'),
       backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

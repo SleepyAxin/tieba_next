@@ -12,12 +12,9 @@ class LoadingScreenPage extends StatefulWidget
 class _LoadingScreenPageState extends State<LoadingScreenPage> 
 {
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
-    (
-      body: const Center(child: Text('加载中...')),
-      backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+  Widget build(BuildContext context) => Scaffold
+  (
+    body: const Center(child: Text('加载中...')),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

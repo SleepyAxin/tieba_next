@@ -12,17 +12,14 @@ class HomePage extends StatefulWidget
 class _HomePageState extends State<HomePage> 
 {
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
-      (
-        title: const Text('首页'),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        surfaceTintColor: Theme.of(context).colorScheme.surface,
-      ),
-      backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+      title: const Text('首页'),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      surfaceTintColor: Theme.of(context).colorScheme.surface,
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

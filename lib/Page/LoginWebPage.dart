@@ -56,34 +56,31 @@ class _LoginWebPageState extends State<LoginWebPage>
       if (mounted) 
       {
         Navigator.pop(context);
-        myFlushBar(context, '登录成功', 1000);
+        myFlushBar(context: context, message: '登录成功', duration: 1000);
       }
     }
   }
 
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
-      (
-        title: const Text('登录'),
-        backgroundColor: Theme.of(context).colorScheme.surface
-      ),
-      body: Stack
-      (
-        children: 
-        [
-          InAppWebView
-          (
-            // 载入登录网站
-            initialUrlRequest: URLRequest(url: WebUri(_loginURL)),
-            onLoadStop: (controller, url) => _handleLogin(url),
-          )
-        ],
-      ),
+      title: const Text('登录'),
       backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  } 
+    ),
+    body: Stack
+    (
+      children: 
+      [
+        InAppWebView
+        (
+          // 载入登录网站
+          initialUrlRequest: URLRequest(url: WebUri(_loginURL)),
+          onLoadStop: (controller, url) => _handleLogin(url),
+        )
+      ],
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

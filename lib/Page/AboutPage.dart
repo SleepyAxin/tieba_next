@@ -11,16 +11,13 @@ class AboutPage extends StatefulWidget
 class _AboutPageState extends State<AboutPage>
 {
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
-      (
-        title: const Text('关于'),
-        backgroundColor: Theme.of(context).colorScheme.surface
-      ),
+      title: const Text('关于'),
       backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

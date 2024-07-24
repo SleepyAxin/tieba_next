@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
 import 'package:tieba_next/TieBaAPI/API/Web/_Web.dart' as web;
-import 'package:tieba_next/TieBaAPI/API/Client/_Client.dart' as client;
 
 import 'package:tieba_next/Core/User.dart';    // 引入用户类
 import 'package:tieba_next/Core/Forum.dart';    // 引入贴吧类
@@ -99,22 +98,4 @@ Future<List<Forum>?> getMyLikeForums(String bduss, String stoken, int forumNum) 
   }
 
   return forums; 
-}
-
-/// 签到指定吧
-/// 
-/// [bduss] - BDUSS
-/// 
-/// [forumName] - 贴吧名称
-Future<void> signForum(String bduss, String forumName, int forumID) async
-{
-  String? tbs = await web.TBS.withLogin(bduss);
-
-  if (tbs == null)
-  {
-    debugPrint('签到$forumName吧时请求TBS时失败');
-    return;
-  }
-
-  await client.Forum.sign(bduss, forumName, forumID, tbs);
 }

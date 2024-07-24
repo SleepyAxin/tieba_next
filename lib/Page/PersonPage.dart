@@ -315,34 +315,31 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
   }
 
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
-      (
-        title: const Text('我的'),
-        backgroundColor: Theme.of(context).colorScheme.surface
-      ),
-      body: RefreshIndicator
-      (
-        key: _refreshIndicatorKey,
-        onRefresh: () async => AccountManager().updateAccount(),
-        displacement: 0.0,
-        color: Colors.blue,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: SingleChildScrollView
-        (
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column
-          (
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: _setButton()
-          )
-        )
-      ),
+      title: const Text('我的'),
       backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+    ),
+    body: RefreshIndicator
+    (
+      key: _refreshIndicatorKey,
+      onRefresh: () async => AccountManager().updateAccount(),
+      displacement: 0.0,
+      color: Colors.blue,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      child: SingleChildScrollView
+      (
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column
+        (
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _setButton()
+        )
+      )
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

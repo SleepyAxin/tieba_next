@@ -60,31 +60,28 @@ class _MainPageState extends State<MainPage>
   }
 
   @override
-  Widget build(BuildContext context)
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    body: IndexedStack
     (
-      body: IndexedStack
-      (
-        index: _selectedIndex, 
-        children: _pages
-      ),
-      bottomNavigationBar: BottomNavigationBar
-      (
-        items: const <BottomNavigationBarItem>
-        [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
-          BottomNavigationBarItem(icon: Icon(Icons.forum), label: '进吧'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: '消息'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '我的')
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey[500],
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed    // 固定模式，取消动画效果
-      )
-    );
-  }
+      index: _selectedIndex, 
+      children: _pages
+    ),
+    bottomNavigationBar: BottomNavigationBar
+    (
+      items: const <BottomNavigationBarItem>
+      [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
+        BottomNavigationBarItem(icon: Icon(Icons.forum), label: '进吧'),
+        BottomNavigationBarItem(icon: Icon(Icons.notifications), label: '消息'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: '我的')
+      ],
+      currentIndex: _selectedIndex,
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey[500],
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      onTap: _onItemTapped,
+      type: BottomNavigationBarType.fixed    // 固定模式，取消动画效果
+    )
+  );
 }

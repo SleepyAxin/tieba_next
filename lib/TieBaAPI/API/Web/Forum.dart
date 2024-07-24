@@ -45,4 +45,11 @@ class Forum
       return null;
     }
   }
+
+  /// 获取吧内首页的信息 置顶帖子 首页帖子 等
+  static Future<Map<String, dynamic>?> homeInfo(String bduss, String stoken) async
+  {
+    const String url = '$webURL/mg/f/getFrsData';
+    return null;
+  }
 }

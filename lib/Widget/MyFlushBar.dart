@@ -8,7 +8,7 @@ import 'package:another_flushbar/flushbar.dart';    // 引入flushbar库
 /// [message] 提示信息
 /// 
 /// [duration] 显示时间（毫秒）
-void myFlushBar(BuildContext context, String message, int duration) 
+void myFlushBar({required context, required String message, required int duration}) 
 {
   Flushbar
   (

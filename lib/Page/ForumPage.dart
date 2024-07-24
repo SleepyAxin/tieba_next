@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 
 class ForumPage extends StatefulWidget
 {
-  final int forumID;
+  final String forumName;
 
-  const ForumPage(this.forumID,{ super.key });
+  const ForumPage(this.forumName,{ super.key });
   
   @override
   State<ForumPage> createState() => _ForumPageState();
@@ -13,16 +13,13 @@ class ForumPage extends StatefulWidget
 class _ForumPageState extends State<ForumPage>
 {
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
-      (
-        title: Text(widget.forumID.toString()),
-        backgroundColor: Theme.of(context).colorScheme.surface
-      ),
+      title: Text(widget.forumName),
       backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

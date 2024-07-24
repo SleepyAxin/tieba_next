@@ -11,16 +11,13 @@ class HistoryPage extends StatefulWidget
 class _HistoryPageState extends State<HistoryPage>
 {
   @override
-  Widget build(BuildContext context) 
-  {
-    return Scaffold
+  Widget build(BuildContext context) => Scaffold
+  (
+    appBar: AppBar
     (
-      appBar: AppBar
-      (
-        title: const Text('浏览历史'),
-        backgroundColor: Theme.of(context).colorScheme.surface
-      ),
+      title: const Text('浏览历史'),
       backgroundColor: Theme.of(context).colorScheme.surface
-    );
-  }
+    ),
+    backgroundColor: Theme.of(context).colorScheme.surface
+  );
 }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:http/http.dart' as http;    // HTTP请求
 
 import 'package:tieba_next/TieBaAPI/API/BasicData.dart';
-import 'package:tieba_next/TieBaAPI/API/Util.dart';
 
 /// 获取帖子列表
 class Thread
