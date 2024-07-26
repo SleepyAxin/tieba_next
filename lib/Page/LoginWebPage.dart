@@ -48,10 +48,9 @@ class _LoginWebPageState extends State<LoginWebPage>
     // 如果BDUSS和STOKEN都存在，则初始化用户并返回上一界面
     if (bduss != null && stoken != null)
     {
+      DioManager.setAccount(bduss, stoken);
       await AccountManager().setAccount(Account(bduss: bduss, stoken: stoken));
-      AccountManager().updateAccount();
-      DioManager.set(bduss, stoken);
-      await cookieManager.deleteAllCookies();
+      await AccountManager().updateAccount();
       if (mounted) 
       {
         Navigator.pop(context);

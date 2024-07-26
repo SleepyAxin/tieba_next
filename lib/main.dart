@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 import 'package:provider/provider.dart';    // 引入状态管理组件库
 
 import 'package:tieba_next/Core/AccountManager.dart';
-import 'package:tieba_next/Core/ThemeManager.dart';
+import 'package:tieba_next/Core/DeviceManager.dart';
 import 'package:tieba_next/Core/SettingsManager.dart';
+import 'package:tieba_next/Core/ThemeManager.dart';
 import 'package:tieba_next/TieBaAPI/API/DioManager.dart';
 
 import 'package:tieba_next/CreateRoute.dart';    // 引入路由
@@ -35,13 +36,17 @@ class MyApp extends StatelessWidget
   {
     final List<Future<void>> futures = 
     [
-      AccountManager.init(), 
-      ThemeManager.init(),
-      SettingsManager.init()
+      AccountManager.init(),
+      DeviceManager.init(),
+      SettingsManager.init(),
+      ThemeManager.init()
     ];
     await Future.wait(futures);    // 等待所有异步操作完成
+
     final account = AccountManager().account;
-    if (account != null) DioManager.set(account.bduss, account.stoken);
+    if (account != null) DioManager.setAccount(account.bduss, account.stoken);
+    DioManager.setDevice(DeviceManager.device);
+
     AccountManager().updateAccount();
   }
 

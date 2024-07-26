@@ -1,28 +1,13 @@
 import 'package:encrypt/encrypt.dart';    // 引入加密解密库
 
+/// 数据处理类
 class DataManager 
 {
-  /// 创建一个静态的私有实例
-  static final DataManager _instance = DataManager._internal();
-
-  /// 私有构造函数
-  DataManager._internal()
-  {
-    // 初始化加密器
-    _key = Key.fromUtf8('SleepyAxin.SleepyAxin.SleepyAxin');
-    _iv = IV.fromUtf8('...SleepyAxin...');
-    _encrypter = Encrypter(AES(_key));
-  }
-
-  /// 提供一个工厂构造函数，返回唯一实例
-  factory DataManager() => _instance;
-
-  /// 加密密钥
-  static late Key _key;
   /// 加密初始化向量
-  static late IV _iv;
+  static final IV _iv = IV.fromUtf8('...SleepyAxin...');
+
   /// 加密器
-  static late Encrypter _encrypter;
+  static final Encrypter _encrypter = Encrypter(AES(Key.fromUtf8('SleepyAxin.SleepyAxin.SleepyAxin')));
 
   /// 加密字符串
   /// 

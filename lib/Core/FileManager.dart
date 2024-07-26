@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
-import 'package:shared_preferences/shared_preferences.dart';    // 引入本地存储库
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// 管理文件的读取和存储
 class FileManager
@@ -17,7 +17,7 @@ class FileManager
   static SharedPreferences? _prefs;
 
   /// 初始化 SharedPreferences 实例
-  static Future<void> init() async => _prefs = await SharedPreferences.getInstance();
+  static Future<void> _init() async => _prefs = await SharedPreferences.getInstance();
 
   /// 保存键值对到本地
   /// 
@@ -28,7 +28,7 @@ class FileManager
   {
     try 
     {
-      if (_prefs == null) await init();
+      if (_prefs == null) await _init();
       await _prefs!.setString(key, value);
     }
     catch (error) { debugPrint('文件保存失败: $error'); }
@@ -41,7 +41,7 @@ class FileManager
   {
     try 
     {
-      if (_prefs == null) await init();
+      if (_prefs == null) await _init();
       return _prefs!.getString(key);
     }
     catch (error)
@@ -58,7 +58,7 @@ class FileManager
   {
     try
     {
-      if (_prefs == null) await init();
+      if (_prefs == null) await _init();
       await _prefs!.remove(key);
     }
     catch (error) { debugPrint('文件删除失败: $error'); }

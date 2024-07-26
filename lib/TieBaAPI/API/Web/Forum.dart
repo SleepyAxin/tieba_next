@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:tieba_next/TieBaAPI/API/DioManager.dart';    // HTTP请求
@@ -15,7 +14,7 @@ class Forum
     try 
     {
       final Response response = await DioManager.webDio.get(url + params);
-      if (response.statusCode == 200) return jsonDecode(response.data);
+      if (response.statusCode == 200) return response.data;
       return null;
     }
     catch (error)
@@ -33,7 +32,7 @@ class Forum
     try 
     {
       final Response response = await DioManager.webDio.get(url);
-      if (response.statusCode == 200) return jsonDecode(response.data);
+      if (response.statusCode == 200) return response.data;
       return null;
     }
     catch (error)
@@ -52,7 +51,7 @@ class Forum
     try 
     {
       final Response response = await DioManager.webDio.get(url + params);
-      if (response.statusCode == 200) return jsonDecode(response.data);
+      if (response.statusCode == 200) return response.data;
       return null;
     }
     catch (error)

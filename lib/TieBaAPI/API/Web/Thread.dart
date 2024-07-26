@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:tieba_next/TieBaAPI/API/DioManager.dart';
 
@@ -14,7 +13,7 @@ class Thread
     try 
     {
       final response = await DioManager.webDio.get(url + params);
-      if (response.statusCode == 200) return jsonDecode(response.data);
+      if (response.statusCode == 200) return response.data;
       return null;
     }
     catch (error)
