@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
-import "package:flutter_inappwebview/flutter_inappwebview.dart";    // 引入InAppWebView组件库
+import 'package:flutter/material.dart';
+import "package:flutter_inappwebview/flutter_inappwebview.dart";
 
-import 'package:tieba_next/Core/Account.dart';    // 引入账户信息类
+import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Widget/MyFlushBar.dart';
-import 'package:tieba_next/Core/AccountManager.dart';    // 引入用户信息管理器
+import 'package:tieba_next/Core/AccountManager.dart';
+import 'package:tieba_next/TieBaAPI/API/DioManager.dart';
 
 class LoginWebPage extends StatefulWidget 
 {
@@ -25,10 +26,7 @@ class _LoginWebPageState extends State<LoginWebPage>
   /// [name] - Cookie属性名称
   String? _getCookieValue(List<Cookie> cookies, String name)
   {
-    for (Cookie cookie in cookies)
-    {
-      if (cookie.name == name) return cookie.value.toString();
-    }
+    for (Cookie cookie in cookies) { if (cookie.name == name) return cookie.value.toString(); }
     return null;
   }
 
@@ -50,8 +48,9 @@ class _LoginWebPageState extends State<LoginWebPage>
     // 如果BDUSS和STOKEN都存在，则初始化用户并返回上一界面
     if (bduss != null && stoken != null)
     {
-      await AccountManager().setAccount(Account(bduss, stoken));
-      await AccountManager().updateAccount();
+      await AccountManager().setAccount(Account(bduss: bduss, stoken: stoken));
+      AccountManager().updateAccount();
+      DioManager.set(bduss, stoken);
       await cookieManager.deleteAllCookies();
       if (mounted) 
       {

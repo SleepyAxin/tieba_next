@@ -63,11 +63,7 @@ class SettingsManager extends ChangeNotifier
   }
 
   /// 初始化设置信息
-  Future<void> init() async
-  {
-    _settings = await _load();
-    notifyListeners();
-  }
+  static Future<void> init() async => _settings = await _load();
 
   /// 设置是否显示签到提示
   set showSignTip(bool value)

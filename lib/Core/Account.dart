@@ -4,22 +4,17 @@ import 'package:tieba_next/Core/User.dart';
 class Account extends User
 {
   /// BDUSS
-  final String _bduss; 
+  final String bduss; 
   /// STOKEN
-  final String _stoken;
+  final String stoken;
 
   /// 构造函数
   /// 
-  /// [_bduss] BDUSS
+  /// [bduss] BDUSS
   /// 
-  /// [_stoken] STOKEN
-  Account(this._bduss, this._stoken);
-
-  /// 获取BDUSS
-  String get bduss => _bduss;
-
-  /// 获取STOKEN
-  String get stoken => _stoken;
+  /// [stoken] STOKEN
+  Account({required this.bduss, required this.stoken}) 
+  : super(name: '', username: '', nickname: '', portrait: '');
 
   /// 账号信息成员变量列表
   static const List<String> variableList = [ 'BDUSS', 'STOKEN' ];
@@ -34,7 +29,7 @@ class Account extends User
   {
     String? bduss = map['BDUSS'], stoken = map['STOKEN'];
     if (bduss == null || stoken == null) return null;
-    Account account = Account(bduss, stoken);
+    Account account = Account(bduss: bduss, stoken: stoken);
     return account;
   }
 

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tieba_next/Core/SettingsManager.dart';
+
 import 'package:tieba_next/CreateRoute.dart';
-import 'package:tieba_next/Page/ForumPage.dart';
 import 'package:tieba_next/Widget/MyFlushBar.dart';
 import 'package:tieba_next/Widget/ForumGrid.dart';
-
 import 'package:tieba_next/Core/Forum.dart';    // 引入吧类
-import 'package:tieba_next/Core/Account.dart';    // 引入用户信息
 import 'package:tieba_next/Core/AccountManager.dart';    // 引入用户信息管理器
-import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
+import 'package:tieba_next/Core/SettingsManager.dart';    // 引入设置管理器
+import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 
 class ForumsPage extends StatefulWidget
 {
@@ -22,9 +20,9 @@ class ForumsPage extends StatefulWidget
 class ForumsPageState extends State<ForumsPage>
 {
   /// 我关注的吧列表
-  List<Forum> _likeForums = [];
+  List<Forum> _likeForums = <Forum>[];
   /// 置顶吧列表
-  List<Forum> _topForums = [];
+  List<Forum> _topForums = <Forum>[];
   /// 初始化加载的数据
   late Future<void> _dataFuture;
   /// 刷新页面
@@ -33,13 +31,7 @@ class ForumsPageState extends State<ForumsPage>
   /// 初始化吧列表数据
   Future<void> _initData() async
   {
-    Account? account = AccountManager().account;
-
-    if (account == null) { return; }
-
-    final String bduss = account.bduss;
-    final String stoken = account.stoken;
-    final List<Forum> likeforums = await api.getMyLikeForums(bduss, stoken, 99999999) ?? [];
+    final List<Forum> likeforums = await API.myLikeForums(99999999) ?? [];
     _likeForums = List<Forum>.from(likeforums);
     
     final List<Forum> topForums = [];
@@ -55,13 +47,9 @@ class ForumsPageState extends State<ForumsPage>
   Future<void> refresh() async => await _refreshIndicatorKey.currentState?.show();
 
   /// 更新关注和置顶贴吧
-  /// 
-  /// [account] 当前账户
-  Future<void> _updateForums(Account account) async
+  Future<void> _updateForums() async
   {
-    final String bduss = account.bduss;
-    final String stoken = account.stoken;
-    final List<Forum> forums = await api.getMyLikeForums(bduss, stoken, 99999999) ?? [];
+    final List<Forum> forums = await API.myLikeForums(99999999) ?? [];
     setState(() => _likeForums = List.from(forums) );
 
     final List<Forum> topForums = [];
@@ -114,89 +102,107 @@ class ForumsPageState extends State<ForumsPage>
     ),
   );
 
-  Widget _buildForums(Account account) => RefreshIndicator
+  Widget _buildForums() => RefreshIndicator
   (
     key: _refreshIndicatorKey,
-    onRefresh: () async => _updateForums(account),
+    onRefresh: () async => await _updateForums(),
     displacement: 0.0,
     color: Colors.blue,
     backgroundColor: Theme.of(context).colorScheme.primary,
-    child: ListView
+    child: SingleChildScrollView
     (
-      children: 
-      [
-        if (_topForums.isNotEmpty) ...
+      child: Column
+      (
+        children: 
         [
-          _setInfoText('置顶的吧', Icons.forum_outlined),
-          GridView.count
+          if (_topForums.isNotEmpty) ...
+          [
+            _setInfoText('置顶的吧', Icons.forum_outlined),
+            GridView.builder
+            (
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount
+              (
+                crossAxisCount: 2,
+                childAspectRatio: 3.5,
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+              itemCount: _topForums.length,
+              itemBuilder: (context, index) => _setForumGrid(_topForums)[index]
+            )
+          ],
+          _setInfoText('关注的吧', Icons.forum_outlined),
+          Consumer<SettingsManager>
           (
-            crossAxisCount: 2, childAspectRatio: 3.5,
+            builder: (context, settingsManager, child) => settingsManager.showSignTip
+            ? Container
+            (
+              margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 24.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              decoration: BoxDecoration
+              (
+                color: Theme.of(context).colorScheme.secondary,
+                borderRadius: BorderRadius.circular(4.0)
+              ),
+              child: Row
+              (
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: 
+                [
+                  Text
+                  (
+                    '吧头像右下角打勾表示已签到哦',
+                    textAlign: TextAlign.center,
+                    style: TextStyle
+                    (
+                      fontSize: 12, 
+                      color: Theme.of(context).colorScheme.onSecondary
+                    )
+                  ),
+                  InkWell
+                  (
+                    onTap: () => {},
+                    child: const Text
+                    (
+                      '不再显示',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.blue)
+                    ),
+                  )
+                ],
+              ),
+            )
+            : const SizedBox.shrink()
+          ),
+          GridView.builder
+          (
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount
+            (
+              crossAxisCount: 2,
+              childAspectRatio: 3.5,
+            ),
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-            children: _setForumGrid(_topForums)
+            itemCount: _likeForums.length,
+            itemBuilder: (context, index) => _setForumGrid(_likeForums)[index]
           )
-        ],
-        _setInfoText('关注的吧', Icons.forum_outlined),
-        Consumer<SettingsManager>
-        (
-          builder: (context, settingsManager, child) => settingsManager.showSignTip
-          ? Container
-          (
-            margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 24.0),
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            decoration: BoxDecoration
-            (
-              color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(4.0)
-            ),
-            child: Row
-            (
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: 
-              [
-                Text
-                (
-                  '吧头像右下角打勾表示已签到哦',
-                  textAlign: TextAlign.center,
-                  style: TextStyle
-                  (
-                    fontSize: 12, 
-                    color: Theme.of(context).colorScheme.onSecondary
-                  )
-                ),
-                InkWell
-                (
-                  onTap: () => {},
-                  child: const Text
-                  (
-                    '不再显示',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, color: Colors.blue)
-                  ),
-                )
-              ],
-            ),
-          )
-          : const SizedBox.shrink()
-        ),
-        GridView.count
-        (
-          crossAxisCount: 2, childAspectRatio: 3.5,
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-          children: _setForumGrid(_likeForums)
-        )
-      ]
+        ]
+      )
     )
   );
 
-  Widget _buildPlaceHolder() => GridView.count
+  Widget _buildPlaceHolder() => GridView.builder
   (
-    crossAxisCount: 2, childAspectRatio: 3.5,
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount
+    (
+      crossAxisCount: 2,
+      childAspectRatio: 3.5,
+    ),
     padding: const EdgeInsets.symmetric(vertical: 4.0),
     physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-    children: List.generate(30, (index) => const ForumGridPlaceholder() )
+    itemCount: 30,
+    itemBuilder: (context, index) => List.generate(30, (index) => const ForumGridPlaceholder())[index]
   );
 
   @override
@@ -259,7 +265,7 @@ class ForumsPageState extends State<ForumsPage>
       ? Consumer<AccountManager>
       (
         builder: (context, accountManager, child) => accountManager.account != null
-        ? _buildForums(accountManager.account!)
+        ? _buildForums()
         : const SizedBox.shrink()
       )
       : _buildPlaceHolder()

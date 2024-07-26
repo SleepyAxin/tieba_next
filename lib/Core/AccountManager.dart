@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 
 import 'package:tieba_next/Core/User.dart';
 import 'package:tieba_next/Core/Account.dart';
-import 'package:tieba_next/Core/Data.dart' as data;
+import 'package:tieba_next/Core/DataManager.dart';
 import 'package:tieba_next/Core/FileManager.dart';
-import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入TieBaAPI
+import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 
 /// 用户信息管理器
 class AccountManager extends ChangeNotifier
@@ -29,7 +29,7 @@ class AccountManager extends ChangeNotifier
       Map<String, String> map = account.toMap();
       for (final String name in Account.variableList)
       {
-        String value = data.encrypt(map[name]!);
+        String value = DataManager.encrypt(map[name]!);
         await FileManager.saveMap(name, value);
       }
     }
@@ -48,7 +48,7 @@ class AccountManager extends ChangeNotifier
       { 
         String? value = await FileManager.loadMap(name);
         if (value == null) return null;
-        map.addAll({ name: data.decrypt(value) });
+        map.addAll({ name: DataManager.decrypt(value) });
       }
       return Account.fromMap(map);
     }
@@ -73,11 +73,7 @@ class AccountManager extends ChangeNotifier
   }
 
   /// 初始化用户
-  Future<void> init() async
-  {
-    _account = await _load();
-    notifyListeners();
-  }
+  static Future<void> init() async =>  _account = await _load();
 
   /// 获取当前用户
   Account? get account => _account;
@@ -97,7 +93,7 @@ class AccountManager extends ChangeNotifier
   Future<void> updateAccount() async
   {
     if (_account == null) return;
-    User? user = await api.getMyUserInfo(_account!.bduss, _account!.stoken);
+    User? user = await API.myUserInfo;
     if (user == null) return;
     _account!.copy(user);
     notifyListeners();

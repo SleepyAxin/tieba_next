@@ -55,11 +55,7 @@ class ThemeManager extends ChangeNotifier
   }
 
   /// 初始化主题配置
-  Future<void> init() async
-  {
-    _themeMode = await _load();
-    notifyListeners();
-  }
+  static Future<void> init() async => _themeMode = await _load();
 
   /// 设置当前主题
   /// 

@@ -5,10 +5,11 @@ import 'package:tieba_next/Core/AccountManager.dart';
 import 'package:tieba_next/Core/Theme.dart' as theme;
 import 'package:tieba_next/Core/ThemeManager.dart';
 import 'package:tieba_next/Core/SettingsManager.dart';
+import 'package:tieba_next/TieBaAPI/API/DioManager.dart';
 
 import 'package:tieba_next/CreateRoute.dart';    // 引入路由
 
-void main() //async
+void main()
 {
   WidgetsFlutterBinding.ensureInitialized();
   runApp
@@ -21,7 +22,7 @@ void main() //async
         ChangeNotifierProvider(create: (context) => ThemeManager()),      // 主题管理器
         ChangeNotifierProvider(create: (context) => SettingsManager())    // 设置管理器
       ],
-      child: const MyApp()    // 运行应用
+      child: const MyApp()
     )
   );
 }
@@ -34,11 +35,13 @@ class MyApp extends StatelessWidget
   {
     final List<Future<void>> futures = 
     [
-      AccountManager().init(), 
-      ThemeManager().init(),
-      SettingsManager().init()
+      AccountManager.init(), 
+      ThemeManager.init(),
+      SettingsManager.init()
     ];
     await Future.wait(futures);    // 等待所有异步操作完成
+    final account = AccountManager().account;
+    if (account != null) DioManager.set(account.bduss, account.stoken);
     AccountManager().updateAccount();
   }
 

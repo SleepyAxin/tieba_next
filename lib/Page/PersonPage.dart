@@ -6,7 +6,7 @@ import 'package:tieba_next/CreateRoute.dart';    // 引入路由
 import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/AccountManager.dart';
 import 'package:tieba_next/Core/ThemeManager.dart';
-import 'package:tieba_next/TieBaAPI/TieBaAPI.dart' as api;    // 引入贴吧API
+import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 
 class PersonPage extends StatefulWidget
 {
@@ -135,7 +135,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
               child: FadeInImage.memoryNetwork
               (
                 placeholder: kTransparentImage,
-                image: api.getAvatar(account.portrait, false),
+                image: API.avatar(account.portrait, false),
                 fit: BoxFit.cover
               )
             )
@@ -325,7 +325,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
     body: RefreshIndicator
     (
       key: _refreshIndicatorKey,
-      onRefresh: () async => AccountManager().updateAccount(),
+      onRefresh: () async => await AccountManager().updateAccount(),
       displacement: 0.0,
       color: Colors.blue,
       backgroundColor: Theme.of(context).colorScheme.primary,
