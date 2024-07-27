@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
 import 'package:tieba_next/TieBaAPI/API/Web/_Web.dart' as web;
+import 'package:tieba_next/TieBaAPI/API/Client/_Client.dart' as client;
 import 'package:tieba_next/Core/User.dart';    // 引入用户类
 import 'package:tieba_next/Core/Forum.dart';    // 引入贴吧类
 
-class API 
+class TieBaAPI 
 {
   /// 创建一个静态的私有实例
-  static final API _instance = API._internal();
+  static final TieBaAPI _instance = TieBaAPI._internal();
 
   /// 私有构造函数
-  API._internal();
+  TieBaAPI._internal();
 
   /// 提供一个工厂构造函数，返回唯一实例
-  factory API() => _instance;
+  factory TieBaAPI() => _instance;
 
   /// 最新的TBS
   static String? _lastTBS;
@@ -33,7 +34,7 @@ class API
 
     _lastTBSFetchTime = DateTime.now();
 
-    final Map<String, dynamic>? data = await web.TBS.get;
+    final Map<String, dynamic>? data = await web.TBS.get();
 
     if (data == null)
     {
@@ -52,7 +53,7 @@ class API
   }
 
   /// 获取我的用户信息
-  static Future<User?> get myUserInfo async
+  static Future<User?> myUserInfo() async
   {
     Map<String, dynamic>? detailInfo = await web.User.mineDetail();
 
@@ -143,18 +144,15 @@ class API
     return forums; 
   }
 
-  /// 获取指定吧首页的信息和帖子
+  /// 获取指定吧首页的信息
   /// 
   /// [forumName] 贴吧名称
-  /// 
-  /// [sort] 排序方式
-  /// 
-  /// [pageNum] 页码
-  /// 
-  /// [isGood] 是否是精品帖子
-  static Future<List<dynamic>?> forumHome
-  (String forumName, int sort, int pageNum, bool isGood) async
+  static Future<List<dynamic>?> forumHome(String forumName) async
   {
-    
+    try 
+    {
+      final data = await client.Forum.homeInfo(forumName);
+    }
+    catch (error) { debugPrint('获取$forumName吧首页信息时发生错误: $error'); return null; }
   }
 }

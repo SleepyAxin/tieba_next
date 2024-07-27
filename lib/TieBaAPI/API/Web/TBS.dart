@@ -5,7 +5,7 @@ import 'package:tieba_next/TieBaAPI/API/DioManager.dart';    // HTTP请求
 class TBS
 {
   /// 登录状态下获取TBS
-  static Future<Map<String, dynamic>?> get get async
+  static Future<Map<String, dynamic>?> get() async
   {
     const String url = '/dc/common/tbs';
 

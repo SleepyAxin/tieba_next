@@ -135,7 +135,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
               child: FadeInImage.memoryNetwork
               (
                 placeholder: kTransparentImage,
-                image: API.avatar(account.portrait, false),
+                image: TieBaAPI.avatar(account.portrait, false),
                 fit: BoxFit.cover
               )
             )

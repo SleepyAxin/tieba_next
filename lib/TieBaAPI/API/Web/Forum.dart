@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:tieba_next/TieBaAPI/API/DioManager.dart';    // HTTP请求
+import 'package:tieba_next/TieBaAPI/API/DioManager.dart';
 
 /// 获取吧数据列表
 class Forum

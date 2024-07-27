@@ -44,10 +44,13 @@ class MyApp extends StatelessWidget
     await Future.wait(futures);    // 等待所有异步操作完成
 
     final account = AccountManager().account;
-    if (account != null) DioManager.setAccount(account.bduss, account.stoken);
-    DioManager.setDevice(DeviceManager.device);
+    if (account != null) 
+    {
+      DioManager.setAccount(account.bduss, account.stoken);
+      AccountManager().updateAccount();
+    }
 
-    AccountManager().updateAccount();
+    DioManager.setDevice(DeviceManager.device);
   }
 
   /// 显示页面

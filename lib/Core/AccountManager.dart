@@ -93,7 +93,7 @@ class AccountManager extends ChangeNotifier
   Future<void> updateAccount() async
   {
     if (_account == null) return;
-    User? user = await API.myUserInfo;
+    User? user = await TieBaAPI.myUserInfo();
     if (user == null) return;
     _account!.copy(user);
     notifyListeners();

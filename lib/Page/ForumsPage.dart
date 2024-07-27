@@ -31,7 +31,7 @@ class ForumsPageState extends State<ForumsPage>
   /// 初始化吧列表数据
   Future<void> _initData() async
   {
-    final List<Forum> likeforums = await API.myLikeForums(99999999) ?? [];
+    final List<Forum> likeforums = await TieBaAPI.myLikeForums(99999999) ?? [];
     _likeForums = List<Forum>.from(likeforums);
     
     final List<Forum> topForums = [];
@@ -49,7 +49,7 @@ class ForumsPageState extends State<ForumsPage>
   /// 更新关注和置顶贴吧
   Future<void> _updateForums() async
   {
-    final List<Forum> forums = await API.myLikeForums(99999999) ?? [];
+    final List<Forum> forums = await TieBaAPI.myLikeForums(99999999) ?? [];
     setState(() => _likeForums = List.from(forums) );
 
     final List<Forum> topForums = [];
@@ -264,9 +264,15 @@ class ForumsPageState extends State<ForumsPage>
       builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
       ? Consumer<AccountManager>
       (
-        builder: (context, accountManager, child) => accountManager.account != null
-        ? _buildForums()
-        : const SizedBox.shrink()
+        builder: (context, accountManager, child)
+        {
+          if (accountManager.account != null)
+          {
+            if (_likeForums.isEmpty) _updateForums();
+            return _buildForums();
+          }
+          else { return const SizedBox.shrink(); }
+        }
       )
       : _buildPlaceHolder()
     ),

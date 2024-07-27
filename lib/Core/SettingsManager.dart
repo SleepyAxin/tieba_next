@@ -38,21 +38,30 @@ class SettingsManager extends ChangeNotifier
         String? value = await FileManager.loadMap(name);
         if (value != null) map[name] = value;
       }
-      return Settings.fromMap(map);
     }
-    catch (error) 
-    { 
-      debugPrint('加载设置失败: $error'); 
-      return Settings(); 
-    }
+    catch (error) { debugPrint('加载设置失败: $error'); }
+
+    return Settings.fromMap(map);
   }
+
+  /// 从文件中删除某项设置
+  /// 
+  /// [name] 要删除的设置名称
+  static Future<void> _removeOne(String name) async
+  {
+    try { await FileManager.removeMap(name); }
+    catch (error) { debugPrint('删除设置失败: $error'); }
+  } 
 
   /// 从文件中删除全部设置
   static Future<void> _remove() async
   {
     try { for (final String name in Settings.variableList) { await FileManager.removeMap(name); } }
     catch (error) { debugPrint('删除设置失败: $error'); }
-  } 
+  }
+
+  /// 初始化设置信息
+  static Future<void> init() async => _settings = await _load();
 
   /// 重置设置
   Future<void> reset() async
@@ -61,9 +70,6 @@ class SettingsManager extends ChangeNotifier
     notifyListeners();
     await _remove();
   }
-
-  /// 初始化设置信息
-  static Future<void> init() async => _settings = await _load();
 
   /// 设置是否显示签到提示
   set showSignTip(bool value)
@@ -76,6 +82,8 @@ class SettingsManager extends ChangeNotifier
   bool get showSignTip => _settings.showSignTip;
 
   /// 增加置顶贴吧
+  /// 
+  /// [id] 要置顶的贴吧ID
   void addTopForum(int id)
   {
     if (_settings.topForums.contains(id)) return;
@@ -84,11 +92,15 @@ class SettingsManager extends ChangeNotifier
     notifyListeners();
   }
   /// 移除置顶贴吧
+  /// 
+  /// [id] 要移除的贴吧ID
   void removeTopForum(int id) 
   {
     if (!_settings.topForums.contains(id)) return;
-    _settings.topForums.remove(id); 
-    _saveOne('topForums', Settings.listToString(_settings.topForums));
+    _settings.topForums.remove(id);
+    _settings.topForums.isNotEmpty
+    ? _saveOne('topForums', Settings.listToString(_settings.topForums))
+    : _removeOne('topForums');
     notifyListeners();
   }
   /// 获取用户置顶的贴吧列表

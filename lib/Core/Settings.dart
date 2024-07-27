@@ -27,7 +27,7 @@ class Settings
   {
     Settings settings = Settings();
     if (map['showSignTip'] != null) settings.showSignTip = bool.parse(map['showSignTip']!);
-    if (map['topForums'] != null) settings.topForums = stringToList(map['topForums'] ?? '');
+    if (map['topForums'] != null && map['topForums']!.isNotEmpty) settings.topForums = stringToList(map['topForums']!);
     return settings;
   }
 
