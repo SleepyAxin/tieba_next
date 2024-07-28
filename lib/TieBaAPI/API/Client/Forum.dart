@@ -29,6 +29,11 @@ class Forum
     final Map<String, dynamic> data = 
     { 
       'stErrorNums': 0,
+      'kw': forumName,
+      'pn': 1,
+      'rn': 20,
+      '_client_version': '8.2.2',
+      'sort_type': 1
     };
     data.addAll(DioManager.clientBaseData);
     data.addAll({ 'sign': clientSign(data) });
