@@ -46,15 +46,15 @@ class DioManager
   (
     BaseOptions
     (
-      baseUrl: 'http://tiebac.baidu.com',
+      baseUrl: 'http://c.tieba.baidu.com',
       headers: 
       {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        // 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         // 'phone_imei': '000000000000000',
-        'CharSet': 'UTF-8',
+        // 'CharSet': 'UTF-8',
         'cuid_gid': '',
         'client_type': 2,
-        'x_bd_data_type': 'protobuf'
+        // 'x_bd_data_type': 'protobuf'
       },
       connectTimeout: const Duration(milliseconds: 5000),
       receiveTimeout: const Duration(milliseconds: 3000)

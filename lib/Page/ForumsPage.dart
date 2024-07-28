@@ -105,7 +105,7 @@ class ForumsPageState extends State<ForumsPage>
   Widget _buildForums() => RefreshIndicator
   (
     key: _refreshIndicatorKey,
-    onRefresh: () async => await _updateForums(),
+    onRefresh: _updateForums,
     displacement: 0.0,
     color: Colors.blue,
     backgroundColor: Theme.of(context).colorScheme.primary,

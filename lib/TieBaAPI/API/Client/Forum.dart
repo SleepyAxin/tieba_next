@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';    // 引入Material组件库
 
 import 'package:tieba_next/TieBaAPI/API/DioManager.dart';
@@ -22,7 +23,7 @@ class Forum
 
     final Map<String, String> headers = 
     { 
-      'Content-Type': 'multipart/form-data; boundary=--------7da3d81520810*',
+      'Content-Type': 'application/x-www-form-urlencoded',
       'forum_name': Uri.encodeFull(forumName)
     };
 
@@ -32,11 +33,14 @@ class Forum
       'kw': forumName,
       'pn': 1,
       'rn': 20,
-      '_client_version': '8.2.2',
+      'is_good': 0,
+      'cid': 0,
+      '_client_version': '12.65.1.1',
       'sort_type': 1
     };
     data.addAll(DioManager.clientBaseData);
-    data.addAll({ 'sign': clientSign(data) });
+    data['sign'] = clientSign(data);
+    data['data'] = MultipartFile.fromBytes(data.toString().codeUnits, filename: 'file');
 
     try 
     {
@@ -46,9 +50,13 @@ class Forum
         data: FormData.fromMap(data),
         options: Options(headers: headers)
       );
-      debugPrint('获取吧数据: ${res.data}');
-      if (res.statusCode == 200) return res.data;
-      debugPrint('返回吧数据错误: ${res.data}');
+      
+      if (res.statusCode == 200) 
+      {
+        debugPrint('获取吧数据: $res');
+        return res.data;
+      }
+      debugPrint('返回吧数据错误: $res');
       return null;
     }
     catch (error) { debugPrint('获取吧数据失败: $error'); return null; }
