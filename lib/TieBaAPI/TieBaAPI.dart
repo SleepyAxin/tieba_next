@@ -199,27 +199,42 @@ class TieBaAPI
     }
 
     final List<Thread> threads = [];
-    /*
+    final List<Thread> topThreads = [];
+    
     for (final Map threadData in threadList)
     {
-      threads.add
-      (
-        Thread
-        (
-          id: threadData['id'] ?? 0,
-          author: User
-          (
-            name: threadData['author']['name'] ?? '未知',
-            username: threadData['author']['name_show'] ?? '未知',
-            nickname: threadData['author']['show_nickname'] ?? '未知',
-            portrait: threadData['author']['portrait'] ?? '',
-          ),
-          title: threadData['title'] ?? '未知',
-          description: threadData['rich_abstract'][0]['text'] ?? '',
-        )
-      );
-    }*/
+      late ThreadType threadType;
+      switch (threadData['thread_types'])
+      {
+        case 1041: threadType = ThreadType.good; break;
+        case 1042: threadType = ThreadType.top; break;
+        case 1043: threadType = ThreadType.rule; break;
+        default: threadType = ThreadType.normal; break;
+      }
 
-    return { 'forum': forum, 'threads': threads };
+      Thread thread = Thread
+      (
+        id: threadData['id'] ?? 0,
+        author: User
+        (
+          name: threadData['author']['name'] ?? '未知',
+          username: threadData['author']['name_show'] ?? '未知',
+          nickname: threadData['author']['show_nickname'] ?? '未知',
+          portrait: threadData['author']['portrait'] ?? '',
+        ),
+        title: threadData['title'] ?? '未知',
+        description: threadData['abstract'][0]['text'] ?? '',
+        type: threadType
+      );
+
+      switch (thread.type)
+      {
+        case ThreadType.normal || ThreadType.good: threads.add(thread); break;
+        case ThreadType.top || ThreadType.rule: topThreads.add(thread); break;
+        default: break;
+      }
+    }
+
+    return { 'forum': forum, 'threads': threads, 'topThreads': topThreads };
   }
 }

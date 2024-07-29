@@ -258,7 +258,7 @@ class ForumsPageState extends State<ForumsPage>
         ),
       ],
       backgroundColor: Theme.of(context).colorScheme.surface,
-      surfaceTintColor: Theme.of(context).colorScheme.surface,
+      surfaceTintColor: Theme.of(context).colorScheme.surface
     ),
     body: FutureBuilder<void>
     (
