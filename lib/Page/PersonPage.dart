@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
-import 'package:provider/provider.dart';    // 引入状态管理库
-import 'package:transparent_image/transparent_image.dart';    // 引入透明图片库
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 import 'package:tieba_next/CreateRoute.dart';    // 引入路由
 import 'package:tieba_next/Core/Account.dart';
@@ -56,7 +56,6 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
       )
     )
   );
-  
 
   /// 设置竖向排列功能按钮
   /// 
@@ -156,8 +155,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
                     account.nickname, 
                     style: TextStyle
                     (
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 20, fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface
                     )
                   ),
@@ -201,32 +199,20 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
     ),
     child: Row
     (
-      mainAxisAlignment: MainAxisAlignment.center,       // 中心对齐
-      crossAxisAlignment: CrossAxisAlignment.center,    // 上下中心对齐
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: 
       [
         _setColumnButton('我的贴子', const UserPage(), Icons.article_outlined),
-        const SizedBox(width: 12),    // 按钮之间的间距
+        const SizedBox(width: 12.0),
         _setColumnButton('我的收藏', const FavoritePage(), Icons.favorite_outline),
-        const SizedBox(width: 12),    // 按钮之间的间距
+        const SizedBox(width: 12.0),
         _setColumnButton('稍后再看', const LaterOnPage(), Icons.timer_outlined),
-        const SizedBox(width: 12),    // 按钮之间的间距
+        const SizedBox(width: 12.0),
         _setColumnButton('浏览历史', const HistoryPage(), Icons.history_outlined)
       ],
     )
   );
-
-  /// 是否展示选择主题的选项
-  Function() _selectTheme() => () 
-  {
-    setState
-    (() {
-      _showThemeOptions = !_showThemeOptions;
-      _showThemeOptions 
-      ? { _animationController.forward(), _themeExpandIcon = Icons.keyboard_arrow_down } 
-      : { _animationController.reverse(), _themeExpandIcon = Icons.keyboard_arrow_left };
-    });
-  };
 
   /// 设置主题的选项
   /// 
@@ -260,8 +246,20 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
     )
   );
 
+  /// 是否展示选择主题的选项
+  void _selectTheme()
+  {
+    setState
+    (() {
+      _showThemeOptions = !_showThemeOptions;
+      _showThemeOptions 
+      ? { _animationController.forward(), _themeExpandIcon = Icons.keyboard_arrow_down } 
+      : { _animationController.reverse(), _themeExpandIcon = Icons.keyboard_arrow_left };
+    });
+  }
+
   /// 前往其他页面
-  Function() toAnotherPage(Widget page) => () => Navigator.push(context, createRoute(page));
+  void toAnotherPage(Widget page) => Navigator.push(context, createRoute(page));
 
   /// 设置功能按钮
   List<Widget> _setButton()
@@ -283,13 +281,13 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
               _setFunctionButton(accountManager.account!)
             ]
           )
-          : _setRowButton('前往登录', toAnotherPage(const LoginWebPage()), Icons.login);
+          : _setRowButton('前往登录', () => toAnotherPage(const LoginWebPage()), Icons.login);
         }
       ),
-      _setRowButton('选择主题', _selectTheme(), Icons.color_lens_outlined, _themeExpandIcon),
+      _setRowButton('选择主题', _selectTheme, Icons.color_lens_outlined, _themeExpandIcon),
       _setThemeOptions(),
-      _setRowButton('设置', toAnotherPage(const SettingsPage()), Icons.settings_outlined),
-      _setRowButton('关于', toAnotherPage(const AboutPage()), Icons.info_outlined)
+      _setRowButton('设置', () => toAnotherPage(const SettingsPage()), Icons.settings_outlined),
+      _setRowButton('关于', () => toAnotherPage(const AboutPage()), Icons.info_outlined)
     ];
   }
 

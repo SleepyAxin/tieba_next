@@ -9,16 +9,6 @@ class ForumGrid extends StatelessWidget
 
   const ForumGrid({ super.key, required this.forum });
 
-  /// 处理过长吧名
-  /// 
-  /// [name] 吧名
-  String _handleForumName(BuildContext context, String name)
-  {
-    double width = MediaQuery.of(context).size.width / 2 - 60.0;
-    int num = (width / 24.0).floor();
-    return name.length > num ? '${name.substring(0, num)}...' : name;
-  }
-
   /// 处理吧热度值为字符串
   /// 
   /// [hotNum] 吧热度值
@@ -76,67 +66,69 @@ class ForumGrid extends StatelessWidget
         ],
       ),
       // 吧名字 用户等级 热度
-      Expanded
+      Container
       (
-        child: Container
+        height: 36, 
+        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 5.0),
+        child: Column
         (
-          height: 36,
-          padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 5.0),
-          child: Column
-          (
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: 
-            [
-              // 吧名字 用户等级
-              Row
-              (
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: 
-                [
-                  Text
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: 
+          [
+            // 吧名字 用户等级
+            Row
+            (
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: 
+              [
+                SizedBox
+                (
+                  width: MediaQuery.of(context).size.width / 2 - 104.0,
+                  child: Text
                   (
-                    _handleForumName(context, forum.name),
+                    forum.name, textWidthBasis: TextWidthBasis.parent,
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)
+                  )
+                ),
+                Container
+                (
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                  decoration: BoxDecoration
+                  (
+                    color: Theme.of(context).colorScheme.secondary,
+                    borderRadius: BorderRadius.circular(4.0)
                   ),
-                  Container
+                  child: Text
                   (
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-                    decoration: BoxDecoration
+                    'Lv.${forum.userLevel}',
+                    style: TextStyle
                     (
-                      color: Theme.of(context).colorScheme.secondary,
-                      borderRadius: BorderRadius.circular(4.0)
-                    ),
-                    child: Text
-                    (
-                      'Lv.${forum.userLevel}',
-                      style: TextStyle
-                      (
-                        fontSize: 10, 
-                        color: Theme.of(context).colorScheme.onSecondary
-                      )
-                    ),
-                  )
-                ],
-              ),
-              // 吧热度 是否签到
-              Row
-              (
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: 
-                [ 
-                  const Icon(Icons.local_fire_department_outlined, size: 12.0), 
-                  const SizedBox(width: 2),
-                  Text
-                  (
-                    '热度：${_handleHotNum(forum.hotNum)}', 
-                    style: const TextStyle(fontSize: 10)
-                  )
-                ]
-              )
-            ]
-          )
+                      fontSize: 10, 
+                      color: Theme.of(context).colorScheme.onSecondary
+                    )
+                  ),
+                )
+              ],
+            ),
+            // 吧热度 是否签到
+            Row
+            (
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: 
+              [ 
+                const Icon(Icons.local_fire_department_outlined, size: 12.0), 
+                const SizedBox(width: 2),
+                Text
+                (
+                  '热度：${_handleHotNum(forum.hotNum)}', 
+                  style: const TextStyle(fontSize: 10)
+                )
+              ]
+            )
+          ]
         )
       ),
       const SizedBox(width: 12.0),

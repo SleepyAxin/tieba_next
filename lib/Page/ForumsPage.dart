@@ -102,6 +102,7 @@ class ForumsPageState extends State<ForumsPage>
     ),
   );
 
+  /// 构建吧列表
   Widget _buildForums() => RefreshIndicator
   (
     key: _refreshIndicatorKey,
@@ -192,6 +193,7 @@ class ForumsPageState extends State<ForumsPage>
     )
   );
 
+  /// 构建加载中页面
   Widget _buildPlaceHolder() => GridView.builder
   (
     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount

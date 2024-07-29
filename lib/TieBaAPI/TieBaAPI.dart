@@ -152,7 +152,7 @@ class TieBaAPI
   /// [pageNum] 页码
   /// 
   /// [isGood] 是否是精华帖子
-  static Future<List<dynamic>?> forumHome
+  static Future<Map?> forumHome
   (String forumName, int sortType, int pageNum, bool isGood) async
   {
     final List<Future<Map<String, dynamic>?>> futures = [];
@@ -181,25 +181,25 @@ class TieBaAPI
       avatarURL: basic['avatar'] ?? 'https://via.placeholder.com/150/000000/FFFFFF/?text=',
       id: basic['id'] ?? 0,
       name: basic['name'] ?? forumName,
+      isliked: basic['is_like'] == 1,
       memberNum: basic['member_num'] ?? 0,
       threadNum: basic['thread_num'] ?? 0,
       postNum: basic['post_num'] ?? 0,
     );
 
-    for (final Map<String, dynamic> forumData in likeForums)
+    if (forum.isliked)
     {
-      final int index = likeForums.indexWhere((element) => element.id == forumData['forum_id']);
+      final int index = likeForums.indexWhere((element) => element['forum_id'] == forum.id);
       if (index != -1)
       {
-        forum.isliked = forumData['is_like'] == true;
-        forum.isSign = forumData['is_sign'] == 1;
-        forum.userLevel = forumData['user_level'] ?? 0;
-        forum.userLevelExp = forumData['user_exp'] ?? 0;
+        forum.isSign = likeForums[index]['is_sign'] == 1;
+        forum.userLevel = int.parse(likeForums[index]['user_level'] ?? '0');
+        forum.userLevelExp = int.parse(likeForums[index]['user_exp'] ?? '0');
       }
     }
 
     final List<Thread> threads = [];
-
+    /*
     for (final Map threadData in threadList)
     {
       threads.add
@@ -218,8 +218,8 @@ class TieBaAPI
           description: threadData['rich_abstract'][0]['text'] ?? '',
         )
       );
-    }
+    }*/
 
-    return [forum, threads];
+    return { 'forum': forum, 'threads': threads };
   }
 }
