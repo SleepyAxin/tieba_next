@@ -17,20 +17,22 @@ class ForumPage extends StatefulWidget
 
 class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMixin
 {
-  /// 初始化加载的数据
-  late Future<void> _dataFuture;
-  /// 吧主页信息
-  Forum _forum = Forum.empty;
   /// 吧主页置顶帖子列表
   final List<Thread> _topThreads = [];
   /// 吧主页帖子列表
   final List<Thread> _threads = [];
+  /// 初始化加载的数据
+  late Future<void> _dataFuture;
+  /// 吧主页信息
+  late Forum _forum;
   /// 当前加载的页数
   int _pageNum = 1;
-  /// 刷新页面
-  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   /// 标签页
-  List<String> _tabs = ['全部', '精华'];
+  final List<String> _tabs = ['全部', '精华'];
+  /// 刷新页面（全部）
+  final _allRefreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  /// 刷新页面（精华）
+  final _goodRefreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   /// 页面控制器
   late TabController _tabController;
 
@@ -66,11 +68,14 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   Future<void> _refreshInfo() async
   {
     setState(() => _pageNum = 0 );
-    _updateInfo();
+    await _updateInfo();
   }
 
-  /// 刷新界面
-  Future<void> _refresh() async => await _refreshIndicatorKey.currentState?.show();
+  /// 刷新界面 全部帖子
+  Future<void> _refreshAll() async => await _allRefreshIndicatorKey.currentState?.show();
+
+  /// 刷新界面 精华帖子
+  Future<void> _refreshGood() async => await _goodRefreshIndicatorKey.currentState?.show();
 
   // 吧数据纵向部件
   Widget _buildNum(String text, int num)
@@ -262,12 +267,64 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   );
 
   /// 构建吧帖子列表部件
-  Widget _buildThreads() => Container();
+  Widget _buildThreads(bool isGood) => RefreshIndicator
+  (
+    key: isGood ? _goodRefreshIndicatorKey : _allRefreshIndicatorKey,
+    onRefresh: _refreshInfo,
+    displacement: 0.0,
+    color: Colors.blue,
+    backgroundColor: Theme.of(context).colorScheme.primary,
+    child: SingleChildScrollView
+    (
+      physics: const NeverScrollableScrollPhysics(),
+      child: Column
+      (
+        children: 
+        [
+          const SizedBox(height: 8.0),
+          if (!isGood) ...List.generate
+          (
+            _topThreads.length, 
+            (index) => InkWell
+            (
+              // TODO: 点击帖子跳转
+              onTap: () {},
+              child: Padding
+              (
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), 
+                child: Row
+                (
+                  children: 
+                  [
+                    if (_topThreads[index].type == ThreadType.rule) const Text
+                    (
+                      '吧规', style: TextStyle(color: Colors.blue)
+                    )
+                    else const Text('置顶', style: TextStyle(color: Colors.blue)),
+                    const SizedBox(width: 8.0),
+                    SizedBox
+                    (
+                      width: MediaQuery.of(context).size.width - 75.0,
+                      child: Text
+                      (
+                        _topThreads[index].title, textWidthBasis: TextWidthBasis.parent,
+                        maxLines: 1, overflow: TextOverflow.ellipsis, 
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
+                      )
+                    )
+                  ]
+                )
+              )
+            )
+          )
+        ]
+      )
+    )
+  );
 
   /// 构建页面数据
   Widget _build() => NestedScrollView
   (
-    physics: const AlwaysScrollableScrollPhysics(),
     headerSliverBuilder: (context, innerBoxIsScrolled) => 
     [
       SliverAppBar
@@ -280,54 +337,30 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
         bottom: PreferredSize
         (
           preferredSize: const Size.fromHeight(30.0),
-          child: TabBar
+          child: Align
           (
-            controller: _tabController,
-            tabs: _tabs.map((text) => Tab(text: text, height: 24)).toList(),
-            isScrollable: true, tabAlignment: TabAlignment.start,
-            indicatorColor: Colors.blue, indicatorSize: TabBarIndicatorSize.label,
-            labelColor: Colors.blue, 
-            unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
-            labelStyle: const TextStyle(fontSize: 14),
-            dividerColor: Colors.transparent,
-          ),
+            alignment: Alignment.centerLeft,
+            child: TabBar
+            (
+              controller: _tabController,
+              tabs: _tabs.map((text) => Tab(text: text, height: 24)).toList(),
+              isScrollable: true, tabAlignment: TabAlignment.start,
+              indicatorColor: Theme.of(context).colorScheme.onSurface, 
+              indicatorSize: TabBarIndicatorSize.label,
+              labelColor: Theme.of(context).colorScheme.onSurface, 
+              unselectedLabelColor: Theme.of(context).colorScheme.onSecondary,
+              labelStyle: const TextStyle(fontSize: 14),
+              dividerColor: Colors.transparent,
+              onTap: (index) => index == 0 ? _refreshAll() : _refreshGood()
+            )
+          )
         )
       )
     ],
     body: TabBarView
     (
       controller: _tabController,
-      children: 
-      [
-        RefreshIndicator
-        (
-          key: _refreshIndicatorKey,
-          onRefresh: _refreshInfo,
-          displacement: 0.0,
-          color: Colors.blue,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: ListView.builder
-          (
-            itemCount: 60,
-            itemBuilder: (context, index) => 
-            List.generate(60, (index) => Center(child: Text(index.toString())))[index]
-          )
-        ),
-        RefreshIndicator
-        (
-          // key: _refreshIndicatorKey,
-          onRefresh: _refreshInfo,
-          displacement: 0.0,
-          color: Colors.blue,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: ListView.builder
-          (
-            itemCount: 60,
-            itemBuilder: (context, index) => 
-            List.generate(60, (index) => Center(child: Text(index.toString())))[index]
-          )
-        )
-      ]
+      children: [_buildThreads(false), _buildThreads(true)]
     )
   );
 
@@ -335,13 +368,13 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   void initState() 
   { 
     super.initState(); 
-    _tabController = TabController(initialIndex: 0, length: _tabs.length, vsync: this);
+    _tabController = TabController(length: _tabs.length, vsync: this);
     _dataFuture = _initData(); 
   }
 
   @override
   void dispose() 
-  { 
+  {
     _tabController.dispose(); 
     super.dispose(); 
   }

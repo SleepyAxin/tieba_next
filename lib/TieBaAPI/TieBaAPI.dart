@@ -203,13 +203,15 @@ class TieBaAPI
     
     for (final Map threadData in threadList)
     {
-      late ThreadType threadType;
+      ThreadType threadType = ThreadType.normal;
+
+      if (threadData['is_top'] == 1) threadType = ThreadType.top;
+      
       switch (threadData['thread_types'])
       {
         case 1041: threadType = ThreadType.good; break;
-        case 1042: threadType = ThreadType.top; break;
         case 1043: threadType = ThreadType.rule; break;
-        default: threadType = ThreadType.normal; break;
+        default: break;
       }
 
       Thread thread = Thread
