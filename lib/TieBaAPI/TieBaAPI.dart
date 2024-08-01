@@ -129,7 +129,7 @@ class TieBaAPI
           name: forumData['forum_name'] ?? '未知',
           hotNum: forumData['hot_num'] ?? 0,
           userLevel: forumData['level_id'] ?? 0,
-          isliked: true
+          isLiked: true
         )
       );
     }
@@ -137,7 +137,7 @@ class TieBaAPI
     for (final Map<String, dynamic> forumData in detail)
     {
       final int index = forums.indexWhere((element) => element.id == forumData['forum_id']);
-      if (index != -1) forums[index].isSign = forumData['is_sign'] == 1;
+      if (index != -1) forums[index].isSigned = forumData['is_sign'] == 1;
     }
 
     return forums; 
@@ -155,8 +155,8 @@ class TieBaAPI
   static Future<Map?> forumHome
   (String forumName, int sortType, int pageNum, bool isGood) async
   {
-    final List<Future<Map<String, dynamic>?>> futures = [];
-    final List<Map<String, dynamic>?> data = [];
+    final List<Future<Map?>> futures = [];
+    final List<Map?> data = [];
 
     try 
     {
@@ -181,18 +181,18 @@ class TieBaAPI
       avatarURL: basic['avatar'] ?? 'https://via.placeholder.com/150/000000/FFFFFF/?text=',
       id: basic['id'] ?? 0,
       name: basic['name'] ?? forumName,
-      isliked: basic['is_like'] == 1,
+      isLiked: basic['is_like'] == 1,
       memberNum: basic['member_num'] ?? 0,
       threadNum: basic['thread_num'] ?? 0,
       postNum: basic['post_num'] ?? 0,
     );
 
-    if (forum.isliked)
+    if (forum.isLiked)
     {
       final int index = likeForums.indexWhere((element) => element['forum_id'] == forum.id);
       if (index != -1)
       {
-        forum.isSign = likeForums[index]['is_sign'] == 1;
+        forum.isSigned = likeForums[index]['is_sign'] == 1;
         forum.userLevel = int.parse(likeForums[index]['user_level'] ?? '0');
         forum.userLevelExp = int.parse(likeForums[index]['user_exp'] ?? '0');
       }
@@ -205,16 +205,10 @@ class TieBaAPI
     {
       ThreadType threadType = ThreadType.normal;
 
+      if (threadData['thread_types'] == 1041) threadType = ThreadType.good;
       if (threadData['is_top'] == 1) threadType = ThreadType.top;
       
-      switch (threadData['thread_types'])
-      {
-        case 1041: threadType = ThreadType.good; break;
-        case 1043: threadType = ThreadType.rule; break;
-        default: break;
-      }
-
-      Thread thread = Thread
+      final Thread thread = Thread
       (
         id: threadData['id'] ?? 0,
         author: User
@@ -226,13 +220,18 @@ class TieBaAPI
         ),
         title: threadData['title'] ?? '未知',
         description: threadData['abstract'][0]['text'] ?? '',
+        createTime: threadData['create_time'] ?? 0,
+        lastReplyTime: threadData['last_time_int'] ?? 0,
+        isAgreed: threadData['agree']['has_agree'] == 1,
+        agreeNum: threadData['agree']['agree_num'] ?? 0,
+        replyNum: threadData['reply_num'] ?? 0,
         type: threadType
       );
 
       switch (thread.type)
       {
         case ThreadType.normal || ThreadType.good: threads.add(thread); break;
-        case ThreadType.top || ThreadType.rule: topThreads.add(thread); break;
+        case ThreadType.top: topThreads.add(thread); break;
         default: break;
       }
     }

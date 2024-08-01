@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import 'package:tieba_next/CreateRoute.dart';    // 引入路由
+import 'package:tieba_next/CreateRoute.dart';
 import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/AccountManager.dart';
 import 'package:tieba_next/Core/ThemeManager.dart';
@@ -110,7 +110,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
     height: 60,
     margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
     decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
-    child: InkWell
+    child: GestureDetector
     (
       onTap: () => Navigator.push(context, createRoute(const UserPage())),
       child: Row

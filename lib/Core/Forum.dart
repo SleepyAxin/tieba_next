@@ -17,9 +17,9 @@ class Forum
   /// 用户吧等级经验
   int userLevelExp;
   /// 是否关注
-  bool isliked;
+  bool isLiked;
   /// 是否签到
-  bool isSign;
+  bool isSigned;
   /// 成员数量
   int memberNum;
   /// 帖子数量
@@ -33,7 +33,7 @@ class Forum
     {
       required this.avatarURL, required this.id, required this.name, 
       this.hotNum = 0, this.userLevel = 0, this.userLevelExp = 0, 
-      this.isliked = false, this.isSign = false,
+      this.isLiked = false, this.isSigned = false,
       this.memberNum = 0, this.threadNum = 0, this.postNum = 0
     }
   );

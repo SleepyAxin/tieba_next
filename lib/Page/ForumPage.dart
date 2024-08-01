@@ -3,7 +3,9 @@ import 'package:transparent_image/transparent_image.dart';
 
 import 'package:tieba_next/Core/Forum.dart';
 import 'package:tieba_next/Core/Thread.dart';
+import 'package:tieba_next/Core/AccountManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
+import 'package:tieba_next/Widget/ThreadGrid.dart';
 
 class ForumPage extends StatefulWidget
 {
@@ -19,14 +21,20 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
 {
   /// 吧主页置顶帖子列表
   final List<Thread> _topThreads = [];
-  /// 吧主页帖子列表
-  final List<Thread> _threads = [];
+  /// 吧主页全部帖子列表
+  final List<Thread> _allThreads = [];
+  /// 吧主页精华帖子列表
+  final List<Thread> _goodThreads = [];
   /// 初始化加载的数据
   late Future<void> _dataFuture;
   /// 吧主页信息
   late Forum _forum;
-  /// 当前加载的页数
-  int _pageNum = 1;
+  /// 全部帖子排序方式
+  int _sortType = 0;
+  /// 全部帖子当前加载的页数
+  int _allPageNum = 1;
+  /// 精华帖子当前加载的页数
+  int _goodPageNum = 1;
   /// 标签页
   final List<String> _tabs = ['全部', '精华'];
   /// 刷新页面（全部）
@@ -39,36 +47,49 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   /// 初始化数据
   Future<void> _initData() async
   {
-    Map? map = await TieBaAPI.forumHome(widget.forumName, 0, 1, false);
-    if (map == null) return;
-    _forum = map['forum'];
-    _threads.addAll(map['threads']);
-    _topThreads.addAll(map['topThreads']);
+    final List<Future> futures = [];
+    futures.add(TieBaAPI.forumHome(widget.forumName, 0, 1, false));
+    // futures.add(TieBaAPI.forumHome(widget.forumName, 0, 1, true));
+    final result = await Future.wait(futures);
+    if (result[0] != null)
+    {
+      _forum = result[0]['forum'];
+      _allThreads.addAll(result[0]['threads']);
+      _topThreads.addAll(result[0]['topThreads']);
+    }
   }
 
   /// 加载吧主页信息
-  Future<void> _updateInfo() async
+  /// 
+  /// [isGood] 是否精华帖
+  Future<void> _updateInfo(bool isGood) async
   {
-    _pageNum++;
-    Map? map = await TieBaAPI.forumHome(widget.forumName, 0, _pageNum, false);
-    if (map == null) return;
-    setState
-    (() 
-      {
-        _forum = map['forum']; 
-        // 置为0代表按钮刷新和下滑刷新，否则下划加载
-        if (_pageNum == 1) { _threads.clear(); _topThreads.clear(); }
-        _threads.addAll(map['threads']); 
-        _topThreads.addAll(map['topThreads']);
-      }
-    );
+    if (!isGood)
+    {
+      _allPageNum++;
+      Map? map = await TieBaAPI.forumHome(widget.forumName, _sortType, _allPageNum, false);
+      if (map == null) return;
+      setState
+      (() 
+        {
+          _forum = map['forum']; 
+          if (_allPageNum > (_forum.threadNum / 20.0).ceil()) return;
+          // 置为0代表按钮刷新和下滑刷新，否则下划加载
+          if (_allPageNum == 1) { _allThreads.clear(); _topThreads.clear(); }
+          _allThreads.addAll(map['threads']); 
+          _topThreads.addAll(map['topThreads']);
+        }
+      );
+    }
   }
 
   /// 刷新吧主页信息
-  Future<void> _refreshInfo() async
+  /// 
+  /// [isGood] 是否精华帖
+  Future<void> _refreshInfo(bool isGood) async
   {
-    setState(() => _pageNum = 0 );
-    await _updateInfo();
+    setState(() => isGood ? _goodPageNum = 0 : _allPageNum = 0 );
+    await _updateInfo(isGood);
   }
 
   /// 刷新界面 全部帖子
@@ -166,8 +187,8 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                     )
                   )
                 ),
-                const SizedBox(height: 2),
-                if (_forum.isliked) SizedBox
+                if (AccountManager().account != null) const SizedBox(height: 2),
+                if (AccountManager().account != null && _forum.isLiked) SizedBox
                 (
                   width: MediaQuery.of(context).size.width - 160.0,
                   child: LinearProgressIndicator
@@ -181,8 +202,8 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                     backgroundColor: Theme.of(context).colorScheme.secondary,
                   )
                 ),
-                const SizedBox(height: 3),
-                if (_forum.isliked) SizedBox
+                if (AccountManager().account != null) const SizedBox(height: 3),
+                if (AccountManager().account != null && _forum.isLiked) SizedBox
                 (
                   width: MediaQuery.of(context).size.width - 160.0,
                   child: Row
@@ -213,26 +234,30 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                 )
               ]
             ),
-            // 签到按钮
-            Container
+            // 关注或签到按钮
+            if (AccountManager().account != null) Container
             (
               padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
               decoration: BoxDecoration
               (
                 borderRadius: BorderRadius.circular(4.0),
-                color: Theme.of(context).colorScheme.onSurface
+                color: _forum.isLiked && _forum.isSigned
+                ? Theme.of(context).colorScheme.secondary
+                : Theme.of(context).colorScheme.onSurface
               ),
               child: GestureDetector
               (
-                // TODO: 签到功能
-                onTap: () { debugPrint('签到'); },
+                // TODO: 签到或关注功能
+                onTap: () {  },
                 child: Text
                 (
-                  '签到', 
+                  _forum.isLiked ? (_forum.isSigned ? '已签' : '签到') : '关注', 
                   style: TextStyle
                   (
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.surface
+                    color: _forum.isLiked && _forum.isSigned
+                    ? Theme.of(context).colorScheme.onSecondary
+                    : Theme.of(context).colorScheme.surface
                   )
                 )
               )
@@ -266,11 +291,30 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
     )
   );
 
+  /// 构建帖子部件
+  /// 
+  /// [thread] 帖子信息
+  Widget _buildThread(Thread thread) => Column
+  (
+    children: 
+    [
+      // 分割线
+      Divider
+      (
+        height: 0.75, thickness: 0.75, indent: 16.0, endIndent: 16.0,
+        color: Theme.of(context).colorScheme.secondary
+      ),
+      ThreadGrid(thread: thread, showForumName: false)
+    ]
+  );
+
   /// 构建吧帖子列表部件
+  /// 
+  /// [isGood] 是否为精华帖
   Widget _buildThreads(bool isGood) => RefreshIndicator
   (
     key: isGood ? _goodRefreshIndicatorKey : _allRefreshIndicatorKey,
-    onRefresh: _refreshInfo,
+    onRefresh: () async => await _refreshInfo(isGood),
     displacement: 0.0,
     color: Colors.blue,
     backgroundColor: Theme.of(context).colorScheme.primary,
@@ -296,11 +340,7 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                 (
                   children: 
                   [
-                    if (_topThreads[index].type == ThreadType.rule) const Text
-                    (
-                      '吧规', style: TextStyle(color: Colors.blue)
-                    )
-                    else const Text('置顶', style: TextStyle(color: Colors.blue)),
+                    const Text('置顶', style: TextStyle(color: Colors.blue)),
                     const SizedBox(width: 8.0),
                     SizedBox
                     (
@@ -316,7 +356,100 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                 )
               )
             )
-          )
+          ),
+          // 分割线
+          if (!isGood) Divider
+          (
+            height: 1.0, thickness: 0.75, indent: 16.0, endIndent: 16.0,
+            color: Theme.of(context).colorScheme.secondary
+          ),
+          // 看帖排序 发布 回复
+          if (!isGood) Padding
+          (
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: Row
+            (
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: 
+              [
+                Text
+                (
+                  '看帖排序', 
+                  style: TextStyle
+                  (
+                    fontSize: 12.0, color: Theme.of(context).colorScheme.onSecondary
+                  )
+                ),
+                GestureDetector
+                (
+                  onTap: () 
+                  {
+                    setState(() => _sortType = 1 - _sortType);
+                    _refreshAll();
+                  },
+                  child: Row
+                  (
+                    children: 
+                    [
+                      Container
+                      (
+                        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+                        decoration: BoxDecoration
+                        (
+                          color: _sortType == 0
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.secondary,
+                          borderRadius: const BorderRadius.only
+                          (
+                            topLeft: Radius.circular(4.0), bottomLeft: Radius.circular(4.0)
+                          )
+                        ),
+                        child: Text
+                        (
+                          '发布', 
+                          style: TextStyle
+                          (
+                            fontSize: 14.0,
+                            color: _sortType == 0
+                            ? Theme.of(context).colorScheme.surface
+                            : Theme.of(context).colorScheme.onSecondary
+                          )
+                        )
+                      ),
+                      Container
+                      (
+                        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+                        decoration: BoxDecoration
+                        (
+                          color: _sortType == 1
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.secondary,
+                          borderRadius: const BorderRadius.only
+                          (
+                            topRight: Radius.circular(4.0), bottomRight: Radius.circular(4.0)
+                          )
+                        ),
+                        child: Text
+                        (
+                          '回复', 
+                          style: TextStyle
+                          (
+                            fontSize: 14.0,
+                            color: _sortType == 1
+                            ? Theme.of(context).colorScheme.surface
+                            : Theme.of(context).colorScheme.onSecondary
+                          )
+                        )
+                      )
+                    ]
+                  )
+                )
+              ]
+            )
+          ),
+          ...isGood
+          ? List.generate(_allThreads.length, (index) => _buildThread(_allThreads[index]))
+          : List.generate(_goodThreads.length, (index) => _buildThread(_goodThreads[index]))
         ]
       )
     )

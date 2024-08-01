@@ -63,22 +63,19 @@ class ForumsPageState extends State<ForumsPage>
 
   /// 设置吧列表
   /// 
-  /// [forums] 吧列表
-  List<Widget> _setForumGrid(List<Forum> forums) => List<Widget>.generate
-  (forums.length, (index) => InkWell
-    (
-      // 点击跳转到吧页面
-      onTap: () => Navigator.push(context, createRoute(ForumPage(forums[index].name))),
-      // 长按置顶吧
-      onLongPress: ()
-      {
-        final Forum forum = forums[index];
-        !_topForums.contains(forum)
-        ? { setState(() => _topForums.add(forum) ), SettingsManager().addTopForum(forum.id) }
-        : { setState(() => _topForums.remove(forum) ), SettingsManager().removeTopForum(forum.id) };
-      },
-      child: ForumGrid(forum: forums[index])
-    )
+  /// [forum] 吧信息
+  Widget _setForumGrid(Forum forum) => InkWell
+  (
+    // 点击跳转到吧页面
+    onTap: () => Navigator.push(context, createRoute(ForumPage(forum.name))),
+    // 长按置顶吧
+    onLongPress: ()
+    {
+      !_topForums.contains(forum)
+      ? { setState(() => _topForums.add(forum) ), SettingsManager().addTopForum(forum.id) }
+      : { setState(() => _topForums.remove(forum) ), SettingsManager().removeTopForum(forum.id) };
+    },
+    child: ForumGrid(forum: forum)
   );
 
   /// 设置分区域文本
@@ -121,15 +118,15 @@ class ForumsPageState extends State<ForumsPage>
             _setInfoText('置顶的吧', Icons.forum_outlined),
             GridView.builder
             (
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount
               (
                 crossAxisCount: 2,
-                childAspectRatio: 3.5,
+                childAspectRatio: MediaQuery.of(context).size.width / 2.0 / 44.0
               ),
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
               itemCount: _topForums.length,
-              itemBuilder: (context, index) => _setForumGrid(_topForums)[index]
+              itemBuilder: (context, index) => _setForumGrid(_topForums[index])
             )
           ],
           _setInfoText('关注的吧', Icons.forum_outlined),
@@ -178,15 +175,15 @@ class ForumsPageState extends State<ForumsPage>
           ),
           GridView.builder
           (
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount
             (
               crossAxisCount: 2,
-              childAspectRatio: 3.5,
+              childAspectRatio: MediaQuery.of(context).size.width / 2.0 / 50.0
             ),
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
             itemCount: _likeForums.length,
-            itemBuilder: (context, index) => _setForumGrid(_likeForums)[index]
+            itemBuilder: (context, index) => _setForumGrid(_likeForums[index])
           )
         ]
       )

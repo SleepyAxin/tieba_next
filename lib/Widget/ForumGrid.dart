@@ -5,6 +5,7 @@ import 'package:tieba_next/Core/Forum.dart';    // 引入吧类
 
 class ForumGrid extends StatelessWidget 
 {
+  /// 吧信息
   final Forum forum;
 
   const ForumGrid({ super.key, required this.forum });
@@ -49,7 +50,7 @@ class ForumGrid extends StatelessWidget
               )
             )
           ),
-          if(forum.isSign) Positioned
+          if(forum.isSigned) Positioned
           (
             right: 0, bottom: 0,
             child: Container
@@ -84,7 +85,7 @@ class ForumGrid extends StatelessWidget
               [
                 SizedBox
                 (
-                  width: MediaQuery.of(context).size.width / 2 - 104.0,
+                  width: MediaQuery.of(context).size.width / 2.0 - 104.0,
                   child: Text
                   (
                     forum.name, textWidthBasis: TextWidthBasis.parent,
