@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
 
 import 'package:tieba_next/CreateRoute.dart';
 import 'package:tieba_next/Widget/MyFlushBar.dart';
@@ -94,7 +95,7 @@ class ForumsPageState extends State<ForumsPage>
       [
         Icon(icon, size: 16.0),
         const SizedBox(width: 4.0),
-        Text(text, style: const TextStyle(fontSize: 16))
+        Text(text, style: const TextStyle(fontSize: 16).useSystemChineseFont())
       ]
     ),
   );
@@ -156,16 +157,19 @@ class ForumsPageState extends State<ForumsPage>
                     (
                       fontSize: 12, 
                       color: Theme.of(context).colorScheme.onSecondary
-                    )
+                    ).useSystemChineseFont()
                   ),
                   InkWell
                   (
                     onTap: () => {},
-                    child: const Text
+                    child: Text
                     (
                       '不再显示',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.blue)
+                      style: const TextStyle
+                      (
+                        fontSize: 12, color: Colors.blue
+                      ).useSystemChineseFont()
                     ),
                   )
                 ],
@@ -241,7 +245,14 @@ class ForumsPageState extends State<ForumsPage>
             [
               Icon(Icons.search, size: 16, color: Theme.of(context).colorScheme.onSecondary),
               const SizedBox(width: 8.0),
-              Text('搜索', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSecondary))
+              Text
+              (
+                '搜索', style: 
+                TextStyle
+                (
+                  fontSize: 12, color: Theme.of(context).colorScheme.onSecondary
+                ).useSystemChineseFont()
+              )
             ],
           )
         )

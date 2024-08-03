@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
+import 'package:flutter/material.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
 
 class LoadingScreenPage extends StatefulWidget
 {
@@ -14,7 +15,7 @@ class _LoadingScreenPageState extends State<LoadingScreenPage>
   @override
   Widget build(BuildContext context) => Scaffold
   (
-    body: const Center(child: Text('加载中...')),
+    body: Center(child: Text('加载中...', style: const TextStyle().useSystemChineseFont())),
     backgroundColor: Theme.of(context).colorScheme.surface
   );
 }

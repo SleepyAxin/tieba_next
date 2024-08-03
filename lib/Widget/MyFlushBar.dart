@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
-import 'package:another_flushbar/flushbar.dart';    // 引入flushbar库
+import 'package:flutter/material.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 /// 显示提示信息
 /// 
@@ -17,7 +18,7 @@ void myFlushBar({required context, required String message, required int duratio
       child: Text
       (
         message,
-        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary).useSystemChineseFont(),
         textAlign: TextAlign.center    // 文本居中
       ),
     ),

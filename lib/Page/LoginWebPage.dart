@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import "package:flutter_inappwebview/flutter_inappwebview.dart";
+import 'package:chinese_font_library/chinese_font_library.dart';
 
 import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Widget/MyFlushBar.dart';
@@ -64,7 +65,7 @@ class _LoginWebPageState extends State<LoginWebPage>
   (
     appBar: AppBar
     (
-      title: const Text('登录'),
+      title: Text('登录', style: const TextStyle().useSystemChineseFont()),
       backgroundColor: Theme.of(context).colorScheme.surface
     ),
     body: Stack

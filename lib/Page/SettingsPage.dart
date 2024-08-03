@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
+import 'package:flutter/material.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
 
 class SettingsPage extends StatefulWidget
 {
@@ -15,7 +16,7 @@ class _SettingsPageState extends State<SettingsPage>
   (
     appBar: AppBar
     (
-      title: const Text('设置'),
+      title: Text('设置', style: const TextStyle().useSystemChineseFont()),
       backgroundColor: Theme.of(context).colorScheme.surface
     ),
     backgroundColor: Theme.of(context).colorScheme.surface

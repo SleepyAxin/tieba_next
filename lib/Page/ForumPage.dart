@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import 'package:tieba_next/Core/Forum.dart';
@@ -30,7 +31,7 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   /// 吧主页信息
   late Forum _forum;
   /// 全部帖子排序方式
-  int _sortType = 0;
+  int _sortType = 1;
   /// 全部帖子当前加载的页数
   int _allPageNum = 1;
   /// 精华帖子当前加载的页数
@@ -48,7 +49,7 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   Future<void> _initData() async
   {
     final List<Future> futures = [];
-    futures.add(TieBaAPI.forumHome(widget.forumName, 0, 1, false));
+    futures.add(TieBaAPI.forumHome(widget.forumName, _sortType, 1, false));
     // futures.add(TieBaAPI.forumHome(widget.forumName, 0, 1, true));
     final result = await Future.wait(futures);
     if (result[0] != null)
@@ -121,7 +122,10 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
         Text
         (
           text, 
-          style: TextStyle(fontSize: 12.0, color: Theme.of(context).colorScheme.onSecondary)
+          style: TextStyle
+          (
+            fontSize: 12.0, color: Theme.of(context).colorScheme.onSecondary
+          ).useSystemChineseFont()
         )
       ]
     );
@@ -183,7 +187,7 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                       (
                         fontSize: 18, fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.onSurface
-                      )
+                      ).useSystemChineseFont()
                     )
                   )
                 ),
@@ -254,11 +258,11 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                   _forum.isLiked ? (_forum.isSigned ? '已签' : '签到') : '关注', 
                   style: TextStyle
                   (
-                    fontSize: 12,
+                    fontSize: 12.0,
                     color: _forum.isLiked && _forum.isSigned
                     ? Theme.of(context).colorScheme.onSecondary
                     : Theme.of(context).colorScheme.surface
-                  )
+                  ).useSystemChineseFont()
                 )
               )
             )
@@ -304,7 +308,16 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
         height: 0.75, thickness: 0.75, indent: 16.0, endIndent: 16.0,
         color: Theme.of(context).colorScheme.secondary
       ),
-      ThreadGrid(thread: thread, showForumName: false)
+      InkWell
+      (
+        onTap: () {},
+        onLongPress: () {},
+        child: ThreadGrid
+        (
+          thread: thread, 
+          showForumName: false, showCreateTime: _sortType == 1
+        )
+      )
     ]
   );
 
@@ -340,7 +353,10 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                 (
                   children: 
                   [
-                    const Text('置顶', style: TextStyle(color: Colors.blue)),
+                    Text
+                    (
+                      '置顶', style: const TextStyle(color: Colors.blue).useSystemChineseFont()
+                    ),
                     const SizedBox(width: 8.0),
                     SizedBox
                     (
@@ -349,7 +365,10 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                       (
                         _topThreads[index].title, textWidthBasis: TextWidthBasis.parent,
                         maxLines: 1, overflow: TextOverflow.ellipsis, 
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
+                        style: TextStyle
+                        (
+                          color: Theme.of(context).colorScheme.onSurface
+                        ).useSystemChineseFont()
                       )
                     )
                   ]
@@ -378,25 +397,28 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                   style: TextStyle
                   (
                     fontSize: 12.0, color: Theme.of(context).colorScheme.onSecondary
-                  )
+                  ).useSystemChineseFont()
                 ),
-                GestureDetector
+                Row
                 (
-                  onTap: () 
-                  {
-                    setState(() => _sortType = 1 - _sortType);
-                    _refreshAll();
-                  },
-                  child: Row
-                  (
-                    children: 
-                    [
-                      Container
+                  children: 
+                  [
+                    GestureDetector
+                    (
+                      onTap: () 
+                      {
+                        if (_sortType == 0)
+                        {
+                          setState(() => _sortType = 1);
+                          _refreshAll();
+                        }
+                      },
+                      child: Container
                       (
                         padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
                         decoration: BoxDecoration
                         (
-                          color: _sortType == 0
+                          color: _sortType == 1
                           ? Theme.of(context).colorScheme.onSurface
                           : Theme.of(context).colorScheme.secondary,
                           borderRadius: const BorderRadius.only
@@ -409,19 +431,30 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                           '发布', 
                           style: TextStyle
                           (
-                            fontSize: 14.0,
-                            color: _sortType == 0
+                            fontSize: 13.0,
+                            color: _sortType == 1
                             ? Theme.of(context).colorScheme.surface
                             : Theme.of(context).colorScheme.onSecondary
-                          )
+                          ).useSystemChineseFont()
                         )
-                      ),
-                      Container
+                      )
+                    ),
+                    GestureDetector
+                    (
+                      onTap: () 
+                      {
+                        if (_sortType == 1)
+                        {
+                          setState(() => _sortType = 0);
+                          _refreshAll();
+                        }
+                      },
+                      child: Container
                       (
                         padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
                         decoration: BoxDecoration
                         (
-                          color: _sortType == 1
+                          color: _sortType == 0
                           ? Theme.of(context).colorScheme.onSurface
                           : Theme.of(context).colorScheme.secondary,
                           borderRadius: const BorderRadius.only
@@ -434,20 +467,20 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                           '回复', 
                           style: TextStyle
                           (
-                            fontSize: 14.0,
-                            color: _sortType == 1
+                            fontSize: 13.0,
+                            color: _sortType == 0
                             ? Theme.of(context).colorScheme.surface
                             : Theme.of(context).colorScheme.onSecondary
-                          )
+                          ).useSystemChineseFont()
                         )
                       )
-                    ]
-                  )
-                )
+                    )
+                  ]
+                ),
               ]
             )
           ),
-          ...isGood
+          ...!isGood
           ? List.generate(_allThreads.length, (index) => _buildThread(_allThreads[index]))
           : List.generate(_goodThreads.length, (index) => _buildThread(_goodThreads[index]))
         ]

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
 
 import 'package:tieba_next/CreateRoute.dart';
 import 'package:tieba_next/Core/Account.dart';
@@ -36,7 +37,8 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
   /// [lIcon] 最左边按钮图标
   /// 
   /// [rIcon] 最右边按钮图标（可选）
-  InkWell _setRowButton(String text, Function() action, IconData lIcon, [IconData? rIcon]) => InkWell
+  Widget _setRowButton(String text, Function() action, IconData lIcon, [IconData? rIcon]) => 
+  InkWell
   (
     onTap: action,
     child: Container
@@ -50,7 +52,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
         [ 
           Icon(lIcon), 
           const SizedBox(width: 8), 
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 14.0).useSystemChineseFont())),
           if (rIcon != null) Icon(rIcon)
         ]
       )
@@ -64,43 +66,40 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
   /// [page] 按钮跳转页面
   /// 
   /// [icon] 按钮图标
-  ElevatedButton _setColumnButton(String text, Widget page, IconData icon)
-  {
-    return ElevatedButton
+  Widget _setColumnButton(String text, Widget page, IconData icon) => ElevatedButton
+  (
+    onPressed: () => Navigator.push(context, createRoute(page)),
+    style: ElevatedButton.styleFrom
     (
-      onPressed: () => Navigator.push(context, createRoute(page)),
-      style: ElevatedButton.styleFrom
-      (
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0)
-      ),
-      child: Column
-      (
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: 
-        [
-          Icon
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0)
+    ),
+    child: Column
+    (
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: 
+      [
+        Icon
+        (
+          icon,
+          size: 30,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+        const SizedBox(height: 4),    // 图标和文本之间的间距
+        Text
+        (
+          text, 
+          style: TextStyle
           (
-            icon,
-            size: 30,
             color: Theme.of(context).colorScheme.onSurface,
-          ),
-          const SizedBox(height: 4),    // 图标和文本之间的间距
-          Text
-          (
-            text, 
-            style: TextStyle
-            (
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 12    // 减小
-            )
-          )
-        ]
-      )
-    );
-  }
+            fontSize: 12    // 减小
+          ).useSystemChineseFont()
+        )
+      ]
+    )
+  );
 
   /// 设置用户头像、信息、前往主页
   /// 
@@ -157,7 +156,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
                     (
                       fontSize: 20, fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface
-                    )
+                    ).useSystemChineseFont()
                   ),
                   const SizedBox(height: 2),
                   Text
@@ -168,18 +167,23 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
                     (
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurface
-                    )
+                    ).useSystemChineseFont()
                   )
                 ]
               )
             ),
           ),
           // 前往个人主页
-          const Row
+          Row
           (
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [ Text('个人主页'), SizedBox(height: 2), Icon(Icons.keyboard_arrow_right) ]
+            children: 
+            [
+              Text('个人主页', style: const TextStyle().useSystemChineseFont()), 
+              const SizedBox(height: 2), 
+              const Icon(Icons.keyboard_arrow_right) 
+            ]
           )
         ]
       )
@@ -223,7 +227,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
   (
     builder: (context, themeManager, child) => RadioListTile<ThemeMode>
     (
-      title: Text(text, style: const TextStyle(fontSize: 14)),
+      title: Text(text, style: const TextStyle(fontSize: 14).useSystemChineseFont()),
       contentPadding: const EdgeInsets.only(left: 36.0),
       value: value, groupValue: themeManager.themeMode,
       fillColor: WidgetStateProperty.resolveWith<Color>((states) => Theme.of(context).colorScheme.onSurface),
@@ -317,7 +321,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
   (
     appBar: AppBar
     (
-      title: const Text('我的'),
+      title: Text('我的', style: const TextStyle().useSystemChineseFont()),
       backgroundColor: Theme.of(context).colorScheme.surface
     ),
     body: RefreshIndicator

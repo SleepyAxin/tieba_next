@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
+import 'package:flutter/material.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
 
 class HistoryPage extends StatefulWidget
 {
@@ -15,7 +16,7 @@ class _HistoryPageState extends State<HistoryPage>
   (
     appBar: AppBar
     (
-      title: const Text('浏览历史'),
+      title: Text('浏览历史', style: const TextStyle().useSystemChineseFont()),
       backgroundColor: Theme.of(context).colorScheme.surface
     ),
     backgroundColor: Theme.of(context).colorScheme.surface

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';    // 引入透明图片库
+import 'package:transparent_image/transparent_image.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
 
-import 'package:tieba_next/Core/Forum.dart';    // 引入吧类
+import 'package:tieba_next/Core/Forum.dart';
 
 class ForumGrid extends StatelessWidget 
 {
@@ -90,7 +91,10 @@ class ForumGrid extends StatelessWidget
                   (
                     forum.name, textWidthBasis: TextWidthBasis.parent,
                     maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)
+                    style: TextStyle
+                    (
+                      fontSize: 12, color: Theme.of(context).colorScheme.onSurface
+                    ).useSystemChineseFont()
                   )
                 ),
                 Container
@@ -125,7 +129,7 @@ class ForumGrid extends StatelessWidget
                 Text
                 (
                   '热度：${_handleHotNum(forum.hotNum)}', 
-                  style: const TextStyle(fontSize: 10)
+                  style: const TextStyle(fontSize: 10).useSystemChineseFont()
                 )
               ]
             )

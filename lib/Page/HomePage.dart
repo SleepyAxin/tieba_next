@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
+import 'package:flutter/material.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
 
 class HomePage extends StatefulWidget
 {
@@ -16,7 +17,7 @@ class _HomePageState extends State<HomePage>
   (
     appBar: AppBar
     (
-      title: const Text('首页'),
+      title: Text('首页', style: const TextStyle().useSystemChineseFont()),
       backgroundColor: Theme.of(context).colorScheme.surface,
       surfaceTintColor: Theme.of(context).colorScheme.surface,
     ),
