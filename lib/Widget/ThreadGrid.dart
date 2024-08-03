@@ -131,7 +131,7 @@ class ThreadGrid extends StatelessWidget
             maxLines: 2, overflow: TextOverflow.ellipsis,
             style: const TextStyle
             (
-              fontSize: 14.0, fontWeight: FontWeight.w900
+              fontSize: 14.0, fontWeight: FontWeight.w600
             ).useSystemChineseFont()
           )
         ),

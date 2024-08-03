@@ -117,7 +117,11 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
         Text
         (
           numStr, 
-          style: TextStyle(fontSize: 16.0, color: Theme.of(context).colorScheme.onSurface)
+          style: TextStyle
+          (
+            fontSize: 16.0, fontWeight: FontWeight.w600, 
+            color: Theme.of(context).colorScheme.onSurface
+          ).useSystemChineseFont()
         ),
         Text
         (
@@ -185,8 +189,7 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                       maxLines: 1, overflow: TextOverflow.ellipsis, 
                       style: TextStyle
                       (
-                        fontSize: 18, fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface
+                        fontSize: 18, color: Theme.of(context).colorScheme.onSurface
                       ).useSystemChineseFont()
                     )
                   )

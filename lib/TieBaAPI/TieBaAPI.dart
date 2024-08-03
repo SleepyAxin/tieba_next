@@ -157,6 +157,7 @@ class TieBaAPI
   {
     final List<Future<Map?>> futures = [];
     final List<Map?> data = [];
+    const String placeholderImage = 'https://via.placeholder.com/150/000000/FFFFFF/?text=';
 
     try 
     {
@@ -178,7 +179,7 @@ class TieBaAPI
 
     final Forum forum = Forum
     (
-      avatarURL: basic['avatar'] ?? 'https://via.placeholder.com/150/000000/FFFFFF/?text=',
+      avatarURL: basic['avatar'] ?? placeholderImage,
       id: basic['id'] ?? 0,
       name: basic['name'] ?? forumName,
       isLiked: basic['is_like'] == 1,
@@ -207,6 +208,41 @@ class TieBaAPI
 
       if (threadData['thread_types'] == 1041) threadType = ThreadType.good;
       if (threadData['is_top'] == 1) threadType = ThreadType.top;
+
+      final List<ThreadMedia> threadMedias = [];
+
+      if (threadData['media'] != null)
+      {
+        for (final mediaData in threadData['media'])
+        {
+          switch (mediaData['type'])
+          {
+            case 'pic':
+              threadMedias.add
+              (
+                ThreadMedia
+                (
+                  smallURL: mediaData['small_pic'] ?? placeholderImage,
+                  bigURL: mediaData['big_pic'] ?? placeholderImage,
+                  type: ThreadMediaType.image
+                )
+              );
+              break;
+            case 'flash':
+              threadMedias.add
+              (
+                ThreadMedia
+                (
+                  smallURL: mediaData['vpic'] ?? placeholderImage,
+                  bigURL: mediaData['vsrc'] ?? placeholderImage,
+                  type: ThreadMediaType.video
+                )
+              );
+              break;
+            default: break;
+          }
+        }
+      }
       
       final Thread thread = Thread
       (
@@ -225,7 +261,8 @@ class TieBaAPI
         isAgreed: threadData['agree']['has_agree'] == 1,
         agreeNum: threadData['agree']['agree_num'] ?? 0,
         replyNum: threadData['reply_num'] ?? 0,
-        type: threadType
+        type: threadType,
+        medias: threadMedias
       );
 
       switch (thread.type)
