@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:chinese_font_library/chinese_font_library.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:tieba_next/Core/Thread.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
@@ -29,6 +29,9 @@ class ThreadGrid extends StatefulWidget
 
 class _ThreadGridState extends State<ThreadGrid> 
 {
+  /// 是否显示媒体
+  bool _showMedia = false;
+
   /// 格式化时间戳
   /// 
   /// [timestamp] 时间戳（秒）
@@ -48,7 +51,8 @@ class _ThreadGridState extends State<ThreadGrid>
 
     // 如果不是在同一年的话，直接返回年份-月份-日期
     if (now.year != dateTime.year) return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
-    // 同一年内
+    /// 如果不是同一个月份的话，直接返回月份-日期
+    if (now.month != dateTime.month) return DateFormat('MM-dd HH:mm').format(dateTime);
     // 如果不是同一天的话，判断是否是昨天或前天
     if (now.day != dateTime.day)
     {
@@ -68,6 +72,7 @@ class _ThreadGridState extends State<ThreadGrid>
     return '${now.difference(dateTime).inSeconds}秒前';
   }
 
+  /// 构建媒体
   Widget _buildMedia()
   {
     final List<Widget> list = [];
@@ -89,9 +94,19 @@ class _ThreadGridState extends State<ThreadGrid>
             // TODO: 点击放大图片
             onTap: () {},
             borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-            child: NetworkImageGrid
+            child: _showMedia
+            ? NetworkImageGrid
             (
               width: width, height: height, radius: 8.0, url: widget.thread.medias[i].smallURL
+            )
+            : Container
+            (
+              width: width, height: height,
+              decoration: BoxDecoration
+              (
+                color: Theme.of(context).colorScheme.secondary,
+                borderRadius: BorderRadius.circular(8.0)
+              )
             )
           )
         );
@@ -106,94 +121,99 @@ class _ThreadGridState extends State<ThreadGrid>
   }
 
   @override
-  Widget build(BuildContext context) => Padding
+  Widget build(BuildContext context) => VisibilityDetector
   (
-    padding: const EdgeInsets.all(16.0),
-    child: Column
+    key: Key(widget.thread.id.toString()), 
+    onVisibilityChanged: (info) 
+    {
+      // 显示媒体
+      if (info.visibleFraction > 0.0) setState(() => _showMedia = true);
+    },
+    child: Padding
     (
-      children: 
-      [
-        // 用户头像 昵称 时间
-        Row
-        (
-          children: 
-          [
-            Container
-            (
-              width: 32.0, height: 32.0,
-              decoration: BoxDecoration
+      padding: const EdgeInsets.all(16.0),
+      child: Column
+      (
+        children: 
+        [
+          // 用户头像 昵称 时间
+          Row
+          (
+            children: 
+            [
+              _showMedia
+              ? NetworkImageGrid
               (
-                color: Theme.of(context).colorScheme.secondary,
-                borderRadius: BorderRadius.circular(4.0)
-              ),
-              child: ClipRRect
-              (
-                borderRadius: BorderRadius.circular(4.0),
-                child: FadeInImage.memoryNetwork
-                (
-                  placeholder: kTransparentImage,
-                  image: TieBaAPI.avatar(widget.thread.author.portrait, false),
-                  fit: BoxFit.cover
-                )
+                width: 32.0, height: 32.0, radius: 4.0,
+                url: TieBaAPI.avatar(widget.thread.author.portrait, false)
               )
-            ),
-            const SizedBox(width: 8.0),
-            Column
-            (
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: 
-              [
-                Text
+              : Container
+              (
+                width: 32.0, height: 32.0,
+                decoration: BoxDecoration
                 (
-                  widget.thread.author.nickname,
-                  style: const TextStyle
-                  (
-                    fontSize: 12.0, fontWeight: FontWeight.bold
-                  ).useSystemChineseFont()
-                ),
-                Text
-                (
-                  widget.showCreateTime 
-                  ? formatTimestamp(widget.thread.createTime) 
-                  : formatTimestamp(widget.thread.lastReplyTime),
-                  style: TextStyle
-                  (
-                    fontSize: 10.0, color: Theme.of(context).colorScheme.onSecondary
-                  ).useSystemChineseFont()
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(4.0)
                 )
-              ]
-            )
-          ]
-        ),
-        const SizedBox(height: 8.0),
-        // 标题
-        if (widget.thread.title.isNotEmpty) SizedBox
-        (
-          width: MediaQuery.of(context).size.width - 32.0,
-          child: Text
+              ),
+              const SizedBox(width: 8.0),
+              Column
+              (
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: 
+                [
+                  Text
+                  (
+                    widget.thread.author.nickname,
+                    style: const TextStyle
+                    (
+                      fontSize: 12.0, fontWeight: FontWeight.bold
+                    ).useSystemChineseFont()
+                  ),
+                  Text
+                  (
+                    widget.showCreateTime 
+                    ? formatTimestamp(widget.thread.createTime) 
+                    : formatTimestamp(widget.thread.lastReplyTime),
+                    style: TextStyle
+                    (
+                      fontSize: 10.0, color: Theme.of(context).colorScheme.onSecondary
+                    ).useSystemChineseFont()
+                  )
+                ]
+              )
+            ]
+          ),
+          const SizedBox(height: 8.0),
+          // 标题
+          if (widget.thread.title.isNotEmpty) SizedBox
           (
-            widget.thread.title, textWidthBasis: TextWidthBasis.parent,
-            maxLines: 2, overflow: TextOverflow.ellipsis,
-            style: const TextStyle
+            width: MediaQuery.of(context).size.width - 32.0,
+            child: Text
             (
-              fontSize: 14.0, fontWeight: FontWeight.w600
-            ).useSystemChineseFont()
-          )
-        ),
-        // 描述
-        if (widget.thread.description.isNotEmpty) SizedBox
-        (
-          width: MediaQuery.of(context).size.width - 32.0,
-          child: Text
+              widget.thread.title, textWidthBasis: TextWidthBasis.parent,
+              maxLines: 2, overflow: TextOverflow.ellipsis,
+              style: const TextStyle
+              (
+                fontSize: 14.0, fontWeight: FontWeight.w600
+              ).useSystemChineseFont()
+            )
+          ),
+          // 描述
+          if (widget.thread.description.isNotEmpty) SizedBox
           (
-            widget.thread.description, textWidthBasis: TextWidthBasis.parent,
-            maxLines: 4, overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 14.0).useSystemChineseFont()
-          )
-        ),
-        // 媒体 图像或者视频
-        if (widget.thread.medias.isNotEmpty) ...[const SizedBox(height: 8.0), _buildMedia()],
-      ]
+            width: MediaQuery.of(context).size.width - 32.0,
+            child: Text
+            (
+              widget.thread.description, textWidthBasis: TextWidthBasis.parent,
+              maxLines: 4, overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14.0).useSystemChineseFont()
+            )
+          ),
+          // 媒体 图像或者视频
+          if (widget.thread.medias.isNotEmpty) ...[const SizedBox(height: 8.0), _buildMedia()],
+        ]
+      )
     )
   );
 }

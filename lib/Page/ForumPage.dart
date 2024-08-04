@@ -7,6 +7,7 @@ import 'package:tieba_next/Core/AccountManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 import 'package:tieba_next/Widget/ThreadGrid.dart';
 import 'package:tieba_next/Widget/NetworkImageGrid.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class ForumPage extends StatefulWidget
 {
@@ -36,16 +37,14 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   int _allPageNum = 1;
   /// 精华帖子当前加载的页数
   int _goodPageNum = 1;
+  /// 是否显示吧名标题
+  bool _showTitle = false;
   /// 标签页
   final List<String> _tabs = ['全部', '精华'];
   /// 刷新页面（全部）
   final _allRefreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  /// 全部帖子页面滚动控制器
-  late ScrollController _allScrollController;
   /// 刷新页面（精华）
   final _goodRefreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  /// 精华帖子页面滚动控制器
-  late ScrollController _goodScrollController;
   /// 页面控制器
   late TabController _tabController;
 
@@ -173,14 +172,23 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
                   child: SizedBox
                   (
                     width: MediaQuery.of(context).size.width - 160.0,
-                    child: Text
+                    child: VisibilityDetector
                     (
-                      '${_forum.name}吧', textWidthBasis: TextWidthBasis.parent,
-                      maxLines: 1, overflow: TextOverflow.ellipsis, 
-                      style: TextStyle
+                      key: Key('ForumPage${_forum.name}'), 
+                      onVisibilityChanged: (info) 
+                      {
+                        if (info.visibleFraction == 0.0) { setState(() => _showTitle = true ); }
+                        else { setState(() => _showTitle = false ); }
+                      },
+                      child: Text
                       (
-                        fontSize: 18, color: Theme.of(context).colorScheme.onSurface
-                      ).useSystemChineseFont()
+                        '${_forum.name}吧', textWidthBasis: TextWidthBasis.parent,
+                        maxLines: 1, overflow: TextOverflow.ellipsis, 
+                        style: TextStyle
+                        (
+                          fontSize: 18, color: Theme.of(context).colorScheme.onSurface
+                        ).useSystemChineseFont()
+                      )
                     )
                   )
                 ),
@@ -544,16 +552,12 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   { 
     super.initState(); 
     _tabController = TabController(length: _tabs.length, vsync: this);
-    _allScrollController = TrackingScrollController(keepScrollOffset: false);
-    _goodScrollController = TrackingScrollController(keepScrollOffset: false);
     _dataFuture = _initData(); 
   }
 
   @override
   void dispose() 
   {
-    _goodScrollController.dispose();
-    _allScrollController.dispose();
     _tabController.dispose(); 
     super.dispose(); 
   }
@@ -563,8 +567,10 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   (
     appBar: AppBar
     (
+      title: _showTitle 
+      ? Text(_forum.name, style: const TextStyle().useSystemChineseFont()) : null,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      surfaceTintColor: Theme.of(context).colorScheme.surface,
+      surfaceTintColor: Theme.of(context).colorScheme.surface
     ),
     body: FutureBuilder<void>
     (
