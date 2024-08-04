@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:chinese_font_library/chinese_font_library.dart';
 
 import 'package:tieba_next/Core/Forum.dart';
+import 'package:tieba_next/Widget/NetworkImageGrid.dart';
 
 class ForumGrid extends StatelessWidget 
 {
@@ -32,25 +32,7 @@ class ForumGrid extends StatelessWidget
         clipBehavior: Clip.none,    // 允许溢出部分显示
         children: 
         [
-          Container
-          (
-            width: 36, height: 36,
-            decoration: BoxDecoration
-            (
-              color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(4.0)
-            ),
-            child: ClipRRect
-            (
-              borderRadius: BorderRadius.circular(4.0),
-              child: FadeInImage.memoryNetwork
-              (
-                placeholder: kTransparentImage,
-                image: forum.avatarURL,
-                fit: BoxFit.cover
-              )
-            )
-          ),
+          NetworkImageGrid(width: 36.0, height: 36.0, url: forum.avatarURL),
           if(forum.isSigned) Positioned
           (
             right: 0, bottom: 0,

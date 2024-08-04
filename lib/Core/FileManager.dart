@@ -24,12 +24,21 @@ class FileManager
   /// [key] - 属性名字
   /// 
   /// [value] - 属性值
-  static Future<void> saveMap(String key, String value) async
+  /// 
+  /// [type] - 属性值的类型，默认为字符串
+  static Future<void> saveMap(String key, dynamic value, { DataType type = DataType.string }) async
   {
     try 
     {
       if (_prefs == null) await _init();
-      await _prefs!.setString(key, value);
+      switch (type)
+      {
+        case DataType.int: await _prefs!.setInt(key, value); break;
+        case DataType.double: await _prefs!.setDouble(key, value); break;
+        case DataType.bool: await _prefs!.setBool(key, value); break;
+        case DataType.string: await _prefs!.setString(key, value); break;
+        case DataType.stringList: await _prefs!.setStringList(key, value); break; 
+      }
     }
     catch (error) { debugPrint('文件保存失败: $error'); }
   } 
@@ -37,12 +46,21 @@ class FileManager
   /// 从本地读取键值对
   /// 
   /// [key] - 属性名字
-  static Future<String?> loadMap(String key) async
+  /// 
+  /// [type] - 属性值的类型，默认为字符串
+  static Future<dynamic> loadMap(String key, { DataType type = DataType.string }) async
   {
     try 
     {
       if (_prefs == null) await _init();
-      return _prefs!.getString(key);
+      switch (type)
+      {
+        case DataType.int: return _prefs!.getInt(key);
+        case DataType.double: return _prefs!.getDouble(key);
+        case DataType.bool: return _prefs!.getBool(key);
+        case DataType.string: return _prefs!.getString(key);
+        case DataType.stringList: return _prefs!.getStringList(key);
+      }
     }
     catch (error)
     {
@@ -63,4 +81,19 @@ class FileManager
     }
     catch (error) { debugPrint('文件删除失败: $error'); }
   }
+}
+
+/// 存储的数据类型枚举
+enum DataType 
+{
+  /// 整数
+  int, 
+  /// 小数
+  double, 
+  /// 布尔值
+  bool, 
+  /// 字符串
+  string, 
+  /// 字符串列表
+  stringList
 }

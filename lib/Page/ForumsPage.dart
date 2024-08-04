@@ -36,9 +36,9 @@ class ForumsPageState extends State<ForumsPage>
     _likeForums = List<Forum>.from(likeforums);
     
     final List<Forum> topForums = [];
-    for (int id in SettingsManager().topForums)
+    for (final String name in SettingsManager().topForums)
     {
-      int index = likeforums.indexWhere((element) => element.id == id);
+      int index = likeforums.indexWhere((element) => element.name == name);
       if (index != -1) topForums.add(likeforums[index]);
     }
     _topForums = List<Forum>.from(topForums);
@@ -54,9 +54,9 @@ class ForumsPageState extends State<ForumsPage>
     setState(() => _likeForums = List.from(forums) );
 
     final List<Forum> topForums = [];
-    for (int id in SettingsManager().topForums)
+    for (final String name in SettingsManager().topForums)
     {
-      int index = forums.indexWhere((element) => element.id == id);
+      int index = forums.indexWhere((element) => element.name == name);
       if (index != -1) topForums.add(forums[index]);
     }
     setState(() => _topForums = List<Forum>.from(topForums) );
@@ -73,8 +73,8 @@ class ForumsPageState extends State<ForumsPage>
     onLongPress: ()
     {
       !_topForums.contains(forum)
-      ? { setState(() => _topForums.add(forum) ), SettingsManager().addTopForum(forum.id) }
-      : { setState(() => _topForums.remove(forum) ), SettingsManager().removeTopForum(forum.id) };
+      ? { setState(() => _topForums.add(forum) ), SettingsManager().addTopForum(forum.name) }
+      : { setState(() => _topForums.remove(forum) ), SettingsManager().removeTopForum(forum.name) };
     },
     child: ForumGrid(forum: forum)
   );
@@ -133,7 +133,7 @@ class ForumsPageState extends State<ForumsPage>
           _setInfoText('关注的吧', Icons.forum_outlined),
           Consumer<SettingsManager>
           (
-            builder: (context, settingsManager, child) => settingsManager.showSignTip
+            builder: (context, settingsManager, child) => settingsManager.showTopTip
             ? Container
             (
               margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 24.0),
@@ -151,8 +151,7 @@ class ForumsPageState extends State<ForumsPage>
                 [
                   Text
                   (
-                    '吧头像右下角打勾表示已签到哦',
-                    textAlign: TextAlign.center,
+                    '长按置顶贴吧', textAlign: TextAlign.center,
                     style: TextStyle
                     (
                       fontSize: 12, 
@@ -223,7 +222,10 @@ class ForumsPageState extends State<ForumsPage>
       leading: IconButton
       (
         icon: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurface),
-        onPressed: () => myFlushBar(context: context, message: '长按将吧置顶', duration: 1000)
+        onPressed: () => myFlushBar
+        (
+          context: context, message: '吧头像右下角打勾表示已签到', duration: 1000
+        )
       ),
       title: InkWell
       (

@@ -5,8 +5,9 @@ import 'package:chinese_font_library/chinese_font_library.dart';
 
 import 'package:tieba_next/Core/Thread.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
+import 'package:tieba_next/Widget/NetworkImageGrid.dart';
 
-class ThreadGrid extends StatelessWidget 
+class ThreadGrid extends StatefulWidget
 {
   /// 帖子信息
   final Thread thread;
@@ -22,6 +23,12 @@ class ThreadGrid extends StatelessWidget
     }
   );
 
+  @override
+  State<ThreadGrid> createState() => _ThreadGridState();
+}
+
+class _ThreadGridState extends State<ThreadGrid> 
+{
   /// 格式化时间戳
   /// 
   /// [timestamp] 时间戳（秒）
@@ -61,6 +68,43 @@ class ThreadGrid extends StatelessWidget
     return '${now.difference(dateTime).inSeconds}秒前';
   }
 
+  Widget _buildMedia()
+  {
+    final List<Widget> list = [];
+
+    final int count = widget.thread.medias.length <= 3 ? widget.thread.medias.length : 3;
+    final double width = (MediaQuery.of(context).size.width - 24.0 - 8.0 * count) / count;
+    final double height = 200.0 - 25.0 * count;
+
+    for (int i = 0; i < count; i++)
+    {
+      if (i > 0) list.add(const SizedBox(width: 8.0));
+
+      if (widget.thread.medias[i].type == ThreadMediaType.image)
+      {
+        list.add
+        (
+          InkWell
+          (
+            // TODO: 点击放大图片
+            onTap: () {},
+            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+            child: NetworkImageGrid
+            (
+              width: width, height: height, radius: 8.0, url: widget.thread.medias[i].smallURL
+            )
+          )
+        );
+      }
+      else if (widget.thread.medias[i].type == ThreadMediaType.video)
+      {
+      }
+      else { continue; }
+    }
+
+    return Row(children: list);
+  }
+
   @override
   Widget build(BuildContext context) => Padding
   (
@@ -76,7 +120,7 @@ class ThreadGrid extends StatelessWidget
           [
             Container
             (
-              width: 32, height: 32,
+              width: 32.0, height: 32.0,
               decoration: BoxDecoration
               (
                 color: Theme.of(context).colorScheme.secondary,
@@ -88,7 +132,7 @@ class ThreadGrid extends StatelessWidget
                 child: FadeInImage.memoryNetwork
                 (
                   placeholder: kTransparentImage,
-                  image: TieBaAPI.avatar(thread.author.portrait, false),
+                  image: TieBaAPI.avatar(widget.thread.author.portrait, false),
                   fit: BoxFit.cover
                 )
               )
@@ -101,7 +145,7 @@ class ThreadGrid extends StatelessWidget
               [
                 Text
                 (
-                  thread.author.nickname,
+                  widget.thread.author.nickname,
                   style: const TextStyle
                   (
                     fontSize: 12.0, fontWeight: FontWeight.bold
@@ -109,8 +153,9 @@ class ThreadGrid extends StatelessWidget
                 ),
                 Text
                 (
-                  showCreateTime 
-                  ? formatTimestamp(thread.createTime) : formatTimestamp(thread.lastReplyTime),
+                  widget.showCreateTime 
+                  ? formatTimestamp(widget.thread.createTime) 
+                  : formatTimestamp(widget.thread.lastReplyTime),
                   style: TextStyle
                   (
                     fontSize: 10.0, color: Theme.of(context).colorScheme.onSecondary
@@ -122,12 +167,12 @@ class ThreadGrid extends StatelessWidget
         ),
         const SizedBox(height: 8.0),
         // 标题
-        if (thread.title.isNotEmpty) SizedBox
+        if (widget.thread.title.isNotEmpty) SizedBox
         (
           width: MediaQuery.of(context).size.width - 32.0,
           child: Text
           (
-            thread.title, textWidthBasis: TextWidthBasis.parent,
+            widget.thread.title, textWidthBasis: TextWidthBasis.parent,
             maxLines: 2, overflow: TextOverflow.ellipsis,
             style: const TextStyle
             (
@@ -136,16 +181,18 @@ class ThreadGrid extends StatelessWidget
           )
         ),
         // 描述
-        if (thread.description.isNotEmpty) SizedBox
+        if (widget.thread.description.isNotEmpty) SizedBox
         (
           width: MediaQuery.of(context).size.width - 32.0,
           child: Text
           (
-            thread.description, textWidthBasis: TextWidthBasis.parent,
+            widget.thread.description, textWidthBasis: TextWidthBasis.parent,
             maxLines: 4, overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 14.0).useSystemChineseFont()
           )
-        )
+        ),
+        // 媒体 图像或者视频
+        if (widget.thread.medias.isNotEmpty) ...[const SizedBox(height: 8.0), _buildMedia()],
       ]
     )
   );

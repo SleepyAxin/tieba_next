@@ -20,28 +20,29 @@ class SettingsManager extends ChangeNotifier
   /// [key] 要保存的设置名称
   /// 
   /// [value] 要保存的设置信息
-  static Future<void> _saveOne(String key, String value) async
+  /// 
+  /// [type] 要保存的数据类型
+  static Future<void> _saveOne(String key, dynamic value, DataType type) async
   {
-    try { await FileManager.saveMap(key, value); }
+    try { await FileManager.saveMap(key, value, type: type); }
     catch (error) { debugPrint('保存设置失败: $error'); }
   }
 
   /// 从文件中加载全部设置
   static Future<Settings> _load() async 
   { 
-    final Map<String, String> map = Settings().toMap();
+    final Settings settings = Settings();
 
     try 
     {
-      for (final String name in Settings.variableList)
-      {
-        String? value = await FileManager.loadMap(name);
-        if (value != null) map[name] = value;
-      }
+      settings.showTopTip = await FileManager.loadMap('showSignTip', type: DataType.bool) 
+      ?? settings.showTopTip;
+      settings.topForums = await FileManager.loadMap('topForums', type: DataType.stringList) 
+      ?? settings.topForums;
     }
     catch (error) { debugPrint('加载设置失败: $error'); }
 
-    return Settings.fromMap(map);
+    return settings;
   }
 
   /// 从文件中删除某项设置
@@ -71,38 +72,38 @@ class SettingsManager extends ChangeNotifier
     await _remove();
   }
 
-  /// 设置是否显示签到提示
-  set showSignTip(bool value)
+  /// 设置是否显示置顶提示
+  set showTopTip(bool value)
   {
-    _settings.showSignTip = value;
+    _settings.showTopTip = value;
     notifyListeners();
-    _saveOne('showSignTip', value.toString());
+    _saveOne('showTopTip', value, DataType.bool);
   }
-  /// 获取是否显示签到提示
-  bool get showSignTip => _settings.showSignTip;
+  /// 获取是否显示置顶提示
+  bool get showTopTip => _settings.showTopTip;
 
   /// 增加置顶贴吧
   /// 
-  /// [id] 要置顶的贴吧ID
-  void addTopForum(int id)
+  /// [name] 要置顶的贴吧名字
+  void addTopForum(String name)
   {
-    if (_settings.topForums.contains(id)) return;
-    _settings.topForums.add(id); 
-    _saveOne('topForums', Settings.listToString(_settings.topForums));
+    if (_settings.topForums.contains(name)) return;
+    _settings.topForums.add(name); 
+    _saveOne('topForums', _settings.topForums, DataType.stringList);
     notifyListeners();
   }
   /// 移除置顶贴吧
   /// 
-  /// [id] 要移除的贴吧ID
-  void removeTopForum(int id) 
+  /// [name] 要移除置顶的贴吧名字
+  void removeTopForum(String name) 
   {
-    if (!_settings.topForums.contains(id)) return;
-    _settings.topForums.remove(id);
+    if (!_settings.topForums.contains(name)) return;
+    _settings.topForums.remove(name);
     _settings.topForums.isNotEmpty
-    ? _saveOne('topForums', Settings.listToString(_settings.topForums))
+    ? _saveOne('topForums', _settings.topForums, DataType.stringList)
     : _removeOne('topForums');
     notifyListeners();
   }
   /// 获取用户置顶的贴吧列表
-  List<int> get topForums => _settings.topForums;
+  List<String> get topForums => _settings.topForums;
 }

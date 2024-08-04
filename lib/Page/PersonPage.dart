@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:chinese_font_library/chinese_font_library.dart';
 
 import 'package:tieba_next/CreateRoute.dart';
@@ -8,6 +7,7 @@ import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/AccountManager.dart';
 import 'package:tieba_next/Core/ThemeManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
+import 'package:tieba_next/Widget/NetworkImageGrid.dart';
 
 class PersonPage extends StatefulWidget
 {
@@ -119,24 +119,10 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
         children: 
         [
           // 用户头像
-          Container
+          NetworkImageGrid
           (
-            width: 60,
-            decoration: BoxDecoration
-            (
-              color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(12.0)
-            ),
-            child: ClipRRect
-            (
-              borderRadius: BorderRadius.circular(12.0),
-              child: FadeInImage.memoryNetwork
-              (
-                placeholder: kTransparentImage,
-                image: TieBaAPI.avatar(account.portrait, false),
-                fit: BoxFit.cover
-              )
-            )
+            width: 60.0, height: 60.0, radius: 8.0, 
+            url: TieBaAPI.avatar(account.portrait, false)
           ),
           // 用户昵称 关注 粉丝
           Expanded
@@ -199,7 +185,7 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
     decoration: BoxDecoration
     (
       color: Theme.of(context).colorScheme.secondary,
-      borderRadius: BorderRadius.circular(12.0)
+      borderRadius: BorderRadius.circular(8.0)
     ),
     child: Row
     (
