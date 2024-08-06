@@ -125,39 +125,37 @@ class PersonPageState extends State<PersonPage> with SingleTickerProviderStateMi
             url: TieBaAPI.avatar(account.portrait, false)
           ),
           // 用户昵称 关注 粉丝
-          Expanded
+          Container
           (
-            child: Container
+            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+            width: MediaQuery.of(context).size.width - 175.0,
+            child: Column
             (
-              padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-              child: Column
-              (
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: 
-                [
-                  Text
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: 
+              [
+                Text
+                (
+                  account.nickname, maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: TextStyle
                   (
-                    account.nickname, 
-                    style: TextStyle
-                    (
-                      fontSize: 20, fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface
-                    ).useSystemChineseFont()
-                  ),
-                  const SizedBox(height: 2),
-                  Text
+                    fontSize: 20.0, fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface
+                  ).useSystemChineseFont()
+                ),
+                const SizedBox(height: 2),
+                Text
+                (
+                  '关注 ${account.followNum}  粉丝 ${account.fansNum}',
+                  maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: TextStyle
                   (
-                    '关注 ${account.followNum}  '
-                    '粉丝 ${account.fansNum}',
-                    style: TextStyle
-                    (
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurface
-                    ).useSystemChineseFont()
-                  )
-                ]
-              )
-            ),
+                    fontSize: 12.0,
+                    color: Theme.of(context).colorScheme.onSurface
+                  ).useSystemChineseFont()
+                )
+              ]
+            )
           ),
           // 前往个人主页
           Row

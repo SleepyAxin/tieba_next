@@ -67,9 +67,9 @@ class _ThreadGridState extends State<ThreadGrid>
     // 同一天内
     if (now.hour != dateTime.hour) return '今天${DateFormat('HH:mm').format(dateTime)}';
     // 同一小时内
-    if (now.minute != dateTime.minute) return '${now.difference(dateTime).inMinutes}分钟前';
-    // 同一分钟内
-    return '${now.difference(dateTime).inSeconds}秒前';
+    final Duration differ = now.difference(dateTime);
+    if (differ.inSeconds < 60) return '${differ.inSeconds}秒前';
+    return '${differ.inMinutes}分钟前';
   }
 
   /// 构建媒体
@@ -127,7 +127,10 @@ class _ThreadGridState extends State<ThreadGrid>
     onVisibilityChanged: (info) 
     {
       // 显示媒体
-      if (info.visibleFraction > 0.0) setState(() => _showMedia = true);
+      if (mounted)
+      {
+        if (info.visibleFraction > 0.0) setState(() => _showMedia = true);
+      }
     },
     child: Padding
     (
@@ -157,30 +160,36 @@ class _ThreadGridState extends State<ThreadGrid>
                 )
               ),
               const SizedBox(width: 8.0),
-              Column
+              SizedBox
               (
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: 
-                [
-                  Text
-                  (
-                    widget.thread.author.nickname,
-                    style: const TextStyle
+                width: MediaQuery.of(context).size.width - 72.0,
+                child: Column
+                (
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: 
+                  [
+                    Text
                     (
-                      fontSize: 12.0, fontWeight: FontWeight.bold
-                    ).useSystemChineseFont()
-                  ),
-                  Text
-                  (
-                    widget.showCreateTime 
-                    ? formatTimestamp(widget.thread.createTime) 
-                    : formatTimestamp(widget.thread.lastReplyTime),
-                    style: TextStyle
+                      widget.thread.author.nickname, textWidthBasis: TextWidthBasis.parent,
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle
+                      (
+                        fontSize: 12.0, fontWeight: FontWeight.bold
+                      ).useSystemChineseFont()
+                    ),
+                    Text
                     (
-                      fontSize: 10.0, color: Theme.of(context).colorScheme.onSecondary
-                    ).useSystemChineseFont()
-                  )
-                ]
+                      widget.showCreateTime
+                      ? formatTimestamp(widget.thread.createTime) 
+                      : formatTimestamp(widget.thread.lastReplyTime),
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: TextStyle
+                      (
+                        fontSize: 10.0, color: Theme.of(context).colorScheme.onSecondary
+                      ).useSystemChineseFont()
+                    )
+                  ]
+                )
               )
             ]
           ),
@@ -189,14 +198,32 @@ class _ThreadGridState extends State<ThreadGrid>
           if (widget.thread.title.isNotEmpty) SizedBox
           (
             width: MediaQuery.of(context).size.width - 32.0,
-            child: Text
+            child: RichText
             (
-              widget.thread.title, textWidthBasis: TextWidthBasis.parent,
               maxLines: 2, overflow: TextOverflow.ellipsis,
-              style: const TextStyle
+              text: TextSpan
               (
-                fontSize: 14.0, fontWeight: FontWeight.w600
-              ).useSystemChineseFont()
+                children: 
+                [
+                  if (widget.thread.type == ThreadType.good) TextSpan
+                  (
+                    text: '精华  ',
+                    style: const TextStyle
+                    (
+                      fontSize: 14.0, color: Colors.blue, fontWeight: FontWeight.w600
+                    ).useSystemChineseFont()
+                  ),
+                  TextSpan
+                  (
+                    text: widget.thread.title,
+                    style: TextStyle
+                    (
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 14.0, fontWeight: FontWeight.w600
+                    ).useSystemChineseFont()
+                  )
+                ]
+              )
             )
           ),
           // 描述

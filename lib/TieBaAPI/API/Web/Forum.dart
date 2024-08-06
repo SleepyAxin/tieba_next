@@ -43,10 +43,11 @@ class Forum
   }
 
   /// 获取吧内首页的信息 置顶帖子 首页帖子 等
-  static Future<Map<String, dynamic>?> homeInfo(String kw, int st, int pn, int rn, int isGood) async
+  static Future<Map<String, dynamic>?> homeInfo
+  (String kw, int st, int pn, int rn, int isGood, int cid) async
   {
     const String url = '/mg/f/getFrsData';
-    final String params = '?kw=$kw&rn=$rn&pn=$pn&is_good=$isGood&sort_type=$st';
+    final String params = '?kw=$kw&rn=$rn&pn=$pn&is_good=$isGood&cid=$cid&sort_type=$st';
 
     try 
     {

@@ -151,9 +151,13 @@ class TieBaAPI
   /// 
   /// [pageNum] 页码
   /// 
+  /// [pageSize] 每页帖子数量
+  /// 
   /// [isGood] 是否是精华帖子
+  /// 
+  /// [goodTabIndex] 精华帖子标签索引
   static Future<Map?> forumHome
-  (String forumName, int sortType, int pageNum, bool isGood) async
+  (String forumName, int sortType, int pageNum, int pageSize, bool isGood, int goodTabIndex) async
   {
     final List<Future<Map?>> futures = [];
     final List<Map?> data = [];
@@ -161,7 +165,7 @@ class TieBaAPI
 
     try 
     {
-      futures.add(web.Forum.homeInfo(forumName, sortType, pageNum, 20, isGood ? 1 : 0));
+      futures.add(web.Forum.homeInfo(forumName, sortType, pageNum, pageSize, isGood ? 1 : 0, goodTabIndex));
       futures.add(web.Forum.mylikesDetial());
       data.addAll(await Future.wait(futures));
     }
@@ -170,6 +174,12 @@ class TieBaAPI
     if (data[0] == null || data[0]!['errno'] != 0 || data[1] == null || data[1]!['no'] != 0)
     {
       debugPrint('请求个人关注贴吧时返回为空或数据错误');
+      return null;
+    }
+
+    if (data[0]!['page'] != null && data[0]!['page']['has_more'] == 0)
+    {
+      debugPrint('全部帖子都已加载');
       return null;
     }
 
@@ -188,6 +198,13 @@ class TieBaAPI
       postNum: basic['post_num'] ?? 0,
     );
 
+    final List<String> goodTabs = [];
+
+    if (basic['good_classify'] != null)
+    {
+      for (final tab in basic['good_classify']) { goodTabs.add(tab['name']); }
+    }
+
     if (forum.isLiked)
     {
       final int index = likeForums.indexWhere((element) => element['forum_id'] == forum.id);
@@ -204,10 +221,14 @@ class TieBaAPI
     
     for (final Map threadData in threadList)
     {
+      if (threadData['is_live_ad'] != null && threadData['is_live_ad'] == 1) continue;
+      
       ThreadType threadType = ThreadType.normal;
 
-      if (threadData['thread_types'] == 1041) threadType = ThreadType.good;
-      if (threadData['is_top'] == 1) threadType = ThreadType.top;
+      if (threadData['thread_types'] == 1025 ||
+          threadData['thread_types'] == 1041) threadType = ThreadType.good;
+      
+      if (!isGood && threadData['is_top'] == 1) threadType = ThreadType.top;
 
       final List<ThreadMedia> threadMedias = [];
 
@@ -265,14 +286,19 @@ class TieBaAPI
         medias: threadMedias
       );
 
-      switch (thread.type)
+      if (isGood) { threads.add(thread); }
+      else 
       {
-        case ThreadType.normal || ThreadType.good: threads.add(thread); break;
-        case ThreadType.top: topThreads.add(thread); break;
-        default: break;
+        switch (thread.type)
+        {
+          case ThreadType.normal || ThreadType.good: threads.add(thread); break;
+          case ThreadType.top: topThreads.add(thread); break;
+          default: break;
+        }
       }
     }
 
-    return { 'forum': forum, 'threads': threads, 'topThreads': topThreads };
+    if (isGood) { return { 'forum': forum, 'threads': threads, 'goodTabs': goodTabs }; }
+    else { return { 'forum': forum, 'threads': threads, 'topThreads': topThreads }; }
   }
 }
