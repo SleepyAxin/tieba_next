@@ -381,7 +381,203 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
         )
       )
     ],
-    body: TabBarView
+    body: RefreshIndicator
+    (
+      key: _tabController.index == 0 ? _allRefreshIndicatorKey : _goodRefreshIndicatorKey,
+      onRefresh: () async => await _refreshInfo(_tabController.index == 1),
+      displacement: 0.0,
+      color: Colors.blue,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      child: TabBarView
+      (
+        controller: _tabController,
+        children: 
+        [
+          SingleChildScrollView
+          (
+            physics: const NeverScrollableScrollPhysics(),
+            child: Column
+            (
+              children: 
+              [
+                const SizedBox(height: 8.0),
+                ...List.generate
+                (
+                  _topThreads.length, 
+                  (index) => InkWell
+                  (
+                    // TODO: 点击帖子跳转
+                    onTap: () {},
+                    child: Padding
+                    (
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), 
+                      child: Row
+                      (
+                        children: 
+                        [
+                          Text
+                          (
+                            '置顶', style: const TextStyle(color: Colors.blue).useSystemChineseFont()
+                          ),
+                          const SizedBox(width: 8.0),
+                          SizedBox
+                          (
+                            width: MediaQuery.of(context).size.width - 75.0,
+                            child: Text
+                            (
+                              _topThreads[index].title, textWidthBasis: TextWidthBasis.parent,
+                              maxLines: 1, overflow: TextOverflow.ellipsis, 
+                              style: TextStyle
+                              (
+                                color: Theme.of(context).colorScheme.onSurface
+                              ).useSystemChineseFont()
+                            )
+                          )
+                        ]
+                      )
+                    )
+                  )
+                ),
+                // 分割线
+                Divider
+                (
+                  height: 1.0, thickness: 0.75, indent: 16.0, endIndent: 16.0,
+                  color: Theme.of(context).colorScheme.secondary
+                ),
+                // 看帖排序 发布 回复
+                Padding
+                (
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Row
+                  (
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: 
+                    [
+                      Text
+                      (
+                        '看帖排序', 
+                        style: TextStyle
+                        (
+                          fontSize: 12.0, color: Theme.of(context).colorScheme.onSecondary
+                        ).useSystemChineseFont()
+                      ),
+                      Row
+                      (
+                        children: List.generate
+                        (
+                          2, 
+                          (index) => GestureDetector
+                          (
+                            onTap: () { setState(() => _allSortType = index); _refreshAll(); },
+                            child: Container
+                            (
+                              padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+                              decoration: BoxDecoration
+                              (
+                                color: _allSortType == index
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.secondary,
+                                borderRadius: index == 0
+                                ? const BorderRadius.only
+                                (
+                                  topLeft: Radius.circular(4.0), bottomLeft: Radius.circular(4.0)
+                                )
+                                : const BorderRadius.only
+                                (
+                                  topRight: Radius.circular(4.0), bottomRight: Radius.circular(4.0)
+                                )
+                              ),
+                              child: Text
+                              (
+                                index == 0 ? '回复' : '发布', 
+                                style: TextStyle
+                                (
+                                  fontSize: 13.0,
+                                  color: _allSortType == index
+                                  ? Theme.of(context).colorScheme.surface
+                                  : Theme.of(context).colorScheme.onSecondary
+                                ).useSystemChineseFont()
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ]
+                  )
+                ),
+                ...List.generate
+                (
+                  _allThreads.length, 
+                  (index) => _buildThread(_allThreads[index], _allSortType == 1)
+                )
+              ]
+            )
+          ),
+          SingleChildScrollView
+          (
+            physics: const NeverScrollableScrollPhysics(),
+            child: Column
+            (
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: 
+              [
+                const SizedBox(height: 8.0),
+                Divider
+                (
+                  height: 1.0, thickness: 0.75, indent: 16.0, endIndent: 16.0,
+                  color: Theme.of(context).colorScheme.secondary
+                ),
+                SingleChildScrollView
+                (
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  scrollDirection: Axis.horizontal,
+                  child: Row
+                  (
+                    children: List.generate
+                    (
+                      _goodTabs.length,
+                      (index) => GestureDetector
+                      (
+                        onTap: () { setState(() => _goodTabIndex = index); _refreshGood(); },
+                        child: Container
+                        (
+                          padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+                          margin: index != 0 ? const EdgeInsets.only(left: 8.0) : null,
+                          decoration: BoxDecoration
+                          (
+                            color: index == _goodTabIndex
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Theme.of(context).colorScheme.secondary,
+                            borderRadius: const BorderRadius.all(Radius.circular(4.0))
+                          ),
+                          child: Text
+                          (
+                            _goodTabs[index], 
+                            style: TextStyle
+                            (
+                              fontSize: 13.0,
+                              color: index == _goodTabIndex
+                              ? Theme.of(context).colorScheme.surface
+                              : Theme.of(context).colorScheme.onSecondary
+                            ).useSystemChineseFont()
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                ...List.generate
+                (
+                  _goodThreads.length, (index) => _buildThread(_goodThreads[index], true)
+                )
+              ]
+            )
+          )
+        ]
+      )
+    )
+    /*
+    TabBarView
     (
       controller: _tabController,
       children: 
@@ -583,7 +779,7 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
           )
         )
       ]
-    )
+    )*/
   );
 
   @override
