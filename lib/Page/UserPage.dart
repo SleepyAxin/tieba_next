@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';    // 引入Material组件库
+import 'package:flutter/material.dart';
+
+import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 
 class UserPage extends StatefulWidget
 {
@@ -11,6 +13,15 @@ class UserPage extends StatefulWidget
 
 class _UserPageState extends State<UserPage>
 {
+  late Future _dataFuture;
+
+  @override
+  void initState()
+  {
+    super.initState();
+    _dataFuture = TieBaAPI.userProfile();
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold
   (
@@ -18,6 +29,13 @@ class _UserPageState extends State<UserPage>
     (
       backgroundColor: Theme.of(context).colorScheme.surface
     ),
-    backgroundColor: Theme.of(context).colorScheme.surface
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    body: FutureBuilder
+    (
+      future: _dataFuture,
+      builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
+      ? Container()
+      : const SizedBox.shrink()
+    )
   );
 }

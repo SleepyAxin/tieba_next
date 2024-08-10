@@ -123,7 +123,7 @@ class _ThreadGridState extends State<ThreadGrid>
   @override
   Widget build(BuildContext context) => VisibilityDetector
   (
-    key: Key(widget.thread.id.toString()), 
+    key: Key(widget.thread.id.toString() + DateTime.now().millisecondsSinceEpoch.toString()),
     onVisibilityChanged: (info) 
     {
       // 显示媒体

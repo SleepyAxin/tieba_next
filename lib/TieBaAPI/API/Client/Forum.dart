@@ -39,7 +39,7 @@ class Forum
       'sort_type': 1
     };
     data.addAll(DioManager.clientBaseData);
-    data['sign'] = clientSign(data);
+    data['sign'] = Util.clientSign(data);
     data['data'] = MultipartFile.fromBytes(data.toString().codeUnits, filename: 'file');
 
     try 

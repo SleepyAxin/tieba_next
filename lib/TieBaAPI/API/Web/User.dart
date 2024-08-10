@@ -12,14 +12,11 @@ class User
 
     try 
     {
-      final response = await DioManager.webDio.get(url + params);
-      if (response.statusCode == 200) return response.data;
-      return null;
+      final Response res = await DioManager.webDio.get(url + params);
+      if (res.statusCode == 200) return res.data;
+      debugPrint('获取本人详细用户信息失败: $res');
     }
-    catch (error)
-    {
-      debugPrint('获取本人详细用户信息失败: $error');
-      return null;
-    }
+    catch (error) { debugPrint('获取本人详细用户信息失败: $error'); }
+    return null;
   }
 }

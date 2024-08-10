@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
 import 'package:tieba_next/TieBaAPI/API/Web/_Web.dart' as web;
-// import 'package:tieba_next/TieBaAPI/API/Client/_Client.dart' as client;
+import 'package:tieba_next/TieBaAPI/API/Client/_Client.dart' as client;
 import 'package:tieba_next/Core/User.dart';    // 引入用户类
 import 'package:tieba_next/Core/Forum.dart';    // 引入贴吧类
 import 'package:tieba_next/Core/Thread.dart';    // 引入帖子类
@@ -56,7 +56,7 @@ class TieBaAPI
   /// 获取我的用户信息
   static Future<User?> myUserInfo() async
   {
-    Map<String, dynamic>? detailInfo = await web.User.mineDetail();
+    Map? detailInfo = await web.User.mineDetail();
 
     if (detailInfo == null || detailInfo['no'] != 0)
     {
@@ -74,6 +74,14 @@ class TieBaAPI
       fansNum: detailInfo['data']['fans_num'] ?? -1,
       likeForumNum: detailInfo['data']['like_forum_num'] ?? 0
     );
+  }
+
+  static Future<User?> userProfile() async
+  {
+    String? tbs = await _tbs;
+    if (tbs == null) return null;
+    Map? profile = await client.User.profile(tbs);
+    debugPrint('获取用户信息成功: $profile');
   }
 
   /// 获取头像地址字符串
@@ -162,6 +170,7 @@ class TieBaAPI
     final List<Future<Map?>> futures = [];
     final List<Map?> data = [];
     const String placeholderImage = 'https://via.placeholder.com/150/000000/FFFFFF/?text=';
+    bool hasMore = true;
 
     try 
     {
@@ -177,10 +186,16 @@ class TieBaAPI
       return null;
     }
 
+    if (data[0]!['data']['thread_list'] == null)
+    {
+      debugPrint('请求$forumName吧首页信息时全部帖子都已加载');
+      return null;
+    }
+
     if (data[0]!['page'] != null && data[0]!['page']['has_more'] == 0)
     {
-      debugPrint('全部帖子都已加载');
-      return null;
+      debugPrint('请求$forumName吧首页信息时全部帖子都已加载');
+      hasMore = false;
     }
 
     final Map basic = data[0]!['data']['forum'];
@@ -298,7 +313,13 @@ class TieBaAPI
       }
     }
 
-    if (isGood) { return { 'forum': forum, 'threads': threads, 'goodTabs': goodTabs }; }
-    else { return { 'forum': forum, 'threads': threads, 'topThreads': topThreads }; }
+    if (isGood) 
+    { 
+      return { 'forum': forum, 'threads': threads, 'goodTabs': goodTabs, 'hasMore': hasMore }; 
+    }
+    else 
+    { 
+      return { 'forum': forum, 'threads': threads, 'topThreads': topThreads, 'hasMore': hasMore }; 
+    }
   }
 }

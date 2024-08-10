@@ -13,15 +13,12 @@ class Forum
 
     try 
     {
-      final Response response = await DioManager.webDio.get(url + params);
-      if (response.statusCode == 200) return response.data;
-      return null;
+      final Response res = await DioManager.webDio.get(url + params);
+      if (res.statusCode == 200) return res.data;
+      debugPrint('获取本人关注贴吧列表失败: $res');
     }
-    catch (error)
-    {
-      debugPrint('获取本人关注贴吧列表失败: $error');
-      return null;
-    }
+    catch (error) { debugPrint('获取本人关注贴吧列表失败: $error'); }
+    return null;
   }
 
   /// 获取本人关注的贴吧列表详细信息，如是否签到，经验等
@@ -31,15 +28,12 @@ class Forum
 
     try 
     {
-      final Response response = await DioManager.webDio.get(url);
-      if (response.statusCode == 200) return response.data;
-      return null;
+      final Response res = await DioManager.webDio.get(url);
+      if (res.statusCode == 200) return res.data;
+      debugPrint('获取本人关注贴吧列表详细信息失败: $res');
     }
-    catch (error)
-    {
-      debugPrint('获取本人关注贴吧列表详细信息失败: $error');
-      return null;
-    }
+    catch (error) { debugPrint('获取本人关注贴吧列表详细信息失败: $error'); }
+    return null;
   }
 
   /// 获取吧内首页的信息 置顶帖子 首页帖子 等
@@ -51,14 +45,11 @@ class Forum
 
     try 
     {
-      final Response response = await DioManager.webDio.get(url + params);
-      if (response.statusCode == 200) return response.data;
-      return null;
+      final Response res = await DioManager.webDio.get(url + params);
+      if (res.statusCode == 200) return res.data;
+      debugPrint('获取$kw吧首页信息失败: $res');
     }
-    catch (error)
-    {
-      debugPrint('获取$kw吧首页信息失败: $error');
-      return null;
-    }
+    catch (error) { debugPrint('获取$kw吧首页信息失败: $error'); }
+    return null;
   }
 }

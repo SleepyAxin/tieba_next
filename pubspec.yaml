@@ -46,6 +46,7 @@ dependencies:
   chinese_font_library: ^1.2.0    # 中文字体
   video_player: ^2.9.1    # 视频播放
   visibility_detector: ^0.4.0+2    # 检测部件可见性
+  extended_nested_scroll_view: ^6.2.1    # 嵌套滚动
 
 dev_dependencies:
   flutter_test:

@@ -18,11 +18,19 @@ class DeviceManager
   /// 设备信息
   static final Map<String, String> _device = 
   {
+    'android_id': '',
     'cuid': '',
     'cuid_galaxy2': '',
+    'cuid_gid': '',
     'c3_aid': '',
     'client_logid': '',
     'client_user_token': '',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'CharSet': 'UTF-8',
+    '_client_type': '2',
+    '_client_id': '',
+    '_client_version': '12.66.1.0',
+    '_phone_imei': '000000000000000'
   };
 
   /// 生成设备信息
@@ -38,6 +46,9 @@ class DeviceManager
     // 随机生成设备信息
     switch (key)
     {
+      case 'android_id':
+        final bytes = List<String>.generate(16, (_) => hexStr[random.nextInt(hexStr.length)]);
+        return bytes.join().toLowerCase();
       // 长度为40的字符串，前32位为16进制字符，后8位为大写字母，用|分隔
       // 例如 A3ED2D7B9CFC28E8934A3FBD3A9579C7|VZ5FKB5XS
       case 'cuid' || 'cuid_galaxy2':
@@ -62,6 +73,10 @@ class DeviceManager
       case 'client_user_token':
         final bytes = List<int>.generate(10, (_) => random.nextInt(10));
         return bytes.join();
+      // 例如 wappc_1722847720099_11
+      case '_client_id':
+        final bytes = List<String>.generate(2, (_) => numStr[random.nextInt(numStr.length)]);
+        return 'wappc_${DateTime.now().millisecondsSinceEpoch}_${bytes.join()}';
       default: return '';
     }
   }

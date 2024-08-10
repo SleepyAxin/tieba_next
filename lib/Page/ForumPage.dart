@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:chinese_font_library/chinese_font_library.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
+import 'package:video_player/video_player.dart';
 
 import 'package:tieba_next/Core/Forum.dart';
 import 'package:tieba_next/Core/Thread.dart';
@@ -8,6 +10,7 @@ import 'package:tieba_next/Core/AccountManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 import 'package:tieba_next/Widget/ThreadGrid.dart';
 import 'package:tieba_next/Widget/NetworkImageGrid.dart';
+import 'package:tieba_next/Widget/KeepAliveWrapper.dart';
 
 class ForumPage extends StatefulWidget
 {
@@ -37,14 +40,20 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   int _allSortType = 1;
   /// 全部帖子当前加载的页数
   int _allPageNum = 1;
+  /// 全部帖子是否还有更多
+  bool _allHasMore = true;
   /// 精华帖子标签索引
   int _goodTabIndex = 0;
   /// 精华帖子当前加载的页数
   int _goodPageNum = 1;
+  /// 精华帖子是否还有更多
+  bool _goodHasMore = true;
   /// 是否显示吧名标题
   bool _showTitle = false;
   /// 标签页
   static const List<String> _tabs = ['全部', '精华'];
+  /// 控制滚动
+  final _scrollKey = GlobalKey<ExtendedNestedScrollViewState>();
   /// 刷新页面（全部）
   final _allRefreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   /// 刷新页面（精华）
@@ -66,6 +75,7 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
       _allThreads.addAll(result[0]['threads']);
       _topThreads.addAll(result[0]['topThreads']);
     }
+    else { _allHasMore = false; }
 
     if (result[1] != null)
     {
@@ -73,6 +83,7 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
       _goodThreads.addAll(result[1]['threads']);
       _goodTabs.addAll(result[1]['goodTabs']);
     }
+    else { _goodHasMore = false; }
   }
 
   /// 加载吧主页信息
@@ -82,15 +93,18 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   {
     if (!isGood)
     {
+      if (!_allHasMore) return;
       _allPageNum++;
       final Map? map = await TieBaAPI.forumHome(widget.forumName, _allSortType, _allPageNum, 20, false, 0);
-      if (map == null) return;
+      if (map == null) { setState(() => _allHasMore = false); return; }
       setState
       (() 
         {
           _forum = map['forum'] ?? _forum; 
+          _allHasMore = true;
           // 置为0代表按钮刷新和下滑刷新，否则下划加载
           if (_allPageNum == 1) { _allThreads.clear(); _topThreads.clear(); }
+          _allHasMore = map['hasMore'];
           _allThreads.addAll(map['threads']); 
           _topThreads.addAll(map['topThreads']);
         }
@@ -99,14 +113,15 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
     else 
     {
       _goodPageNum++;
-      final Map? map = await TieBaAPI.forumHome(widget.forumName, 0, _goodPageNum, 20, true, _goodTabIndex);
-      if (map == null) return;
+      final Map? map = await TieBaAPI.forumHome(widget.forumName, 1, _goodPageNum, 20, true, _goodTabIndex);
+      if (map == null) { setState(() => _goodHasMore = false); return; }
       setState
       (() 
         {
-          _forum = map['forum'] ?? _forum; 
+          _forum = map['forum'] ?? _forum;
           // 置为0代表按钮刷新和下滑刷新，否则下划加载
           if (_goodPageNum == 1) { _goodThreads.clear(); _goodTabs.clear(); }
+          _goodHasMore = map['hasMore'];
           _goodThreads.addAll(map['threads']);
           _goodTabs.addAll(map['goodTabs']);
         }
@@ -120,6 +135,12 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   Future<void> _refreshInfo(bool isGood) async
   {
     setState(() => isGood ? _goodPageNum = 0 : _allPageNum = 0 );
+    await _scrollKey.currentState?.outerController.animateTo
+    (
+      0.0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeIn,
+    );
     await _updateInfo(isGood);
   }
 
@@ -322,6 +343,13 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
     )
   );
 
+  /// 构建分隔条部件
+  Widget _buildDivider() => Divider
+  (
+    height: 0.75, thickness: 0.75, indent: 16.0, endIndent: 16.0,
+    color: Theme.of(context).colorScheme.secondary
+  );
+
   /// 构建帖子部件
   /// 
   /// [thread] 帖子信息
@@ -331,24 +359,20 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
   (
     children: 
     [
-      // 分割线
-      Divider
-      (
-        height: 0.75, thickness: 0.75, indent: 16.0, endIndent: 16.0,
-        color: Theme.of(context).colorScheme.secondary
-      ),
+      _buildDivider(),
       InkWell
       (
         onTap: () {},
         onLongPress: () {},
-        child: ThreadGrid(thread: thread, showForumName: false, showCreateTime: showCreateTime)
+        child: ThreadGrid(thread: thread)
       )
     ]
   );
 
   /// 构建页面数据
-  Widget _build() => NestedScrollView
+  Widget _build() => ExtendedNestedScrollView
   (
+    key: _scrollKey, onlyOneScrollInBody: true,
     headerSliverBuilder: (context, innerBoxIsScrolled) => 
     [
       SliverAppBar
@@ -381,405 +405,236 @@ class _ForumPageState extends State<ForumPage> with SingleTickerProviderStateMix
         )
       )
     ],
-    body: RefreshIndicator
-    (
-      key: _tabController.index == 0 ? _allRefreshIndicatorKey : _goodRefreshIndicatorKey,
-      onRefresh: () async => await _refreshInfo(_tabController.index == 1),
-      displacement: 0.0,
-      color: Colors.blue,
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      child: TabBarView
-      (
-        controller: _tabController,
-        children: 
-        [
-          SingleChildScrollView
-          (
-            physics: const NeverScrollableScrollPhysics(),
-            child: Column
-            (
-              children: 
-              [
-                const SizedBox(height: 8.0),
-                ...List.generate
-                (
-                  _topThreads.length, 
-                  (index) => InkWell
-                  (
-                    // TODO: 点击帖子跳转
-                    onTap: () {},
-                    child: Padding
-                    (
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), 
-                      child: Row
-                      (
-                        children: 
-                        [
-                          Text
-                          (
-                            '置顶', style: const TextStyle(color: Colors.blue).useSystemChineseFont()
-                          ),
-                          const SizedBox(width: 8.0),
-                          SizedBox
-                          (
-                            width: MediaQuery.of(context).size.width - 75.0,
-                            child: Text
-                            (
-                              _topThreads[index].title, textWidthBasis: TextWidthBasis.parent,
-                              maxLines: 1, overflow: TextOverflow.ellipsis, 
-                              style: TextStyle
-                              (
-                                color: Theme.of(context).colorScheme.onSurface
-                              ).useSystemChineseFont()
-                            )
-                          )
-                        ]
-                      )
-                    )
-                  )
-                ),
-                // 分割线
-                Divider
-                (
-                  height: 1.0, thickness: 0.75, indent: 16.0, endIndent: 16.0,
-                  color: Theme.of(context).colorScheme.secondary
-                ),
-                // 看帖排序 发布 回复
-                Padding
-                (
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  child: Row
-                  (
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: 
-                    [
-                      Text
-                      (
-                        '看帖排序', 
-                        style: TextStyle
-                        (
-                          fontSize: 12.0, color: Theme.of(context).colorScheme.onSecondary
-                        ).useSystemChineseFont()
-                      ),
-                      Row
-                      (
-                        children: List.generate
-                        (
-                          2, 
-                          (index) => GestureDetector
-                          (
-                            onTap: () { setState(() => _allSortType = index); _refreshAll(); },
-                            child: Container
-                            (
-                              padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
-                              decoration: BoxDecoration
-                              (
-                                color: _allSortType == index
-                                ? Theme.of(context).colorScheme.onSurface
-                                : Theme.of(context).colorScheme.secondary,
-                                borderRadius: index == 0
-                                ? const BorderRadius.only
-                                (
-                                  topLeft: Radius.circular(4.0), bottomLeft: Radius.circular(4.0)
-                                )
-                                : const BorderRadius.only
-                                (
-                                  topRight: Radius.circular(4.0), bottomRight: Radius.circular(4.0)
-                                )
-                              ),
-                              child: Text
-                              (
-                                index == 0 ? '回复' : '发布', 
-                                style: TextStyle
-                                (
-                                  fontSize: 13.0,
-                                  color: _allSortType == index
-                                  ? Theme.of(context).colorScheme.surface
-                                  : Theme.of(context).colorScheme.onSecondary
-                                ).useSystemChineseFont()
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ]
-                  )
-                ),
-                ...List.generate
-                (
-                  _allThreads.length, 
-                  (index) => _buildThread(_allThreads[index], _allSortType == 1)
-                )
-              ]
-            )
-          ),
-          SingleChildScrollView
-          (
-            physics: const NeverScrollableScrollPhysics(),
-            child: Column
-            (
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: 
-              [
-                const SizedBox(height: 8.0),
-                Divider
-                (
-                  height: 1.0, thickness: 0.75, indent: 16.0, endIndent: 16.0,
-                  color: Theme.of(context).colorScheme.secondary
-                ),
-                SingleChildScrollView
-                (
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  scrollDirection: Axis.horizontal,
-                  child: Row
-                  (
-                    children: List.generate
-                    (
-                      _goodTabs.length,
-                      (index) => GestureDetector
-                      (
-                        onTap: () { setState(() => _goodTabIndex = index); _refreshGood(); },
-                        child: Container
-                        (
-                          padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
-                          margin: index != 0 ? const EdgeInsets.only(left: 8.0) : null,
-                          decoration: BoxDecoration
-                          (
-                            color: index == _goodTabIndex
-                            ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.secondary,
-                            borderRadius: const BorderRadius.all(Radius.circular(4.0))
-                          ),
-                          child: Text
-                          (
-                            _goodTabs[index], 
-                            style: TextStyle
-                            (
-                              fontSize: 13.0,
-                              color: index == _goodTabIndex
-                              ? Theme.of(context).colorScheme.surface
-                              : Theme.of(context).colorScheme.onSecondary
-                            ).useSystemChineseFont()
-                          )
-                        )
-                      )
-                    )
-                  )
-                ),
-                ...List.generate
-                (
-                  _goodThreads.length, (index) => _buildThread(_goodThreads[index], true)
-                )
-              ]
-            )
-          )
-        ]
-      )
-    )
-    /*
-    TabBarView
+    body: TabBarView
     (
       controller: _tabController,
       children: 
       [
-        RefreshIndicator
+        KeepAliveWrapper
         (
-          key: _allRefreshIndicatorKey,
-          onRefresh: () async => await _refreshInfo(false),
-          displacement: 0.0,
-          color: Colors.blue,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: SingleChildScrollView
+          child: RefreshIndicator
           (
-            physics: const NeverScrollableScrollPhysics(),
-            child: Column
+            key: _allRefreshIndicatorKey,
+            onRefresh: () async => await _refreshInfo(false),
+            displacement: 0.0,
+            color: Colors.blue,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: SingleChildScrollView
             (
-              children: 
-              [
-                const SizedBox(height: 8.0),
-                ...List.generate
-                (
-                  _topThreads.length, 
-                  (index) => InkWell
+              physics: const NeverScrollableScrollPhysics(),
+              child: Column
+              (
+                children: 
+                [
+                  const SizedBox(height: 8.0),
+                  ...List.generate
                   (
-                    // TODO: 点击帖子跳转
-                    onTap: () {},
-                    child: Padding
+                    _topThreads.length,
+                    (index) => InkWell
                     (
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), 
-                      child: Row
+                      // TODO: 点击帖子跳转
+                      onTap: () {},
+                      child: Padding
                       (
-                        children: 
-                        [
-                          Text
-                          (
-                            '置顶', style: const TextStyle(color: Colors.blue).useSystemChineseFont()
-                          ),
-                          const SizedBox(width: 8.0),
-                          SizedBox
-                          (
-                            width: MediaQuery.of(context).size.width - 75.0,
-                            child: Text
-                            (
-                              _topThreads[index].title, textWidthBasis: TextWidthBasis.parent,
-                              maxLines: 1, overflow: TextOverflow.ellipsis, 
-                              style: TextStyle
-                              (
-                                color: Theme.of(context).colorScheme.onSurface
-                              ).useSystemChineseFont()
-                            )
-                          )
-                        ]
-                      )
-                    )
-                  )
-                ),
-                // 分割线
-                Divider
-                (
-                  height: 1.0, thickness: 0.75, indent: 16.0, endIndent: 16.0,
-                  color: Theme.of(context).colorScheme.secondary
-                ),
-                // 看帖排序 发布 回复
-                Padding
-                (
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  child: Row
-                  (
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: 
-                    [
-                      Text
-                      (
-                        '看帖排序', 
-                        style: TextStyle
+                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), 
+                        child: Row
                         (
-                          fontSize: 12.0, color: Theme.of(context).colorScheme.onSecondary
-                        ).useSystemChineseFont()
-                      ),
-                      Row
-                      (
-                        children: List.generate
-                        (
-                          2, 
-                          (index) => GestureDetector
-                          (
-                            onTap: () { setState(() => _allSortType = index); _refreshAll(); },
-                            child: Container
+                          children: 
+                          [
+                            Text
                             (
-                              padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
-                              decoration: BoxDecoration
-                              (
-                                color: _allSortType == index
-                                ? Theme.of(context).colorScheme.onSurface
-                                : Theme.of(context).colorScheme.secondary,
-                                borderRadius: index == 0
-                                ? const BorderRadius.only
-                                (
-                                  topLeft: Radius.circular(4.0), bottomLeft: Radius.circular(4.0)
-                                )
-                                : const BorderRadius.only
-                                (
-                                  topRight: Radius.circular(4.0), bottomRight: Radius.circular(4.0)
-                                )
-                              ),
+                              '置顶', style: const TextStyle(color: Colors.blue).useSystemChineseFont()
+                            ),
+                            const SizedBox(width: 8.0),
+                            SizedBox
+                            (
+                              width: MediaQuery.of(context).size.width - 75.0,
                               child: Text
                               (
-                                index == 0 ? '回复' : '发布', 
+                                _topThreads[index].title, textWidthBasis: TextWidthBasis.parent,
+                                maxLines: 1, overflow: TextOverflow.ellipsis, 
                                 style: TextStyle
                                 (
-                                  fontSize: 13.0,
-                                  color: _allSortType == index
-                                  ? Theme.of(context).colorScheme.surface
-                                  : Theme.of(context).colorScheme.onSecondary
+                                  color: Theme.of(context).colorScheme.onSurface
                                 ).useSystemChineseFont()
+                              )
+                            )
+                          ]
+                        )
+                      )
+                    )
+                  ),
+                  // 分割线
+                  _buildDivider(),
+                  // 看帖排序 发布 回复
+                  Padding
+                  (
+                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    child: Row
+                    (
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: 
+                      [
+                        Text
+                        (
+                          '看帖排序', 
+                          style: TextStyle
+                          (
+                            fontSize: 12.0, color: Theme.of(context).colorScheme.onSecondary
+                          ).useSystemChineseFont()
+                        ),
+                        Row
+                        (
+                          children: List.generate
+                          (
+                            2, 
+                            (index) => GestureDetector
+                            (
+                              onTap: () { setState(() => _allSortType = index); _refreshAll(); },
+                              child: Container
+                              (
+                                padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+                                decoration: BoxDecoration
+                                (
+                                  color: _allSortType == index
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(context).colorScheme.secondary,
+                                  borderRadius: index == 0
+                                  ? const BorderRadius.only
+                                  (
+                                    topLeft: Radius.circular(4.0), bottomLeft: Radius.circular(4.0)
+                                  )
+                                  : const BorderRadius.only
+                                  (
+                                    topRight: Radius.circular(4.0), bottomRight: Radius.circular(4.0)
+                                  )
+                                ),
+                                child: Text
+                                (
+                                  index == 0 ? '回复' : '发布', 
+                                  style: TextStyle
+                                  (
+                                    fontSize: 13.0,
+                                    color: _allSortType == index
+                                    ? Theme.of(context).colorScheme.surface
+                                    : Theme.of(context).colorScheme.onSecondary
+                                  ).useSystemChineseFont()
+                                )
                               )
                             )
                           )
                         )
-                      )
-                    ]
+                      ]
+                    )
+                  ),
+                  ...List.generate
+                  (
+                    _allThreads.length, 
+                    (index) => _buildThread(_allThreads[index], _allSortType == 1)
+                  ),
+                  _buildDivider(),
+                  VisibilityDetector
+                  (
+                    key: const Key('allThreads_detector'), 
+                    onVisibilityChanged: (info) 
+                    {
+                      if (info.visibleFraction > 0.5) { _updateInfo(false); }
+                    },
+                    child: Padding
+                    (
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Center(child: Text(_allHasMore ? '加载中...' : '没有更多了'))
+                    )
                   )
-                ),
-                ...List.generate
-                (
-                  _allThreads.length, 
-                  (index) => _buildThread(_allThreads[index], _allSortType == 1)
-                )
-              ]
+                ]
+              )
             )
           )
         ),
-        RefreshIndicator
+        KeepAliveWrapper
         (
-          key: _goodRefreshIndicatorKey,
-          onRefresh: () async => await _refreshInfo(true),
-          displacement: 0.0,
-          color: Colors.blue,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: SingleChildScrollView
+          child: RefreshIndicator
           (
-            physics: const NeverScrollableScrollPhysics(),
-            child: Column
+            key: _goodRefreshIndicatorKey,
+            onRefresh: () async => await _refreshInfo(true),
+            displacement: 0.0,
+            color: Colors.blue,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: SingleChildScrollView
             (
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: 
-              [
-                const SizedBox(height: 8.0),
-                Divider
-                (
-                  height: 1.0, thickness: 0.75, indent: 16.0, endIndent: 16.0,
-                  color: Theme.of(context).colorScheme.secondary
-                ),
-                SingleChildScrollView
-                (
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  scrollDirection: Axis.horizontal,
-                  child: Row
+              key: const Key('goodThreads'),
+              physics: const NeverScrollableScrollPhysics(),
+              child: Column
+              (
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: 
+                [
+                  const SizedBox(height: 8.0),
+                  _buildDivider(),
+                  SingleChildScrollView
                   (
-                    children: List.generate
+                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    scrollDirection: Axis.horizontal,
+                    child: Row
                     (
-                      _goodTabs.length,
-                      (index) => GestureDetector
+                      children: List.generate
                       (
-                        onTap: () { setState(() => _goodTabIndex = index); _refreshGood(); },
-                        child: Container
+                        _goodTabs.length,
+                        (index) => GestureDetector
                         (
-                          padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
-                          margin: index != 0 ? const EdgeInsets.only(left: 8.0) : null,
-                          decoration: BoxDecoration
+                          onTap: () { setState(() => _goodTabIndex = index); _refreshGood(); },
+                          child: Container
                           (
-                            color: index == _goodTabIndex
-                            ? Theme.of(context).colorScheme.onSurface
-                            : Theme.of(context).colorScheme.secondary,
-                            borderRadius: const BorderRadius.all(Radius.circular(4.0))
-                          ),
-                          child: Text
-                          (
-                            _goodTabs[index], 
-                            style: TextStyle
+                            padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
+                            margin: index != 0 ? const EdgeInsets.only(left: 8.0) : null,
+                            decoration: BoxDecoration
                             (
-                              fontSize: 13.0,
                               color: index == _goodTabIndex
-                              ? Theme.of(context).colorScheme.surface
-                              : Theme.of(context).colorScheme.onSecondary
-                            ).useSystemChineseFont()
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.secondary,
+                              borderRadius: const BorderRadius.all(Radius.circular(4.0))
+                            ),
+                            child: Text
+                            (
+                              _goodTabs[index], 
+                              style: TextStyle
+                              (
+                                fontSize: 13.0,
+                                color: index == _goodTabIndex
+                                ? Theme.of(context).colorScheme.surface
+                                : Theme.of(context).colorScheme.onSecondary
+                              ).useSystemChineseFont()
+                            )
                           )
                         )
                       )
                     )
+                  ),
+                  ...List.generate
+                  (
+                    _goodThreads.length, (index) => _buildThread(_goodThreads[index], true)
+                  ),
+                  _buildDivider(),
+                  VisibilityDetector
+                  (
+                    key: const Key('goodThreads_detector'), 
+                    onVisibilityChanged: (info) 
+                    {
+                      if (info.visibleFraction > 0.5) { _updateInfo(true); }
+                    },
+                    child: Padding
+                    (
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Center(child: Text(_goodHasMore ? '加载中...' : '没有更多了'))
+                    )
                   )
-                ),
-                ...List.generate
-                (
-                  _goodThreads.length, (index) => _buildThread(_goodThreads[index], true)
-                )
-              ]
+                ]
+              )
             )
           )
         )
       ]
-    )*/
+    )
   );
 
   @override
