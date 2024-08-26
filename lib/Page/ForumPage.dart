@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:chinese_font_library/chinese_font_library.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
-import 'package:video_player/video_player.dart';
 
 import 'package:tieba_next/Core/Forum.dart';
 import 'package:tieba_next/Core/Thread.dart';

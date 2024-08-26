@@ -136,5 +136,5 @@ class DeviceManager
   }
 
   /// 从本地存储移除所有设备信息
-  static Future<void> remove() async { await _remove(); }
+  static Future<void> remove() async => await _remove(); 
 }

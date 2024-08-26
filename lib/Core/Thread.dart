@@ -58,7 +58,7 @@ class ThreadMedia
   /// 媒体类型（图片或视频）
   final ThreadMediaType type;
 
-  ThreadMedia({required this.smallURL, required this.bigURL, required this.type});
+  ThreadMedia({ required this.smallURL, required this.bigURL, required this.type });
 }
 
 /// 帖子媒体类型

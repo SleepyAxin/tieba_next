@@ -6,6 +6,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import 'package:tieba_next/Core/Thread.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 import 'package:tieba_next/Widget/NetworkImageGrid.dart';
+import 'package:tieba_next/Widget/NetworkVideoGrid.dart';
 
 class ThreadGrid extends StatefulWidget
 {
@@ -85,15 +86,15 @@ class _ThreadGridState extends State<ThreadGrid>
     {
       if (i > 0) list.add(const SizedBox(width: 8.0));
 
+      // 图片
       if (widget.thread.medias[i].type == ThreadMediaType.image)
       {
         list.add
         (
           InkWell
           (
-            // TODO: 点击放大图片
+            // TODO: 点击跳转到清晰图片页
             onTap: () {},
-            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
             child: _showMedia
             ? NetworkImageGrid
             (
@@ -111,8 +112,28 @@ class _ThreadGridState extends State<ThreadGrid>
           )
         );
       }
+      // 视频
       else if (widget.thread.medias[i].type == ThreadMediaType.video)
       {
+        list.add
+        (
+          _showMedia
+          ? NetworkVideoGrid
+          (
+            width: width, height: height, radius: 8.0, 
+            coverURL: widget.thread.medias[i].smallURL,
+            videoURL: widget.thread.medias[i].bigURL
+          )
+          : Container
+          (
+            width: width, height: height,
+            decoration: BoxDecoration
+            (
+              color: Theme.of(context).colorScheme.secondary,
+              borderRadius: BorderRadius.circular(8.0)
+            )
+          )
+        );
       }
       else { continue; }
     }
@@ -144,19 +165,24 @@ class _ThreadGridState extends State<ThreadGrid>
           (
             children: 
             [
-              _showMedia
-              ? NetworkImageGrid
+              GestureDetector
               (
-                width: 32.0, height: 32.0, radius: 4.0,
-                url: TieBaAPI.avatar(widget.thread.author.portrait, false)
-              )
-              : Container
-              (
-                width: 32.0, height: 32.0,
-                decoration: BoxDecoration
+                // TODO: 点击跳转到用户主页
+                onTap: () {},
+                child: _showMedia
+                ? NetworkImageGrid
                 (
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(4.0)
+                  width: 32.0, height: 32.0, radius: 4.0,
+                  url: TieBaAPI.avatar(widget.thread.author.portrait, false)
+                )
+                : Container
+                (
+                  width: 32.0, height: 32.0,
+                  decoration: BoxDecoration
+                  (
+                    color: Theme.of(context).colorScheme.secondary,
+                    borderRadius: BorderRadius.circular(4.0)
+                  )
                 )
               ),
               const SizedBox(width: 8.0),
@@ -168,15 +194,26 @@ class _ThreadGridState extends State<ThreadGrid>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: 
                   [
-                    Text
+                    // 用户昵称
+                    // 可能包含特殊符号，因此使用富文本
+                    GestureDetector
                     (
-                      widget.thread.author.nickname, textWidthBasis: TextWidthBasis.parent,
-                      maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: const TextStyle
+                      // TODO: 点击跳转到用户主页
+                      onTap: () {},
+                      child: RichText
                       (
-                        fontSize: 12.0, fontWeight: FontWeight.bold
-                      ).useSystemChineseFont()
+                        maxLines: 1, overflow: TextOverflow.ellipsis,
+                        text: TextSpan
+                        (
+                          text: widget.thread.author.nickname,
+                          style: const TextStyle
+                          (
+                            fontSize: 12.0, fontWeight: FontWeight.bold
+                          ).useSystemChineseFont()
+                        )
+                      )
                     ),
+                    // 时间
                     Text
                     (
                       widget.showCreateTime
