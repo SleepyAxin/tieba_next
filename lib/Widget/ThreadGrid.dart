@@ -91,23 +91,18 @@ class _ThreadGridState extends State<ThreadGrid>
       {
         list.add
         (
-          InkWell
+          _showMedia
+          ? NetworkImageGrid
           (
-            // TODO: 点击跳转到清晰图片页
-            onTap: () {},
-            child: _showMedia
-            ? NetworkImageGrid
+            width: width, height: height, radius: 8.0, url: widget.thread.medias[i].smallURL
+          )
+          : Container
+          (
+            width: width, height: height,
+            decoration: BoxDecoration
             (
-              width: width, height: height, radius: 8.0, url: widget.thread.medias[i].smallURL
-            )
-            : Container
-            (
-              width: width, height: height,
-              decoration: BoxDecoration
-              (
-                color: Theme.of(context).colorScheme.secondary,
-                borderRadius: BorderRadius.circular(8.0)
-              )
+              color: Theme.of(context).colorScheme.secondary,
+              borderRadius: BorderRadius.circular(8.0)
             )
           )
         );
@@ -206,8 +201,9 @@ class _ThreadGridState extends State<ThreadGrid>
                         text: TextSpan
                         (
                           text: widget.thread.author.nickname,
-                          style: const TextStyle
+                          style: TextStyle
                           (
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 12.0, fontWeight: FontWeight.bold
                           ).useSystemChineseFont()
                         )

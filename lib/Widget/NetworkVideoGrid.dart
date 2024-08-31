@@ -67,6 +67,7 @@ class _NetworkVideoGridState extends State<NetworkVideoGrid>
     child: Stack
     (
       clipBehavior: Clip.none,    // 允许溢出部分显示
+      fit: StackFit.expand,
       children: 
       [
         _videoPlayerController.value.isInitialized
