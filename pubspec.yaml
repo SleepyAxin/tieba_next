@@ -48,6 +48,8 @@ dependencies:
   visibility_detector: ^0.4.0+2    # 检测部件可见性
   extended_nested_scroll_view: ^6.2.1    # 嵌套滚动
   chewie: ^1.8.3    # 视频播放
+  hashlib: ^1.21.1    # 哈希算法
+  flutter_guid: ^0.3.1
 
 dev_dependencies:
   flutter_test:

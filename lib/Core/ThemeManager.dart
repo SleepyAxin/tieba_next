@@ -63,7 +63,6 @@ class ThemeManager extends ChangeNotifier
       case ThemeMode.system: themeModeString = 'system'; break;
       case ThemeMode.light: themeModeString = 'light'; break;
       case ThemeMode.dark: themeModeString = 'dark'; break;
-      default: break;
     }
 
     try { await FileManager.saveMap('themeMode', themeModeString); }

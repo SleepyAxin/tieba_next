@@ -82,6 +82,7 @@ class TieBaAPI
     if (tbs == null) return null;
     Map? profile = await client.User.profile(tbs);
     debugPrint('获取用户信息成功: $profile');
+    return null;
   }
 
   /// 获取头像地址字符串
