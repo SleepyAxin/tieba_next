@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';    // 引入Material组件库
 
-import 'package:tieba_next/Core/User.dart';
+import 'package:tieba_next/Entity/User.dart';
 import 'package:tieba_next/Core/Account.dart';
-import 'package:tieba_next/Core/DataManager.dart';
-import 'package:tieba_next/Core/FileManager.dart';
+import 'package:tieba_next/Entity/DataManager.dart';
+import 'package:tieba_next/Entity/FileManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 
 /// 用户信息管理器

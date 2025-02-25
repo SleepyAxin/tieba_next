@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_guid/flutter_guid.dart';
 import 'package:tieba_next/Core/TbCrypto.dart';
-import 'package:tieba_next/Core/User.dart';
+import 'package:tieba_next/Entity/User.dart';
 import 'package:tieba_next/Core/Utils.dart';
 
 /// 账户

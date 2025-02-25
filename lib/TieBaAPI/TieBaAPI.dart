@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';    // 引入Material组件库
 
 import 'package:tieba_next/TieBaAPI/API/Web/_Web.dart' as web;
 import 'package:tieba_next/TieBaAPI/API/Client/_Client.dart' as client;
-import 'package:tieba_next/Core/User.dart';    // 引入用户类
-import 'package:tieba_next/Core/Forum.dart';    // 引入贴吧类
-import 'package:tieba_next/Core/Thread.dart';    // 引入帖子类
+import 'package:tieba_next/Entity/User.dart';    // 引入用户类
+import 'package:tieba_next/Entity/Forum.dart';    // 引入贴吧类
+import 'package:tieba_next/Entity/Thread.dart';    // 引入帖子类
 
 class TieBaAPI 
 {

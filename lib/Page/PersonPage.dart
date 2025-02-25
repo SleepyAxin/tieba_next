@@ -5,7 +5,7 @@ import 'package:chinese_font_library/chinese_font_library.dart';
 import 'package:tieba_next/CreateRoute.dart';
 import 'package:tieba_next/Core/Account.dart';
 import 'package:tieba_next/Core/AccountManager.dart';
-import 'package:tieba_next/Core/ThemeManager.dart';
+import 'package:tieba_next/Entity/ThemeManager.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 import 'package:tieba_next/Widget/NetworkImageGrid.dart';
 

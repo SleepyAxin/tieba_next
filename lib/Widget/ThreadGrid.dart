@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:chinese_font_library/chinese_font_library.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-import 'package:tieba_next/Core/Thread.dart';
+import 'package:tieba_next/Entity/Thread.dart';
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 import 'package:tieba_next/Widget/NetworkImageGrid.dart';
 import 'package:tieba_next/Widget/NetworkVideoGrid.dart';

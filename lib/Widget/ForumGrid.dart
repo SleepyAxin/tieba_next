@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:chinese_font_library/chinese_font_library.dart';
 
-import 'package:tieba_next/Core/Forum.dart';
+import 'package:tieba_next/Entity/Forum.dart';
 import 'package:tieba_next/Widget/NetworkImageGrid.dart';
 
 class ForumGrid extends StatelessWidget

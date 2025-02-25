@@ -1,4 +1,4 @@
-import 'package:tieba_next/Core/User.dart';
+import 'package:tieba_next/Entity/User.dart';
 
 /// 帖子信息
 class Thread

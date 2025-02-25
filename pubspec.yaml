@@ -49,7 +49,9 @@ dependencies:
   extended_nested_scroll_view: ^6.2.1    # 嵌套滚动
   chewie: ^1.8.3    # 视频播放
   hashlib: ^1.21.1    # 哈希算法
-  flutter_guid: ^0.3.1
+  flutter_guid: ^0.3.1    # 生成唯一标识符
+  dio_cookie_manager: ^3.2.0    # Cookie管理
+  cookie_jar: ^4.0.8    # Cookie管理
 
 dev_dependencies:
   flutter_test:

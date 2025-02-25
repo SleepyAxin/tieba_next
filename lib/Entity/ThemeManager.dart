@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tieba_next/Core/FileManager.dart';
+import 'package:tieba_next/Entity/FileManager.dart';
 
 class ThemeManager extends ChangeNotifier 
 {

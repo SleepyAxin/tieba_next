@@ -5,9 +5,9 @@ import 'package:chinese_font_library/chinese_font_library.dart';
 import 'package:tieba_next/CreateRoute.dart';
 import 'package:tieba_next/Widget/MyFlushBar.dart';
 import 'package:tieba_next/Widget/ForumGrid.dart';
-import 'package:tieba_next/Core/Forum.dart';    // 引入吧类
+import 'package:tieba_next/Entity/Forum.dart';    // 引入吧类
 import 'package:tieba_next/Core/AccountManager.dart';    // 引入用户信息管理器
-import 'package:tieba_next/Core/SettingsManager.dart';    // 引入设置管理器
+import 'package:tieba_next/Entity/SettingsManager.dart';    // 引入设置管理器
 import 'package:tieba_next/TieBaAPI/TieBaAPI.dart';
 
 class ForumsPage extends StatefulWidget
