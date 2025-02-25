@@ -52,6 +52,8 @@ dependencies:
   flutter_guid: ^0.3.1    # 生成唯一标识符
   dio_cookie_manager: ^3.2.0    # Cookie管理
   cookie_jar: ^4.0.8    # Cookie管理
+  fixnum: ^1.1.1
+  protobuf: ^3.1.0
 
 dev_dependencies:
   flutter_test:

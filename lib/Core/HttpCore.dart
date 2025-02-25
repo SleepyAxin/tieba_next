@@ -26,10 +26,10 @@ class HttpCore
   /// 对参数列表进行签名并添加sign项
   /// 
   /// [items] 为有序的键值对列表
-  static List<MapEntry<String, String>> sign(List<MapEntry<String, String>> items) 
+  static Map<String, String> sign(Map<String, String> items) 
   {
-    final List<MapEntry<String, String>> signedItems = List<MapEntry<String, String>>.from(items);
-    signedItems.add(MapEntry('sign', Signer.sign(items)));
+    final Map<String, String> signedItems = Map<String, String>.from(items);
+    signedItems.addAll({'sign': Signer.sign(items)});
     return signedItems;
   }
 
@@ -41,9 +41,9 @@ class HttpCore
   /// 构建URL编码的查询字符串（保持参数顺序）
   /// 
   /// [params] 为有序的键值对列表
-  String _buildQueryString(List<MapEntry<String, String>> params) 
+  String _buildQueryString(Map<String, String> params) 
   {
-    return params.map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}').join('&');
+    return params.entries.map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}').join('&');
   }
 
   /// 发送APP表单请求（自动签名）
@@ -51,10 +51,10 @@ class HttpCore
   /// [uri] 为请求地址
   /// 
   /// [data] 为表单数据
-  Future<Response> packAppFormRequest(Uri uri, List<MapEntry<String, String>> data) async 
+  Future<Response> packAppFormRequest(Uri uri, Map<String, String> data) async 
   {
     // 签名参数
-    final List<MapEntry<String, String>> signedData = sign(data);
+    final Map<String, String> signedData = sign(data);
     // 构建查询字符串
     final String queryString = _buildQueryString(signedData);
 
@@ -117,7 +117,7 @@ class HttpCore
   /// [uri] 为请求地址
   /// 
   /// [parameters] 为查询参数
-  Future<Response> packWebGetRequest(Uri uri, List<MapEntry<String, String>> parameters) async 
+  Future<Response> packWebGetRequest(Uri uri, Map<String, String> parameters) async 
   {
     // 构建查询字符串并直接拼接到URL
     final String queryString = _buildQueryString(parameters);
@@ -142,7 +142,7 @@ class HttpCore
   }
 
   /// 发送WEB表单请求
-  Future<Response> packWebFormRequest(Uri uri, List<MapEntry<String, String>> data) async 
+  Future<Response> packWebFormRequest(Uri uri, Map<String, String> data) async 
   {
     // 构建查询字符串
     final String queryString = _buildQueryString(data);

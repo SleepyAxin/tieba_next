@@ -309,7 +309,6 @@ class TieBaAPI
         {
           case ThreadType.normal || ThreadType.good: threads.add(thread); break;
           case ThreadType.top: topThreads.add(thread); break;
-          default: break;
         }
       }
     }
