@@ -14,6 +14,15 @@ class TbCrypto
   static final List<int> cuid3Prefix = utf8.encode("com.helios");
   static final List<String> hexUppercaseTable = "0123456789ABCDEF".split('');
 
+  /// 创建一个静态的私有实例
+  static final TbCrypto _instance = TbCrypto._internal();
+
+  /// 私有构造函数
+  TbCrypto._internal();
+
+  /// 提供一个工厂构造函数，返回唯一实例
+  factory TbCrypto() => _instance;
+
   /// 更新哈希的内部状态
   /// 
   /// [sec] 

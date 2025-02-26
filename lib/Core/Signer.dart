@@ -7,6 +7,15 @@ class Signer
   /// 定义签名后缀
   static const String _signSuffix = 'tiebaclient!!!';
 
+  /// 创建一个静态的私有实例
+  static final Signer _instance = Signer._internal();
+
+  /// 私有构造函数
+  Signer._internal();
+
+  /// 提供一个工厂构造函数，返回唯一实例
+  factory Signer() => _instance;
+
   /// 核心签名方法
   /// 
   /// [items] 为有序的键值对列表，将按顺序拼接后生成签名

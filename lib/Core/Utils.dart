@@ -5,6 +5,15 @@ import 'package:hashlib/codecs.dart';
 
 class Utils 
 {
+  /// 创建一个静态的私有实例
+  static final Utils _instance = Utils._internal();
+
+  /// 私有构造函数
+  Utils._internal();
+
+  /// 提供一个工厂构造函数，返回唯一实例
+  factory Utils() => _instance;
+
   /// 生成Android ID（8字节随机数的十六进制字符串）
   static String generateAndroidId() 
   {

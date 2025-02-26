@@ -15,4 +15,13 @@ class Const
   static final int tbcSha1Base32Size = base32Len(tbcSha1HashSize);
 
   static int base32Len(int len) => ((len / 5) * 8 + ((len % 5 != 0) ? 8 : 0)).toInt();
+
+  /// 创建一个静态的私有实例
+  static final Const _instance = Const._internal();
+
+  /// 私有构造函数
+  Const._internal();
+
+  /// 提供一个工厂构造函数，返回唯一实例
+  factory Const() => _instance;
 }

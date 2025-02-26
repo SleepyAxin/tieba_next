@@ -5,11 +5,11 @@ import 'package:tieba_next/Core/Const.dart';
 import 'package:tieba_next/Core/HttpCore.dart';
 import 'package:tieba_next/Exception/TieBaServerException.dart';
 
-class GetFid 
+class GetForumID 
 {
-  final HttpCore httpCore;
+  final HttpCore _httpCore;
 
-  GetFid(this.httpCore);
+  GetForumID(this._httpCore);
 
   /// 处理响应体
   /// 
@@ -17,11 +17,11 @@ class GetFid
   static int _parseBody(String body) 
   {
     final Map<String, dynamic> json = jsonDecode(body) as Map<String, dynamic>;
-    final int? errorCode = json['no'] as int?;
+    final int? code = json['no'] as int?;
     
-    if (errorCode != null && errorCode != 0) 
+    if (code != null && code != 0) 
     {
-      throw TieBaServerException(errorCode, json['error']?.toString() ?? '');
+      throw TieBaServerException(code, json['error']?.toString() ?? '');
     }
 
     final int fid = (json['data'] as Map<String, dynamic>)['fid'] as int;
@@ -36,13 +36,13 @@ class GetFid
 
   /// 获取吧ID
   /// 
-  /// * [fname] 吧名
-  Future<int> request(String fname) async 
+  /// * [forumName] 吧名
+  Future<int> request(String forumName) async 
   {
-    final Map<String, String> data = { 'fname': fname, 'ie': 'utf-8'};
+    final Map<String, String> data = { 'fname': forumName, 'ie': 'utf-8'};
     final Uri uri = Uri.http(Const.webBaseHost, '/f/commit/share/fnameShareApi');
 
-    final Response<dynamic> response = await httpCore.packWebGetRequest(uri, data);
+    final Response response = await _httpCore.packWebGetRequest(uri, data);
 
     return _parseBody(response.data.toString());
   }

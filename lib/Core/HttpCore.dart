@@ -8,20 +8,26 @@ import 'package:tieba_next/Core/Const.dart';
 class HttpCore 
 {
   /// 当前账号
-  Account? account;
+  static Account? account;
   /// Dio实例
-  late Dio dio;
+  static late Dio _dio;
+  /// 创建一个静态的私有实例
+  static final HttpCore _instance = HttpCore._internal();
 
-  HttpCore() 
+  /// 私有构造函数
+  HttpCore._internal() 
   {
     const Duration d = Duration(seconds: 30);
     
     // 初始化Dio实例，配置基础选项和拦截器
-    dio = Dio(BaseOptions(connectTimeout: d, receiveTimeout: d, sendTimeout: d));
+    _dio = Dio(BaseOptions(connectTimeout: d, receiveTimeout: d, sendTimeout: d));
 
     // 添加Cookie管理拦截器（内存存储）
-    dio.interceptors.add(CookieManager(CookieJar()));
+    _dio.interceptors.add(CookieManager(CookieJar()));
   }
+
+  /// 提供一个工厂构造函数，返回唯一实例
+  factory HttpCore() => _instance;
 
   /// 对参数列表进行签名并添加sign项
   /// 
@@ -32,11 +38,6 @@ class HttpCore
     signedItems.addAll({'sign': Signer.sign(items)});
     return signedItems;
   }
-
-  /// 设置当前账号
-  /// 
-  /// [newAccount] 为新的账号实例
-  void setAccount(Account newAccount) => account = newAccount; 
 
   /// 构建URL编码的查询字符串（保持参数顺序）
   /// 
@@ -67,7 +68,7 @@ class HttpCore
     };
 
     // 发送POST请求
-    return dio.post
+    return _dio.post
     (
       uri.toString(),
       data: queryString,
@@ -104,7 +105,7 @@ class HttpCore
     };
 
     // 发送POST请求
-    return dio.post
+    return _dio.post
     (
       uri.toString(),
       data: formData,
@@ -134,7 +135,7 @@ class HttpCore
     };
 
     // 发送GET请求
-    return dio.get
+    return _dio.get
     (
       urlWithQuery,
       options: Options(headers: headers),
@@ -148,7 +149,7 @@ class HttpCore
     final String queryString = _buildQueryString(data);
 
     // 发送POST请求
-    return dio.post
+    return _dio.post
     (
       uri.toString(),
       data: queryString,
